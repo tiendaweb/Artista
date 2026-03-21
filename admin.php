@@ -169,23 +169,13 @@ $content = read_content_file();
             flex-direction: column;
             gap: 1.25rem;
         }
-        .metric-tile {
-            position: relative;
-            overflow: hidden;
-        }
-        .metric-tile::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(34, 211, 238, 0.08), transparent 62%);
-            pointer-events: none;
-        }
         .admin-tab {
             width: 100%;
             display: flex;
             align-items: center;
             gap: .85rem;
-            padding: .9rem 1rem;
+            padding: 1rem 1rem;
+            min-height: 4rem;
             border-radius: 1rem;
             border: 1px solid transparent;
             background: transparent;
@@ -215,23 +205,6 @@ $content = read_content_file();
             background: rgba(255,255,255,0.05);
             color: rgba(226, 232, 240, 0.78);
             flex-shrink: 0;
-        }
-        .tab-pill {
-            border: 1px solid rgba(255,255,255,0.08);
-            background: rgba(255,255,255,0.04);
-            color: rgba(226,232,240,0.78);
-            border-radius: 999px;
-            padding: .65rem 1rem;
-            font-size: .78rem;
-            font-weight: 600;
-            transition: all .2s ease;
-            white-space: nowrap;
-        }
-        .tab-pill.active {
-            background: rgba(255,255,255,0.12);
-            color: #fff;
-            border-color: rgba(34, 211, 238, 0.32);
-            box-shadow: inset 0 0 18px rgba(0,0,0,0.18);
         }
         .admin-panel { display:none; }
         .admin-panel.active { display:block; animation: fadeIn .35s ease; }
@@ -433,41 +406,26 @@ $content = read_content_file();
                     <div class="space-y-1.5">
                         <button type="button" class="admin-tab active" data-admin-tab-control="general">
                             <span class="tab-icon"><i class="ph ph-squares-four text-lg"></i></span>
-                            <span class="min-w-0 flex-1">
-                                <span class="block font-medium text-sm">General</span>
-                                <span class="block text-xs text-slate-400">Sitio, academia, contacto y fondos</span>
-                            </span>
+                            <span class="min-w-0 flex-1 font-medium text-sm">General</span>
                         </button>
                         <button type="button" class="admin-tab" data-admin-tab-control="galeria">
                             <span class="tab-icon"><i class="ph ph-images text-lg"></i></span>
-                            <span class="min-w-0 flex-1">
-                                <span class="block font-medium text-sm">Galería</span>
-                                <span class="block text-xs text-slate-400">Cabecera y CRUD de obras</span>
-                            </span>
+                            <span class="min-w-0 flex-1 font-medium text-sm">Galería</span>
                         </button>
                         <button type="button" class="admin-tab" data-admin-tab-control="market">
                             <span class="tab-icon"><i class="ph ph-shopping-bag-open text-lg"></i></span>
-                            <span class="min-w-0 flex-1">
-                                <span class="block font-medium text-sm">Market</span>
-                                <span class="block text-xs text-slate-400">Tienda y artistas destacados</span>
-                            </span>
+                            <span class="min-w-0 flex-1 font-medium text-sm">Market</span>
                         </button>
                     </div>
                     <div class="nav-group-title">Sistema</div>
                     <div class="space-y-1.5">
                         <button type="button" class="admin-tab" data-admin-tab-control="media">
                             <span class="tab-icon"><i class="ph ph-images-square text-lg"></i></span>
-                            <span class="min-w-0 flex-1">
-                                <span class="block font-medium text-sm">Media manager</span>
-                                <span class="block text-xs text-slate-400">Subidas, biblioteca y asignación</span>
-                            </span>
+                            <span class="min-w-0 flex-1 font-medium text-sm">Media manager</span>
                         </button>
                         <button type="button" class="admin-tab" data-admin-tab-control="seo">
                             <span class="tab-icon"><i class="ph ph-magnifying-glass text-lg"></i></span>
-                            <span class="min-w-0 flex-1">
-                                <span class="block font-medium text-sm">SEO</span>
-                                <span class="block text-xs text-slate-400">Meta tags e imagen social</span>
-                            </span>
+                            <span class="min-w-0 flex-1 font-medium text-sm">SEO</span>
                         </button>
                     </div>
                 </nav>
@@ -492,48 +450,13 @@ $content = read_content_file();
                                 </button>
                                 <div>
                                     <h2 id="activeTabTitle" class="text-2xl md:text-3xl font-bold tracking-tight text-white">General</h2>
-                                    <p id="activeTabDescription" class="text-sm text-slate-400 mt-1">Gestiona el sitio, academia, contacto, fondos e imágenes globales.</p>
                                 </div>
                             </div>
-                            <div class="flex flex-wrap gap-3">
-                                <span class="os-chip"><span class="inline-block w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>Sistema online</span>
-                                <span class="os-chip"><i class="ph ph-sparkle text-cyan-300"></i>Template visual aplicado</span>
-                            </div>
-                        </div>
-                        <div class="flex gap-2 overflow-x-auto pb-1" id="adminTabPills">
-                            <button type="button" class="tab-pill active" data-admin-tab-control="general">General</button>
-                            <button type="button" class="tab-pill" data-admin-tab-control="galeria">Galería</button>
-                            <button type="button" class="tab-pill" data-admin-tab-control="market">Market</button>
-                            <button type="button" class="tab-pill" data-admin-tab-control="media">Media manager</button>
-                            <button type="button" class="tab-pill" data-admin-tab-control="seo">SEO</button>
                         </div>
                     </div>
                 </header>
 
                 <div class="dashboard-content">
-                    <section class="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
-                        <article class="glass-card metric-tile rounded-[1.5rem] p-5">
-                            <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.28em]">Sitio</p>
-                            <p class="mt-3 text-xl font-semibold text-white">Contenido en vivo</p>
-                            <p class="mt-2 text-sm text-slate-400">Todos los cambios se guardan sobre la misma estructura actual.</p>
-                        </article>
-                        <article class="glass-card metric-tile rounded-[1.5rem] p-5">
-                            <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.28em]">Galería</p>
-                            <p class="mt-3 text-xl font-semibold text-white"><?= count($content['tabs']['obras']['items'] ?? []) ?> obras</p>
-                            <p class="mt-2 text-sm text-slate-400">Administra piezas, imágenes y enlaces desde un solo lugar.</p>
-                        </article>
-                        <article class="glass-card metric-tile rounded-[1.5rem] p-5">
-                            <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.28em]">Market</p>
-                            <p class="mt-3 text-xl font-semibold text-white"><?= count($content['tabs']['mercado']['items'] ?? []) ?> items</p>
-                            <p class="mt-2 text-sm text-slate-400">Mantén sincronizada la tienda sin tocar funciones existentes.</p>
-                        </article>
-                        <article class="glass-card metric-tile rounded-[1.5rem] p-5">
-                            <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.28em]">Media</p>
-                            <p class="mt-3 text-xl font-semibold text-white">Biblioteca central</p>
-                            <p class="mt-2 text-sm text-slate-400">Sube, reutiliza y asigna imágenes a cada módulo.</p>
-                        </article>
-                    </section>
-
                     <div id="adminAlert" class="hidden rounded-xl p-4 text-sm"></div>
 
             <section id="panel-general" class="admin-panel active glass rounded-[2rem] p-5 md:p-8 space-y-6">
@@ -1523,23 +1446,18 @@ function openSidebar() {
 const adminTabMeta = {
     general: {
         title: 'General',
-        description: 'Gestiona el sitio, academia, contacto, fondos e imágenes globales.',
     },
     galeria: {
         title: 'Galería',
-        description: 'Ordena la cabecera y el CRUD de obras sin cambiar la lógica actual.',
     },
     market: {
         title: 'Market',
-        description: 'Edita títulos, descripción e items destacados para venta asistida.',
     },
     media: {
         title: 'Media manager',
-        description: 'Sube archivos, reutiliza imágenes y asígnalas a cualquier campo.',
     },
     seo: {
         title: 'SEO',
-        description: 'Configura metadata, keywords e imagen social del sitio.',
     },
 };
 
@@ -1556,7 +1474,6 @@ function activateAdminTab(tabName, options = {}) {
 
     const meta = adminTabMeta[tabName];
     document.getElementById('activeTabTitle').textContent = meta.title;
-    document.getElementById('activeTabDescription').textContent = meta.description;
 
     if (pushHash) {
         history.replaceState(null, '', `#${tabName}`);
