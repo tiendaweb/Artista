@@ -236,10 +236,6 @@ foreach (['instagram' => 'Instagram', 'facebook' => 'Facebook', 'tiktok' => 'Tik
                 </div>
             <?php endif; ?>
             <div id="marketCollection" class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 pt-8">
-                <div class="p-8 border border-white/5 rounded-3xl bg-white/5 flex flex-col items-center justify-center hover:bg-art-neon/10 transition">
-                    <span class="text-4xl mb-4" data-edit-key="tabs.mercado.cta_symbol" data-edit-type="text"><?= esc($content['tabs']['mercado']['cta_symbol'] ?? '+') ?></span>
-                    <p class="text-xs font-bold tracking-widest uppercase" data-edit-key="tabs.mercado.cta_label" data-edit-type="text"><?= esc($content['tabs']['mercado']['cta_label'] ?? '') ?></p>
-                </div>
                 <?php foreach ($marketItems as $i => $item): ?>
                     <?php
                         $marketTitle = trim((string) ($item['title'] ?? 'esta obra'));
