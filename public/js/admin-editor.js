@@ -1,9 +1,8 @@
 function showTab(tabId) {
     document.querySelectorAll('.tab-content').forEach((el) => el.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach((el) => el.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
-    const nav = document.querySelector(`[data-tab="${tabId}"]`);
-    if (nav) nav.classList.add('active');
+    document.getElementById(tabId)?.classList.add('active');
+    document.querySelector(`[data-tab="${tabId}"]`)?.classList.add('active');
 }
 
 const layers = document.querySelectorAll('.bg-layer');
@@ -20,9 +19,28 @@ const isAuthenticated = window.APP_IS_AUTHENTICATED === true;
 const contentState = window.APP_CONTENT_STATE || {};
 let editMode = false;
 let currentImageKey = '';
+let currentLinkKey = '';
 let imageMode = 'url';
 let libraryLoading = false;
 let selectedLibraryUrl = '';
+
+function pathSegments(key) {
+    return key.replace(/\[(\d+)\]/g, '.$1').split('.');
+}
+
+function getByPath(obj, key, fallback = '') {
+    return pathSegments(key).reduce((acc, segment) => (acc && acc[segment] !== undefined ? acc[segment] : undefined), obj) ?? fallback;
+}
+
+function setByPath(obj, key, value) {
+    const segs = pathSegments(key);
+    let cur = obj;
+    for (let i = 0; i < segs.length - 1; i += 1) {
+        if (cur[segs[i]] === undefined) cur[segs[i]] = /^\d+$/.test(segs[i + 1]) ? [] : {};
+        cur = cur[segs[i]];
+    }
+    cur[segs[segs.length - 1]] = value;
+}
 
 function normalizeImageUrl(url) {
     if (!url) return '';
@@ -32,6 +50,31 @@ function normalizeImageUrl(url) {
     } catch (_) {
         return url;
     }
+}
+
+function fieldMessage(key, msg, ok) {
+    const target = document.querySelector(`[data-message-for="${key}"]`);
+    if (!target) return;
+    target.textContent = msg;
+    target.className = `field-message ${ok ? 'ok' : 'error'}`;
+}
+
+async function persistContent(changedKeys = []) {
+    const response = await fetch(window.ADMIN_EDITOR_ENDPOINTS.saveContent, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(contentState),
+    });
+    const result = await response.json();
+    if (!response.ok || !result.ok) {
+        changedKeys.forEach((k) => fieldMessage(k, result.error || 'Error al guardar', false));
+        throw new Error(result.error || 'Error de guardado');
+    }
+    if (result.content) {
+        Object.keys(contentState).forEach((key) => delete contentState[key]);
+        Object.assign(contentState, result.content);
+    }
+    changedKeys.forEach((k) => fieldMessage(k, 'Guardado', true));
 }
 
 function renderLibrary(images = [], selectedUrl = '') {
@@ -58,9 +101,7 @@ function renderLibrary(images = [], selectedUrl = '') {
         button.appendChild(name);
         button.addEventListener('click', () => {
             selectedLibraryUrl = image.url;
-            grid.querySelectorAll('[data-url]').forEach((candidate) => {
-                candidate.classList.remove('ring-2', 'ring-art-neon');
-            });
+            grid.querySelectorAll('[data-url]').forEach((candidate) => candidate.classList.remove('ring-2', 'ring-art-neon'));
             button.classList.add('ring-2', 'ring-art-neon');
         });
 
@@ -88,13 +129,8 @@ async function loadImageLibrary(currentSrc = '') {
         }
 
         renderLibrary(result.images, currentSrc);
-        if (result.images.length === 0) {
-            status.textContent = 'No hay imágenes subidas todavía.';
-            status.className = 'text-xs text-yellow-300';
-        } else {
-            status.textContent = 'Selecciona una imagen de la biblioteca.';
-            status.className = 'text-xs text-white/70';
-        }
+        status.textContent = result.images.length === 0 ? 'No hay imágenes subidas todavía.' : 'Selecciona una imagen de la biblioteca.';
+        status.className = result.images.length === 0 ? 'text-xs text-yellow-300' : 'text-xs text-white/70';
     } catch (error) {
         status.textContent = error.message || 'Error cargando la biblioteca.';
         status.className = 'text-xs text-red-400';
@@ -104,32 +140,8 @@ async function loadImageLibrary(currentSrc = '') {
     }
 }
 
-async function applyLibrarySelection() {
-    const feedback = document.getElementById('modalFeedback');
-    const imageEl = document.querySelector(`[data-edit-key="${currentImageKey}"][data-edit-type="image"]`);
-    if (!imageEl) return;
-    if (!selectedLibraryUrl) {
-        feedback.textContent = 'Selecciona una imagen de la biblioteca.';
-        feedback.className = 'text-xs text-red-400';
-        return;
-    }
-
-    imageEl.src = selectedLibraryUrl;
-    setByPath(contentState, currentImageKey, { source_type: 'upload', value: selectedLibraryUrl });
-    imageEl.dataset.sourceType = 'upload';
-
-    try {
-        await persistContent([currentImageKey]);
-        feedback.textContent = 'Imagen actualizada desde biblioteca.';
-        feedback.className = 'text-xs text-green-400';
-    } catch (e) {
-        feedback.textContent = e.message;
-        feedback.className = 'text-xs text-red-400';
-    }
-}
-
 function switchImageMode(mode) {
-    imageMode = mode === 'upload' || mode === 'library' ? mode : 'url';
+    imageMode = ['upload', 'library'].includes(mode) ? mode : 'url';
     document.getElementById('urlPane').classList.toggle('hidden', imageMode !== 'url');
     document.getElementById('uploadPane').classList.toggle('hidden', imageMode !== 'upload');
     document.getElementById('libraryPane').classList.toggle('hidden', imageMode !== 'library');
@@ -139,80 +151,73 @@ function switchImageMode(mode) {
     });
 }
 
-function pathSegments(key) {
-    return key.replace(/\[(\d+)\]/g, '.$1').split('.');
+function createEmptyCollectionItem(collectionKey) {
+    return {
+        image: { source_type: 'url', value: '', alt: '' },
+        alt: '',
+        title: collectionKey === 'tabs.mercado.items' ? 'Nuevo artista' : 'Nueva obra',
+        subtitle: '',
+        description: '',
+        link_label: 'Ver más',
+        link_url: 'https://',
+    };
 }
 
-function setByPath(obj, key, value) {
-    const segs = pathSegments(key);
-    let cur = obj;
-    for (let i = 0; i < segs.length - 1; i += 1) {
-        if (cur[segs[i]] === undefined) cur[segs[i]] = {};
-        cur = cur[segs[i]];
+function renderCollectionItem(item, index, collectionKey) {
+    const isMarket = collectionKey === 'tabs.mercado.items';
+    const titleKey = `${collectionKey}[${index}].title`;
+    const subtitleKey = `${collectionKey}[${index}].subtitle`;
+    const descriptionKey = `${collectionKey}[${index}].description`;
+    const imageKey = `${collectionKey}[${index}].image`;
+    const linkLabelKey = `${collectionKey}[${index}].link_label`;
+    const linkUrlKey = `${collectionKey}[${index}].link_url`;
+    const imageSrc = item.image?.value || '';
+    const sourceType = item.image?.source_type || 'url';
+    const deleteButton = isAuthenticated
+        ? `<button type="button" class="delete-icon" data-delete-collection="${collectionKey}" data-index="${index}">✕</button>`
+        : '';
+
+    if (isMarket) {
+        return `
+            <article class="glass p-4 rounded-2xl editable-wrapper" data-collection-item="${collectionKey}" data-index="${index}">
+                ${deleteButton}
+                <div class="aspect-square bg-gray-800 rounded-xl mb-4 overflow-hidden">
+                    <img src="${imageSrc}" data-edit-key="${imageKey}" data-edit-type="image" data-source-type="${sourceType}" class="w-full h-full object-cover" alt="${item.alt || ''}">
+                </div>
+                <span class="edit-icon" data-edit-target="${imageKey}">✎</span>
+                <p class="text-sm font-bold" data-edit-key="${titleKey}" data-edit-type="text">${item.title || ''}</p>
+                <p class="text-[10px] text-art-neon uppercase tracking-[0.2em] mb-3" data-edit-key="${subtitleKey}" data-edit-type="text">${item.subtitle || ''}</p>
+                <p class="text-sm opacity-60 mb-4" data-edit-key="${descriptionKey}" data-edit-type="text">${item.description || ''}</p>
+                <a href="${item.link_url || '#'}" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 text-sm text-art-neon" data-edit-link-key="${linkUrlKey}">
+                    <span data-edit-key="${linkLabelKey}" data-edit-type="text">${item.link_label || 'Ver más'}</span>
+                </a>
+                <span class="edit-icon" data-edit-link-target="${linkUrlKey}">🔗</span>
+            </article>
+        `;
     }
-    cur[segs[segs.length - 1]] = value;
+
+    return `
+        <article class="glass glass-hover p-4 rounded-3xl break-inside-avoid editable-wrapper" data-collection-item="${collectionKey}" data-index="${index}">
+            ${deleteButton}
+            <img src="${imageSrc}" data-edit-key="${imageKey}" data-edit-type="image" data-source-type="${sourceType}" class="rounded-2xl w-full mb-4" alt="${item.alt || ''}">
+            <span class="edit-icon" data-edit-target="${imageKey}">✎</span>
+            <h3 class="font-serif text-xl" data-edit-key="${titleKey}" data-edit-type="text">${item.title || ''}</h3>
+            <p class="text-xs text-art-neon mb-2" data-edit-key="${subtitleKey}" data-edit-type="text">${item.subtitle || ''}</p>
+            <p class="text-sm opacity-60 mb-4" data-edit-key="${descriptionKey}" data-edit-type="text">${item.description || ''}</p>
+            <a href="${item.link_url || '#'}" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 text-sm text-art-neon" data-edit-link-key="${linkUrlKey}">
+                <span data-edit-key="${linkLabelKey}" data-edit-type="text">${item.link_label || 'Ver más'}</span>
+            </a>
+            <span class="edit-icon" data-edit-link-target="${linkUrlKey}">🔗</span>
+            <span class="field-message" data-message-for="${titleKey}"></span>
+        </article>
+    `;
 }
 
-function fieldMessage(key, msg, ok) {
-    const target = document.querySelector(`[data-message-for="${key}"]`);
-    if (!target) return;
-    target.textContent = msg;
-    target.className = `field-message ${ok ? 'ok' : 'error'}`;
-}
+function bindEditInteractions() {
+    if (!isAuthenticated) return;
 
-async function persistContent(changedKeys = []) {
-    const response = await fetch(window.ADMIN_EDITOR_ENDPOINTS.saveContent, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(contentState),
-    });
-    const result = await response.json();
-    if (!response.ok || !result.ok) {
-        changedKeys.forEach((k) => fieldMessage(k, result.error || 'Error al guardar', false));
-        throw new Error(result.error || 'Error de guardado');
-    }
-    changedKeys.forEach((k) => fieldMessage(k, 'Guardado', true));
-}
-
-if (isAuthenticated) {
-    const toggleBtn = document.getElementById('toggleEditBtn');
-    const saveBtn = document.getElementById('saveContentBtn');
-    const editableText = Array.from(document.querySelectorAll('[data-edit-type="text"]'));
-
-    toggleBtn.addEventListener('click', () => {
-        editMode = !editMode;
-        document.body.classList.toggle('edit-mode', editMode);
-        saveBtn.classList.toggle('hidden', !editMode);
-        toggleBtn.textContent = editMode ? '✅ Modo edición activo' : '✏️ Editar';
-        editableText.forEach((el) => {
-            el.contentEditable = editMode ? 'true' : 'false';
-        });
-    });
-
-    saveBtn.addEventListener('click', async () => {
-        const changed = [];
-        let hasError = false;
-        editableText.forEach((el) => {
-            const key = el.dataset.editKey;
-            const value = (el.textContent || '').trim();
-            if (!value) {
-                fieldMessage(key, 'Este campo no puede quedar vacío.', false);
-                hasError = true;
-                return;
-            }
-            setByPath(contentState, key, value);
-            changed.push(key);
-        });
-        if (hasError) return;
-        try {
-            await persistContent(changed);
-        } catch (_) {
-            // handled with field messages
-        }
-    });
-
-    document.querySelectorAll('.edit-icon').forEach((btn) => {
-        btn.addEventListener('click', () => {
+    document.querySelectorAll('.edit-icon[data-edit-target]').forEach((btn) => {
+        btn.onclick = () => {
             const key = btn.dataset.editTarget;
             const imageEl = document.querySelector(`[data-edit-key="${key}"][data-edit-type="image"]`);
             if (!imageEl) {
@@ -228,12 +233,119 @@ if (isAuthenticated) {
             selectedLibraryUrl = '';
             switchImageMode(imageEl.dataset.sourceType || 'url');
             document.getElementById('modalFeedback').textContent = '';
-
             if (imageEl.dataset.sourceType === 'upload') {
                 switchImageMode('library');
                 loadImageLibrary(imageEl.getAttribute('src') || '');
             }
+        };
+    });
+
+    document.querySelectorAll('.edit-icon[data-edit-link-target]').forEach((btn) => {
+        btn.onclick = () => {
+            currentLinkKey = btn.dataset.editLinkTarget;
+            document.getElementById('linkModal').classList.remove('hidden');
+            document.getElementById('linkModal').classList.add('flex');
+            document.getElementById('linkUrlInput').value = getByPath(contentState, currentLinkKey, '');
+            document.getElementById('linkFeedback').textContent = '';
+        };
+    });
+
+    document.querySelectorAll('[data-delete-collection]').forEach((button) => {
+        button.onclick = async () => {
+            const collectionKey = button.dataset.deleteCollection;
+            const index = Number(button.dataset.index);
+            const items = getByPath(contentState, collectionKey, []);
+            if (!Array.isArray(items)) return;
+            items.splice(index, 1);
+            setByPath(contentState, collectionKey, items);
+            renderCollections();
+            try {
+                await persistContent([collectionKey]);
+            } catch (error) {
+                alert(error.message);
+            }
+        };
+    });
+
+    document.querySelectorAll('[data-add-collection]').forEach((button) => {
+        button.onclick = async () => {
+            const collectionKey = button.dataset.addCollection;
+            const items = getByPath(contentState, collectionKey, []);
+            items.push(createEmptyCollectionItem(collectionKey));
+            setByPath(contentState, collectionKey, items);
+            renderCollections();
+            try {
+                await persistContent([collectionKey]);
+            } catch (error) {
+                alert(error.message);
+            }
+        };
+    });
+
+    document.querySelectorAll('[data-edit-type="text"]').forEach((el) => {
+        el.contentEditable = editMode ? 'true' : 'false';
+    });
+}
+
+function renderCollections() {
+    const gallery = getByPath(contentState, 'tabs.obras.items', []);
+    const market = getByPath(contentState, 'tabs.mercado.items', []);
+
+    const galleryContainer = document.getElementById('galleryCollection');
+    if (galleryContainer) {
+        galleryContainer.innerHTML = gallery.map((item, index) => renderCollectionItem(item, index, 'tabs.obras.items')).join('');
+    }
+
+    const marketContainer = document.getElementById('marketCollection');
+    if (marketContainer) {
+        const marketCards = market.map((item, index) => renderCollectionItem(item, index, 'tabs.mercado.items')).join('');
+        marketContainer.innerHTML = `
+            <div class="p-8 border border-white/5 rounded-3xl bg-white/5 flex flex-col items-center justify-center hover:bg-art-neon/10 transition">
+                <span class="text-4xl mb-4" data-edit-key="tabs.mercado.cta_symbol" data-edit-type="text">${getByPath(contentState, 'tabs.mercado.cta_symbol', '+')}</span>
+                <p class="text-xs font-bold tracking-widest uppercase" data-edit-key="tabs.mercado.cta_label" data-edit-type="text">${getByPath(contentState, 'tabs.mercado.cta_label', 'Postular Obra')}</p>
+            </div>
+            ${marketCards}
+        `;
+    }
+
+    bindEditInteractions();
+}
+
+if (isAuthenticated) {
+    const toggleBtn = document.getElementById('toggleEditBtn');
+    const saveBtn = document.getElementById('saveContentBtn');
+    renderCollections();
+
+    toggleBtn.addEventListener('click', () => {
+        editMode = !editMode;
+        document.body.classList.toggle('edit-mode', editMode);
+        saveBtn.classList.toggle('hidden', !editMode);
+        toggleBtn.textContent = editMode ? '✅ Modo edición activo' : '✏️ Editar';
+        document.querySelectorAll('[data-edit-type="text"]').forEach((el) => {
+            el.contentEditable = editMode ? 'true' : 'false';
         });
+    });
+
+    saveBtn.addEventListener('click', async () => {
+        const changed = [];
+        let hasError = false;
+        document.querySelectorAll('[data-edit-type="text"]').forEach((el) => {
+            const key = el.dataset.editKey;
+            const value = (el.textContent || '').trim();
+            if (!value) {
+                fieldMessage(key, 'Este campo no puede quedar vacío.', false);
+                hasError = true;
+                return;
+            }
+            setByPath(contentState, key, value);
+            changed.push(key);
+        });
+        if (hasError) return;
+        try {
+            await persistContent(changed);
+        } catch (_) {
+            // field messages already set
+        }
     });
 
     document.querySelectorAll('.modal-mode').forEach((button) => {
@@ -248,7 +360,24 @@ if (isAuthenticated) {
 
     document.getElementById('confirmLibrarySelection').addEventListener('click', async () => {
         if (imageMode !== 'library') return;
-        await applyLibrarySelection();
+        const feedback = document.getElementById('modalFeedback');
+        if (!selectedLibraryUrl) {
+            feedback.textContent = 'Selecciona una imagen de la biblioteca.';
+            feedback.className = 'text-xs text-red-400';
+            return;
+        }
+        setByPath(contentState, currentImageKey, { source_type: 'library', value: selectedLibraryUrl, alt: '' });
+        renderCollections();
+        const imageEl = document.querySelector(`[data-edit-key="${currentImageKey}"][data-edit-type="image"]`);
+        if (imageEl) imageEl.src = selectedLibraryUrl;
+        try {
+            await persistContent([currentImageKey]);
+            feedback.textContent = 'Imagen actualizada desde biblioteca.';
+            feedback.className = 'text-xs text-green-400';
+        } catch (e) {
+            feedback.textContent = e.message;
+            feedback.className = 'text-xs text-red-400';
+        }
     });
 
     document.getElementById('cancelModal').addEventListener('click', () => {
@@ -258,9 +387,6 @@ if (isAuthenticated) {
 
     document.getElementById('saveModal').addEventListener('click', async () => {
         const feedback = document.getElementById('modalFeedback');
-        const imageEl = document.querySelector(`[data-edit-key="${currentImageKey}"][data-edit-type="image"]`);
-        if (!imageEl) return;
-
         if (imageMode === 'url') {
             const newUrl = document.getElementById('imageUrlInput').value.trim();
             if (!/^https?:\/\//i.test(newUrl)) {
@@ -268,9 +394,8 @@ if (isAuthenticated) {
                 feedback.className = 'text-xs text-red-400';
                 return;
             }
-            imageEl.src = newUrl;
-            setByPath(contentState, currentImageKey, { source_type: 'url', value: newUrl });
-            imageEl.dataset.sourceType = 'url';
+            setByPath(contentState, currentImageKey, { source_type: 'url', value: newUrl, alt: '' });
+            renderCollections();
             try {
                 await persistContent([currentImageKey]);
                 feedback.textContent = 'Imagen actualizada.';
@@ -283,7 +408,7 @@ if (isAuthenticated) {
         }
 
         if (imageMode === 'library') {
-            await applyLibrarySelection();
+            document.getElementById('confirmLibrarySelection').click();
             return;
         }
 
@@ -299,7 +424,6 @@ if (isAuthenticated) {
             return;
         }
 
-        imageEl.src = URL.createObjectURL(file);
         const form = new FormData();
         form.append('key', currentImageKey);
         form.append('image', file);
@@ -312,11 +436,41 @@ if (isAuthenticated) {
             return;
         }
 
-        imageEl.src = result.url;
-        setByPath(contentState, currentImageKey, { source_type: 'upload', value: result.url });
-        imageEl.dataset.sourceType = 'upload';
+        setByPath(contentState, currentImageKey, { source_type: 'upload', value: result.url, alt: '' });
+        renderCollections();
         fieldMessage(currentImageKey, 'Imagen guardada', true);
         feedback.textContent = 'Imagen subida correctamente.';
         feedback.className = 'text-xs text-green-400';
     });
+
+    document.getElementById('cancelLinkModal').addEventListener('click', () => {
+        document.getElementById('linkModal').classList.add('hidden');
+        document.getElementById('linkModal').classList.remove('flex');
+    });
+
+    document.getElementById('saveLinkModal').addEventListener('click', async () => {
+        const feedback = document.getElementById('linkFeedback');
+        const newUrl = document.getElementById('linkUrlInput').value.trim();
+        if (!/^https?:\/\//i.test(newUrl)) {
+            feedback.textContent = 'Ingresa una URL válida (http/https).';
+            feedback.className = 'text-xs text-red-400';
+            return;
+        }
+        setByPath(contentState, currentLinkKey, newUrl);
+        document.querySelectorAll(`[data-edit-link-key="${currentLinkKey}"]`).forEach((link) => {
+            link.setAttribute('href', newUrl);
+        });
+        try {
+            await persistContent([currentLinkKey]);
+            feedback.textContent = 'Enlace actualizado.';
+            feedback.className = 'text-xs text-green-400';
+        } catch (error) {
+            feedback.textContent = error.message;
+            feedback.className = 'text-xs text-red-400';
+        }
+    });
+
+    bindEditInteractions();
+} else {
+    renderCollections();
 }
