@@ -134,7 +134,21 @@
         "alt": "Sesión de dibujo artístico",
         "source_type": "url",
         "value": "https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=800"
-      }
+      },
+      "sections": [
+        {
+          "title_prefix": "Clases",
+          "title_highlight": "personalizadas",
+          "description": "Sumá módulos de dibujo, composición o clínica de obra y mostralos como bloques independientes dentro de Academia.",
+          "button": "Ver programa",
+          "link_url": "https://example.com/academia/programa",
+          "image": {
+            "alt": "Mesa de trabajo con materiales de arte",
+            "source_type": "url",
+            "value": "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?q=80&w=1200"
+          }
+        }
+      ]
     }
   },
   "backgrounds": [

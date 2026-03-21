@@ -106,6 +106,20 @@ function normalize_art_item($item, array $fallback = []): array
     ];
 }
 
+function normalize_academia_section($section, array $fallback = []): array
+{
+    $fallbackImage = normalize_image_reference($fallback['image'] ?? []);
+
+    return [
+        'title_prefix' => trim((string) (is_array($section) ? ($section['title_prefix'] ?? '') : ($fallback['title_prefix'] ?? ''))),
+        'title_highlight' => trim((string) (is_array($section) ? ($section['title_highlight'] ?? '') : ($fallback['title_highlight'] ?? ''))),
+        'description' => trim((string) (is_array($section) ? ($section['description'] ?? '') : ($fallback['description'] ?? ''))),
+        'button' => trim((string) (is_array($section) ? ($section['button'] ?? '') : ($fallback['button'] ?? ''))),
+        'link_url' => trim((string) (is_array($section) ? ($section['link_url'] ?? '') : ($fallback['link_url'] ?? ''))),
+        'image' => normalize_image_reference(is_array($section) ? ($section['image'] ?? []) : [], $fallbackImage),
+    ];
+}
+
 function normalize_content_structure(array $content): array
 {
     $defaults = content_defaults();
@@ -127,6 +141,14 @@ function normalize_content_structure(array $content): array
 
     $normalized['tabs']['academia']['button'] = trim((string) ($normalized['tabs']['academia']['button'] ?? ''));
     $normalized['tabs']['academia']['link_url'] = trim((string) ($normalized['tabs']['academia']['link_url'] ?? ($defaults['tabs']['academia']['link_url'] ?? '')));
+
+    $defaultAcademiaSection = $defaults['tabs']['academia']['sections'][0] ?? [];
+    $academiaSections = is_array($normalized['tabs']['academia']['sections'] ?? null) ? $normalized['tabs']['academia']['sections'] : [];
+    $normalized['tabs']['academia']['sections'] = array_values(array_filter(array_map(static function ($section) use ($defaultAcademiaSection): array {
+        return normalize_academia_section($section, $defaultAcademiaSection);
+    }, $academiaSections), static function (array $section): bool {
+        return $section['title_prefix'] !== '' || $section['title_highlight'] !== '' || $section['description'] !== '' || $section['image']['value'] !== '';
+    }));
 
     $backgrounds = is_array($normalized['backgrounds'] ?? null) ? $normalized['backgrounds'] : [];
     $defaultBackground = $defaults['backgrounds'][0]['image'] ?? [];

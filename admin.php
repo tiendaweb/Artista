@@ -567,7 +567,7 @@ $content = read_content_file();
                         </article>
                     </div>
                     <div>
-                        <button type="button" id="saveSiteImagesBtn" class="pill-btn rounded-2xl bg-cyan-300 text-slate-950">Guardar imágenes globales</button>
+                        <button type="button" id="saveSiteImagesBtn" class="pill-btn rounded-2xl bg-cyan-300 text-slate-950">Guardar hero</button>
                     </div>
                 </article>
             </section>
@@ -626,6 +626,20 @@ $content = read_content_file();
                         </article>
                     </article>
                 </div>
+
+                <article class="section-card space-y-5">
+                    <div class="section-heading">
+                        <div>
+                            <h2 class="text-2xl font-semibold">Clases / secciones repetibles</h2>
+                            <p class="mt-2 text-sm text-slate-400">Crea bloques dentro de academia que se muestran uno debajo del otro en la parte frontal.</p>
+                        </div>
+                        <button type="button" id="addAcademiaSectionBtn" class="pill-btn rounded-2xl bg-white text-slate-950">+ Agregar sección</button>
+                    </div>
+                    <div id="academiaSectionsCrud" class="space-y-5"></div>
+                    <div>
+                        <button type="button" id="saveAcademiaSectionsBtn" class="pill-btn rounded-2xl bg-cyan-300 text-slate-950">Guardar clases</button>
+                    </div>
+                </article>
             </section>
 
             <section id="panel-contacto" class="admin-panel glass rounded-[2rem] p-5 md:p-8 space-y-6">
@@ -1056,6 +1070,17 @@ function emptyBackground() {
     };
 }
 
+function emptyAcademiaSection() {
+    return {
+        title_prefix: 'Nueva',
+        title_highlight: 'clase',
+        description: '',
+        button: 'Consultar',
+        link_url: '',
+        image: { source_type: 'url', value: '', alt: '' },
+    };
+}
+
 function renderMediaCard(image, actions = {}) {
     const resolvedUrl = image.url || '';
     return `
@@ -1162,6 +1187,65 @@ function renderBackgrounds() {
             }
         };
     });
+}
+
+function renderAcademiaSectionCard(section, index) {
+    const imageKey = `tabs.academia.sections[${index}].image`;
+    const imageValue = section?.image?.value || '';
+    const preview = imageValue || imagePreviewFallback('Clase');
+    const inputId = `academia-section-image-${index}`;
+
+    return `
+        <article class="rounded-3xl border border-white/10 bg-slate-950/40 p-5 space-y-4">
+            <div class="flex items-center justify-between gap-4">
+                <h3 class="font-semibold text-lg">Clase / sección #${index + 1}</h3>
+                <button type="button" class="control-shell-btn control-shell-btn--danger text-sm" data-remove-academia-section="${index}">Eliminar</button>
+            </div>
+            <div class="grid xl:grid-cols-[1.1fr,0.9fr] gap-5 items-start">
+                <div class="space-y-4">
+                    <label class="block space-y-2"><span class="text-sm text-slate-300">Título inicial</span><input type="text" value="${section?.title_prefix || ''}" data-input-key="tabs.academia.sections[${index}].title_prefix" class="input-shell"></label>
+                    <label class="block space-y-2"><span class="text-sm text-slate-300">Título destacado</span><input type="text" value="${section?.title_highlight || ''}" data-input-key="tabs.academia.sections[${index}].title_highlight" class="input-shell"></label>
+                    <label class="block space-y-2"><span class="text-sm text-slate-300">Descripción</span><textarea rows="4" data-input-key="tabs.academia.sections[${index}].description" class="textarea-shell">${section?.description || ''}</textarea></label>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <label class="block space-y-2"><span class="text-sm text-slate-300">Texto del botón</span><input type="text" value="${section?.button || ''}" data-input-key="tabs.academia.sections[${index}].button" class="input-shell"></label>
+                        <label class="block space-y-2"><span class="text-sm text-slate-300">URL del botón</span><input type="url" value="${section?.link_url || ''}" data-input-key="tabs.academia.sections[${index}].link_url" class="input-shell"></label>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <img src="${preview}" alt="Vista previa clase ${index + 1}" class="w-full h-48 rounded-2xl object-cover border border-white/10 bg-slate-900/50">
+                    <label class="block space-y-2"><span class="text-sm text-slate-300">Imagen</span><input type="text" value="${imageValue}" id="${inputId}" data-image-value-key="${imageKey}" class="input-shell"></label>
+                    <div class="flex flex-wrap gap-3">
+                        <button type="button" class="media-target-btn control-shell-btn" data-media-target-key="${imageKey}" data-media-target-type="image-object" data-media-target-input="${inputId}">Abrir media manager</button>
+                        <button type="button" class="control-shell-btn" data-copy-from-input="${inputId}">Copiar enlace</button>
+                    </div>
+                </div>
+            </div>
+        </article>
+    `;
+}
+
+function renderAcademiaSections() {
+    const sections = getByPath(adminState, 'tabs.academia.sections', []);
+    document.getElementById('academiaSectionsCrud').innerHTML = sections.map((section, index) => renderAcademiaSectionCard(section, index)).join('');
+
+    document.querySelectorAll('[data-remove-academia-section]').forEach((button) => {
+        button.onclick = async () => {
+            getByPath(adminState, 'tabs.academia.sections', []).splice(Number(button.dataset.removeAcademiaSection), 1);
+            renderAcademiaSections();
+            bindCrudInputs();
+            bindMediaTargetButtons();
+            bindCopyButtons();
+            try {
+                await saveContentState('Clase eliminada.');
+            } catch (error) {
+                showAlert(error.message, 'error');
+            }
+        };
+    });
+
+    bindCrudInputs();
+    bindMediaTargetButtons();
+    bindCopyButtons();
 }
 
 function bindCrudInputs() {
@@ -1517,27 +1601,34 @@ const adminTabMeta = {
     },
     hero: {
         title: 'Hero',
+        loadsMedia: true,
     },
     academia: {
         title: 'Academia',
+        loadsMedia: true,
     },
     contacto: {
         title: 'Contacto',
     },
     fondos: {
         title: 'Fondos',
+        loadsMedia: true,
     },
     galeria: {
         title: 'Galería',
+        loadsMedia: true,
     },
     market: {
         title: 'Market',
+        loadsMedia: true,
     },
     media: {
         title: 'Media manager',
+        loadsMedia: true,
     },
     seo: {
         title: 'SEO',
+        loadsMedia: true,
     },
     seguridad: {
         title: 'Seguridad',
@@ -1561,15 +1652,64 @@ function activateAdminTab(tabName, options = {}) {
 
     document.getElementById('activeTabTitle').textContent = meta.title;
 
-    if (pushHash) {
+    if (pushHash && window.location.hash !== `#${tabName}`) {
         history.replaceState(null, '', `#${tabName}`);
     }
 
     closeSidebar();
 
-    if (tabName === 'media') {
+    if (meta.loadsMedia) {
         loadMediaLibrary({ statusIds: ['mediaLibraryStatus'], renderGlobal: true, renderField: false });
     }
+}
+
+async function saveAdminPanel(updateFn, successMessage) {
+    updateFn();
+    try {
+        await saveContentState(successMessage);
+    } catch (error) {
+        showAlert(error.message, 'error');
+    }
+}
+
+function saveGeneralPanelState() {
+    setByPath(adminState, 'site.name', document.getElementById('siteNameInput').value.trim());
+    setByPath(adminState, 'site.tagline', document.getElementById('siteTaglineInput').value.trim());
+    setByPath(adminState, 'site.availability', document.getElementById('availabilityInput').value.trim());
+}
+
+function saveHeroPanelState() {
+    setImageValueByKey('hero.featured_image', document.getElementById('heroFeaturedInput').value.trim(), 'image-object');
+    updateStandalonePreviews();
+}
+
+function saveAcademiaPanelState() {
+    setByPath(adminState, 'tabs.academia.title_prefix', document.getElementById('academiaTitlePrefixInput').value.trim());
+    setByPath(adminState, 'tabs.academia.title_highlight', document.getElementById('academiaTitleHighlightInput').value.trim());
+    setByPath(adminState, 'tabs.academia.description', document.getElementById('academiaDescriptionInput').value.trim());
+    setByPath(adminState, 'tabs.academia.button', document.getElementById('academiaButtonInput').value.trim());
+    setByPath(adminState, 'tabs.academia.link_url', document.getElementById('academiaLinkUrlInput').value.trim());
+    setImageValueByKey('tabs.academia.image', document.getElementById('academiaImageInput').value.trim(), 'image-object');
+    updateStandalonePreviews();
+}
+
+function saveContactPanelState() {
+    setByPath(adminState, 'site.contact.title', document.getElementById('contactTitleInput').value.trim() || 'Contacto');
+    setByPath(adminState, 'site.contact.description', document.getElementById('contactDescriptionInput').value.trim());
+    setByPath(adminState, 'site.contact.whatsapp', document.getElementById('contactWhatsappInput').value.trim());
+    setByPath(adminState, 'site.contact.email', document.getElementById('contactEmailInput').value.trim());
+    setByPath(adminState, 'site.contact.instagram', document.getElementById('contactInstagramInput').value.trim());
+    setByPath(adminState, 'site.contact.facebook', document.getElementById('contactFacebookInput').value.trim());
+    setByPath(adminState, 'site.contact.tiktok', document.getElementById('contactTiktokInput').value.trim());
+    setByPath(adminState, 'site.contact.youtube', document.getElementById('contactYoutubeInput').value.trim());
+}
+
+function saveSeoPanelState() {
+    setByPath(adminState, 'site.title', document.getElementById('seoTitleInput').value.trim());
+    setByPath(adminState, 'site.seo.description', document.getElementById('seoDescriptionInput').value.trim());
+    setByPath(adminState, 'site.seo.keywords', document.getElementById('seoKeywordsInput').value.trim());
+    setByPath(adminState, 'site.seo.og_image', document.getElementById('seoOgImageInput').value.trim());
+    updateStandalonePreviews();
 }
 
 document.getElementById('openSidebarBtn')?.addEventListener('click', openSidebar);
@@ -1580,59 +1720,28 @@ document.querySelectorAll('[data-admin-tab-control]').forEach((button) => {
     button.addEventListener('click', () => activateAdminTab(button.dataset.adminTabControl));
 });
 
+window.addEventListener('hashchange', () => {
+    const tabFromHash = window.location.hash.replace('#', '');
+    activateAdminTab(adminTabMeta[tabFromHash] ? tabFromHash : 'general', { pushHash: false });
+});
+
 const initialAdminTab = window.location.hash.replace('#', '');
 activateAdminTab(adminTabMeta[initialAdminTab] ? initialAdminTab : 'general', { pushHash: false });
 
 document.getElementById('saveGeneralBtn').addEventListener('click', async () => {
-    setByPath(adminState, 'site.name', document.getElementById('siteNameInput').value.trim());
-    setByPath(adminState, 'site.tagline', document.getElementById('siteTaglineInput').value.trim());
-    setByPath(adminState, 'site.availability', document.getElementById('availabilityInput').value.trim());
-    try {
-        await saveContentState('Ajustes guardados.');
-    } catch (error) {
-        showAlert(error.message, 'error');
-    }
+    await saveAdminPanel(saveGeneralPanelState, 'Ajustes guardados.');
 });
 
-
 document.getElementById('saveAcademiaBtn').addEventListener('click', async () => {
-    setByPath(adminState, 'tabs.academia.title_prefix', document.getElementById('academiaTitlePrefixInput').value.trim());
-    setByPath(adminState, 'tabs.academia.title_highlight', document.getElementById('academiaTitleHighlightInput').value.trim());
-    setByPath(adminState, 'tabs.academia.description', document.getElementById('academiaDescriptionInput').value.trim());
-    setByPath(adminState, 'tabs.academia.button', document.getElementById('academiaButtonInput').value.trim());
-    setByPath(adminState, 'tabs.academia.link_url', document.getElementById('academiaLinkUrlInput').value.trim());
-    try {
-        await saveContentState('Academia guardada.');
-    } catch (error) {
-        showAlert(error.message, 'error');
-    }
+    await saveAdminPanel(saveAcademiaPanelState, 'Academia guardada.');
 });
 
 document.getElementById('saveContactBtn').addEventListener('click', async () => {
-    setByPath(adminState, 'site.contact.title', document.getElementById('contactTitleInput').value.trim() || 'Contacto');
-    setByPath(adminState, 'site.contact.description', document.getElementById('contactDescriptionInput').value.trim());
-    setByPath(adminState, 'site.contact.whatsapp', document.getElementById('contactWhatsappInput').value.trim());
-    setByPath(adminState, 'site.contact.email', document.getElementById('contactEmailInput').value.trim());
-    setByPath(adminState, 'site.contact.instagram', document.getElementById('contactInstagramInput').value.trim());
-    setByPath(adminState, 'site.contact.facebook', document.getElementById('contactFacebookInput').value.trim());
-    setByPath(adminState, 'site.contact.tiktok', document.getElementById('contactTiktokInput').value.trim());
-    setByPath(adminState, 'site.contact.youtube', document.getElementById('contactYoutubeInput').value.trim());
-    try {
-        await saveContentState('Contacto y redes guardados.');
-    } catch (error) {
-        showAlert(error.message, 'error');
-    }
+    await saveAdminPanel(saveContactPanelState, 'Contacto y redes guardados.');
 });
 
 document.getElementById('saveSiteImagesBtn').addEventListener('click', async () => {
-    setImageValueByKey('hero.featured_image', document.getElementById('heroFeaturedInput').value.trim(), 'image-object');
-    setImageValueByKey('tabs.academia.image', document.getElementById('academiaImageInput').value.trim(), 'image-object');
-    updateStandalonePreviews();
-    try {
-        await saveContentState('Imágenes globales guardadas.');
-    } catch (error) {
-        showAlert(error.message, 'error');
-    }
+    await saveAdminPanel(saveHeroPanelState, 'Hero guardado.');
 });
 
 document.getElementById('heroFeaturedInput').addEventListener('input', updateStandalonePreviews);
@@ -1640,16 +1749,7 @@ document.getElementById('academiaImageInput').addEventListener('input', updateSt
 document.getElementById('seoOgImageInput').addEventListener('input', updateStandalonePreviews);
 
 document.getElementById('saveSeoBtn').addEventListener('click', async () => {
-    setByPath(adminState, 'site.title', document.getElementById('seoTitleInput').value.trim());
-    setByPath(adminState, 'site.seo.description', document.getElementById('seoDescriptionInput').value.trim());
-    setByPath(adminState, 'site.seo.keywords', document.getElementById('seoKeywordsInput').value.trim());
-    setByPath(adminState, 'site.seo.og_image', document.getElementById('seoOgImageInput').value.trim());
-    updateStandalonePreviews();
-    try {
-        await saveContentState('SEO guardado.');
-    } catch (error) {
-        showAlert(error.message, 'error');
-    }
+    await saveAdminPanel(saveSeoPanelState, 'SEO guardado.');
 });
 
 document.getElementById('passwordForm').addEventListener('submit', async (event) => {
@@ -1693,25 +1793,33 @@ document.getElementById('addMarketItemBtn').addEventListener('click', async () =
     }
 });
 
-document.getElementById('saveGalleryBtn').addEventListener('click', async () => {
-    setByPath(adminState, 'tabs.obras.title_prefix', document.getElementById('galleryTitlePrefixInput').value.trim());
-    setByPath(adminState, 'tabs.obras.title_highlight', document.getElementById('galleryTitleHighlightInput').value.trim());
+document.getElementById('addAcademiaSectionBtn').addEventListener('click', async () => {
+    getByPath(adminState, 'tabs.academia.sections', []).push(emptyAcademiaSection());
+    renderAcademiaSections();
     try {
-        await saveContentState('Galería guardada.');
+        await saveContentState('Clase agregada.');
     } catch (error) {
         showAlert(error.message, 'error');
     }
 });
 
+document.getElementById('saveAcademiaSectionsBtn').addEventListener('click', async () => {
+    await saveAdminPanel(() => {}, 'Clases guardadas.');
+});
+
+document.getElementById('saveGalleryBtn').addEventListener('click', async () => {
+    await saveAdminPanel(() => {
+        setByPath(adminState, 'tabs.obras.title_prefix', document.getElementById('galleryTitlePrefixInput').value.trim());
+        setByPath(adminState, 'tabs.obras.title_highlight', document.getElementById('galleryTitleHighlightInput').value.trim());
+    }, 'Galería guardada.');
+});
+
 document.getElementById('saveMarketBtn').addEventListener('click', async () => {
-    setByPath(adminState, 'tabs.mercado.title_prefix', document.getElementById('marketTitlePrefixInput').value.trim());
-    setByPath(adminState, 'tabs.mercado.title_highlight', document.getElementById('marketTitleHighlightInput').value.trim());
-    setByPath(adminState, 'tabs.mercado.description', document.getElementById('marketDescriptionInput').value.trim());
-    try {
-        await saveContentState('Market guardado.');
-    } catch (error) {
-        showAlert(error.message, 'error');
-    }
+    await saveAdminPanel(() => {
+        setByPath(adminState, 'tabs.mercado.title_prefix', document.getElementById('marketTitlePrefixInput').value.trim());
+        setByPath(adminState, 'tabs.mercado.title_highlight', document.getElementById('marketTitleHighlightInput').value.trim());
+        setByPath(adminState, 'tabs.mercado.description', document.getElementById('marketDescriptionInput').value.trim());
+    }, 'Market guardado.');
 });
 
 document.getElementById('addBackgroundBtn').addEventListener('click', async () => {
@@ -1727,11 +1835,7 @@ document.getElementById('addBackgroundBtn').addEventListener('click', async () =
 });
 
 document.getElementById('saveBackgroundsBtn').addEventListener('click', async () => {
-    try {
-        await saveContentState('Fondos guardados.');
-    } catch (error) {
-        showAlert(error.message, 'error');
-    }
+    await saveAdminPanel(() => {}, 'Fondos guardados.');
 });
 
 document.getElementById('openMediaFileBtn').addEventListener('click', () => document.getElementById('mediaUploadInput').click());
@@ -1795,6 +1899,7 @@ setupDropzone('fieldMediaDropzone', 'fieldMediaFileInput', async (file) => {
 
 hydrateGeneralFields();
 renderCrudSections();
+renderAcademiaSections();
 renderBackgrounds();
 bindMediaTargetButtons();
 bindCopyButtons();
