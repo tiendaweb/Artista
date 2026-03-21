@@ -20,11 +20,11 @@ $content = read_content_file();
     <style>
         :root {
             color-scheme: dark;
-            --page-bg: radial-gradient(circle at top left, rgba(56, 189, 248, 0.2), transparent 28%), radial-gradient(circle at top right, rgba(217, 70, 239, 0.16), transparent 24%), linear-gradient(135deg, #050816 0%, #090d18 42%, #02040a 100%);
-            --panel-bg: linear-gradient(145deg, rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.36));
+            --page-bg: radial-gradient(circle at 12% 18%, rgba(56, 189, 248, 0.22), transparent 0 24%), radial-gradient(circle at 88% 14%, rgba(168, 85, 247, 0.18), transparent 0 22%), radial-gradient(circle at 50% 82%, rgba(14, 165, 233, 0.12), transparent 0 28%), linear-gradient(160deg, #030712 0%, #07111f 38%, #02040a 100%);
+            --panel-bg: linear-gradient(160deg, rgba(8, 15, 32, 0.78), rgba(15, 23, 42, 0.38));
             --panel-border: rgba(255, 255, 255, 0.14);
             --panel-highlight: rgba(125, 211, 252, 0.22);
-            --text-soft: rgba(226, 232, 240, 0.74);
+            --text-soft: rgba(226, 232, 240, 0.68);
         }
         * { box-sizing: border-box; }
         body {
@@ -38,18 +38,39 @@ $content = read_content_file();
             content: '';
             position: fixed;
             inset: 0;
-            background: linear-gradient(180deg, rgba(255,255,255,0.06), transparent 16%, transparent 84%, rgba(255,255,255,0.04));
+            background: linear-gradient(180deg, rgba(255,255,255,0.06), transparent 16%, transparent 84%, rgba(255,255,255,0.03));
             pointer-events: none;
         }
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 24px;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 32px;
+            pointer-events: none;
+            opacity: .55;
+            mask: linear-gradient(black, transparent 88%);
+        }
         .glass {
+            position: relative;
             background: var(--panel-bg);
-            backdrop-filter: blur(24px) saturate(160%);
-            -webkit-backdrop-filter: blur(24px) saturate(160%);
+            backdrop-filter: blur(28px) saturate(160%);
+            -webkit-backdrop-filter: blur(28px) saturate(160%);
             border: 1px solid var(--panel-border);
-            box-shadow: 0 20px 60px rgba(15, 23, 42, 0.45), inset 0 1px 0 rgba(255,255,255,0.06);
+            box-shadow: 0 20px 60px rgba(2, 6, 23, 0.42), inset 0 1px 0 rgba(255,255,255,0.07);
+        }
+        .glass::before {
+            content: '';
+            position: absolute;
+            inset: 1px;
+            border-radius: inherit;
+            background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.01) 24%, transparent 60%);
+            pointer-events: none;
+            opacity: .55;
         }
         .glass-card {
-            background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+            position: relative;
+            background: linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03));
             border: 1px solid rgba(255,255,255,0.1);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
         }
@@ -94,6 +115,7 @@ $content = read_content_file();
         .hero-banner {
             position: relative;
             overflow: hidden;
+            min-height: 220px;
         }
         .hero-banner::after {
             content: '';
@@ -102,6 +124,27 @@ $content = read_content_file();
             height: 180px;
             background: radial-gradient(circle, rgba(34, 211, 238, 0.22), transparent 68%);
             pointer-events: none;
+        }
+        .hero-orb {
+            position: absolute;
+            border-radius: 999px;
+            filter: blur(8px);
+            opacity: .9;
+            pointer-events: none;
+        }
+        .hero-orb.one {
+            width: 180px;
+            height: 180px;
+            top: -48px;
+            right: 8%;
+            background: radial-gradient(circle, rgba(125,211,252,.3), rgba(125,211,252,0));
+        }
+        .hero-orb.two {
+            width: 220px;
+            height: 220px;
+            bottom: -110px;
+            right: 22%;
+            background: radial-gradient(circle, rgba(192,132,252,.22), rgba(192,132,252,0));
         }
         .metric-tile {
             position: relative;
@@ -142,7 +185,36 @@ $content = read_content_file();
             padding: 1.25rem;
             border: 1px solid rgba(255,255,255,0.1);
             background: linear-gradient(180deg, rgba(2,6,23,.28), rgba(15,23,42,.44));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
         }
+        .os-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            padding: .45rem .8rem;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,.12);
+            background: rgba(255,255,255,.05);
+            color: rgba(226,232,240,.82);
+            font-size: .72rem;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+        }
+        .window-dots {
+            display: inline-flex;
+            gap: .5rem;
+            align-items: center;
+        }
+        .window-dots span {
+            width: .7rem;
+            height: .7rem;
+            border-radius: 999px;
+            display: inline-block;
+            box-shadow: 0 0 12px rgba(255,255,255,.08);
+        }
+        .window-dots span:nth-child(1) { background: #fb7185; }
+        .window-dots span:nth-child(2) { background: #fbbf24; }
+        .window-dots span:nth-child(3) { background: #4ade80; }
         .section-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1rem; }
         .section-heading p { color: var(--text-soft); }
         .input-shell, .textarea-shell {
@@ -192,17 +264,18 @@ $content = read_content_file();
         <aside id="adminSidebar" class="sidebar-shell glass rounded-[2rem]">
             <div class="space-y-6">
                 <div class="flex items-start justify-between gap-4">
-                    <div>
-                        <p class="text-cyan-200 text-[11px] uppercase tracking-[0.32em]">Artista CMS</p>
-                        <h1 class="mt-3 text-2xl font-semibold leading-tight">Admin premium<br>liquid glass</h1>
-                        <p class="mt-3 text-sm text-slate-300">Sesión iniciada como <?= htmlspecialchars((string) ($user['name'] ?? $user['username'] ?? ''), ENT_QUOTES, 'UTF-8') ?></p>
+                    <div class="space-y-4">
+                        <div class="window-dots"><span></span><span></span><span></span></div>
+                        <div>
+                            <p class="text-cyan-200 text-[11px] uppercase tracking-[0.32em]">Artista CMS</p>
+                            <h1 class="mt-3 text-2xl font-semibold leading-tight">Admin OS<br>liquid glass</h1>
+                        </div>
+                        <div class="os-chip">Online · <?= htmlspecialchars((string) ($user['name'] ?? $user['username'] ?? ''), ENT_QUOTES, 'UTF-8') ?></div>
                     </div>
                     <button type="button" id="closeSidebarBtn" class="lg:hidden rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-200">✕</button>
                 </div>
                 <div class="glass-card rounded-[1.6rem] p-4">
-                    <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Workspace</p>
-                    <p class="mt-3 text-sm text-slate-200">Gestioná contenido, imágenes y SEO desde un solo lugar con accesos rápidos y tabs laterales.</p>
-                    <div class="mt-4 flex flex-wrap gap-3">
+                    <div class="flex flex-wrap gap-3">
                         <a href="<?= htmlspecialchars(url_for('/'), ENT_QUOTES, 'UTF-8') ?>" class="pill-btn rounded-2xl bg-cyan-300 text-slate-950">Ver sitio</a>
                         <a href="<?= htmlspecialchars(url_for('/logout.php'), ENT_QUOTES, 'UTF-8') ?>" class="pill-btn rounded-2xl border border-white/15 bg-white/5 text-slate-100">Cerrar sesión</a>
                     </div>
@@ -240,15 +313,17 @@ $content = read_content_file();
 
         <main class="admin-main">
             <header class="hero-banner glass rounded-[2rem] p-5 md:p-7">
-                <div class="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-                    <div class="space-y-4 max-w-3xl">
+                <span class="hero-orb one"></span>
+                <span class="hero-orb two"></span>
+                <div class="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+                    <div class="space-y-5 max-w-3xl">
                         <div class="flex items-center gap-3">
                             <button type="button" id="openSidebarBtn" class="lg:hidden rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-slate-100">☰ Tabs</button>
-                            <span class="rounded-full border border-cyan-300/25 bg-cyan-300/10 px-3 py-1 text-[11px] uppercase tracking-[0.28em] text-cyan-100">Premium SaaS Admin</span>
+                            <span class="os-chip">Premium SaaS</span>
                         </div>
                         <div>
-                            <h2 class="text-3xl md:text-5xl font-semibold tracking-tight">Panel administrativo elegante, ordenado y preparado para móviles.</h2>
-                            <p class="mt-3 max-w-2xl text-sm md:text-base text-slate-300">Reorganicé el flujo del admin en secciones laterales, superficies glass y bloques accionables para que editar contenido, market y assets sea más rápido desde desktop o celular.</p>
+                            <h2 class="text-3xl md:text-5xl font-semibold tracking-tight text-balance">Dashboard minimalista. Rápido. Claro.</h2>
+                            <p class="mt-3 max-w-2xl text-sm md:text-base text-slate-300">Sin ruido. Solo edición, media y SEO.</p>
                         </div>
                     </div>
                     <div class="grid sm:grid-cols-3 gap-3 min-w-0 xl:min-w-[420px]">
@@ -277,7 +352,7 @@ $content = read_content_file();
                             <div>
                                 <p class="text-xs uppercase tracking-[0.28em] text-cyan-200">Brand core</p>
                                 <h2 class="text-2xl font-semibold">Ajustes generales</h2>
-                                <p class="mt-2 text-sm">Define identidad del sitio, tagline comercial y mensaje de disponibilidad.</p>
+                                
                             </div>
                         </div>
                         <div class="grid md:grid-cols-2 gap-4">
@@ -303,7 +378,7 @@ $content = read_content_file();
                         <div>
                             <p class="text-xs uppercase tracking-[0.28em] text-fuchsia-200">Experience blocks</p>
                             <h2 class="text-2xl font-semibold">Academia</h2>
-                            <p class="mt-2 text-sm text-slate-300">Centralizá el contenido del bloque educativo y la imagen asociada.</p>
+                            
                         </div>
                         <div class="grid gap-4">
                             <label class="block space-y-2">
@@ -340,7 +415,7 @@ $content = read_content_file();
                         <div>
                             <p class="text-xs uppercase tracking-[0.28em] text-cyan-200">Communication</p>
                             <h2 class="text-2xl font-semibold">Datos de contacto y redes</h2>
-                            <p class="mt-2 text-sm">Si un campo queda vacío, no se mostrará en el sitio. WhatsApp se usa como fallback en Market cuando un ítem no tiene enlace propio.</p>
+                            
                         </div>
                     </div>
                     <div class="grid md:grid-cols-2 gap-4">
@@ -387,14 +462,14 @@ $content = read_content_file();
                         <div>
                             <p class="text-xs uppercase tracking-[0.28em] text-cyan-200">Asset shortcuts</p>
                             <h2 class="text-2xl font-semibold">Imágenes clave del sitio</h2>
-                            <p class="mt-2 text-sm">Todos los campos de imagen principales pueden abrir el media manager, subir archivos o reutilizar la biblioteca.</p>
+                            
                         </div>
                     </div>
                     <div class="grid xl:grid-cols-3 gap-5">
                         <article class="glass-card rounded-[1.6rem] p-5 space-y-4">
                             <div>
                                 <h3 class="font-semibold text-lg">Imagen destacada del hero</h3>
-                                <p class="text-sm text-slate-400">Imagen principal de portada.</p>
+                                
                             </div>
                             <img id="heroFeaturedPreview" src="" alt="Vista previa hero" class="w-full h-44 rounded-2xl object-cover border border-white/10 bg-slate-900/50">
                             <label class="block space-y-2">
@@ -409,7 +484,7 @@ $content = read_content_file();
                         <article class="glass-card rounded-[1.6rem] p-5 space-y-4">
                             <div>
                                 <h3 class="font-semibold text-lg">Imagen de Academia</h3>
-                                <p class="text-sm text-slate-400">Imagen del bloque de clases.</p>
+                                
                             </div>
                             <img id="academiaImagePreview" src="" alt="Vista previa academia" class="w-full h-44 rounded-2xl object-cover border border-white/10 bg-slate-900/50">
                             <label class="block space-y-2">
@@ -432,7 +507,7 @@ $content = read_content_file();
                         <div>
                             <p class="text-xs uppercase tracking-[0.28em] text-cyan-200">Ambient</p>
                             <h2 class="text-2xl font-semibold">Fondos del sitio</h2>
-                            <p class="mt-2 text-sm">Elige las imágenes que rotan de fondo en la portada.</p>
+                            
                         </div>
                         <button type="button" id="addBackgroundBtn" class="pill-btn rounded-2xl bg-white text-slate-950">+ Agregar fondo</button>
                     </div>
@@ -464,7 +539,7 @@ $content = read_content_file();
                         <div>
                             <p class="text-xs uppercase tracking-[0.28em] text-fuchsia-200">Visibility</p>
                             <h2 class="text-2xl font-semibold">Datos SEO</h2>
-                            <p class="mt-2 text-sm">Optimiza títulos, descripción, keywords y preview para compartir.</p>
+                            
                         </div>
                     </div>
                     <div class="grid xl:grid-cols-[minmax(0,1fr),360px] gap-5 items-start">
@@ -490,7 +565,7 @@ $content = read_content_file();
                         <div class="glass-card rounded-[1.6rem] p-5 space-y-4">
                             <div>
                                 <h3 class="text-lg font-semibold">OG image</h3>
-                                <p class="text-sm text-slate-300">Selecciona la imagen principal para previews sociales.</p>
+                                
                             </div>
                             <label class="block space-y-2">
                                 <span class="text-sm text-slate-300">OG Image URL</span>
@@ -509,7 +584,7 @@ $content = read_content_file();
                             <div>
                                 <p class="text-xs uppercase tracking-[0.28em] text-cyan-200">Section content</p>
                                 <h2 class="text-2xl font-semibold">Cabecera de Galería</h2>
-                                <p class="mt-2 text-sm text-slate-300">Edita el título visible antes del listado de obras.</p>
+                                
                             </div>
                             <label class="block space-y-2">
                                 <span class="text-sm text-slate-300">Título inicial</span>
@@ -524,7 +599,7 @@ $content = read_content_file();
                             <div>
                                 <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Curaduría</p>
                                 <h3 class="mt-2 text-xl font-semibold">CRUD de obras</h3>
-                                <p class="mt-2 text-sm text-slate-300">Administra las obras visibles en la sección frontal con acceso directo al media manager para cada imagen.</p>
+                                
                             </div>
                             <div class="flex flex-wrap gap-3">
                                 <button type="button" id="addGalleryItemBtn" class="pill-btn rounded-2xl bg-cyan-300 text-slate-950">+ Agregar obra</button>
@@ -543,7 +618,7 @@ $content = read_content_file();
                             <div>
                                 <p class="text-xs uppercase tracking-[0.28em] text-cyan-200">Section content</p>
                                 <h2 class="text-2xl font-semibold">Cabecera de Market</h2>
-                                <p class="mt-2 text-sm text-slate-300">Ordena el mensaje del bloque y mantén clara la propuesta comercial.</p>
+                                
                             </div>
                             <label class="block space-y-2">
                                 <span class="text-sm text-slate-300">Título inicial</span>
@@ -562,7 +637,7 @@ $content = read_content_file();
                             <div>
                                 <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Venta asistida</p>
                                 <h3 class="mt-2 text-xl font-semibold">Items destacados</h3>
-                                <p class="mt-2 text-sm text-slate-300">La card de “+” ya no aparece en el sitio. Aquí gestionas solo los items reales del market y sus imágenes.</p>
+                                
                             </div>
                             <div class="flex flex-wrap gap-3">
                                 <button type="button" id="addMarketItemBtn" class="pill-btn rounded-2xl bg-cyan-300 text-slate-950">+ Agregar item</button>
@@ -581,14 +656,14 @@ $content = read_content_file();
                             <div>
                                 <p class="text-xs uppercase tracking-[0.28em] text-cyan-200">Asset hub</p>
                                 <h2 class="text-2xl font-semibold">Administrador de imágenes</h2>
-                                <p class="text-sm text-slate-300 mt-1">Arrastra, suelta o selecciona imágenes. Luego podrás copiar el enlace o asignarlas a cualquier campo.</p>
+                                
                             </div>
                             <label id="mediaDropzone" for="mediaUploadInput" class="media-dropzone block rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/40 p-6 text-center cursor-pointer transition">
                                 <div class="space-y-3">
                                     <div class="text-4xl">🖼️</div>
                                     <div>
                                         <p class="font-semibold">Arrastrar y soltar imágenes aquí</p>
-                                        <p class="text-sm text-slate-300">O haz clic para seleccionar archivos JPG, PNG o WEBP de hasta 5MB.</p>
+                                        <p class="text-sm text-slate-300">JPG, PNG o WEBP · máx. 5MB</p>
                                     </div>
                                 </div>
                             </label>
@@ -597,7 +672,7 @@ $content = read_content_file();
                                 <button type="button" id="openMediaFileBtn" class="pill-btn rounded-2xl bg-cyan-300 text-slate-950">Seleccionar imagen</button>
                                 <button type="button" id="refreshMediaLibraryBtn" class="pill-btn rounded-2xl bg-white/10 border border-white/20 text-slate-100">Actualizar biblioteca</button>
                             </div>
-                            <div id="mediaUploadStatus" class="rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3 text-sm text-slate-300">Aquí verás el estado de la subida y el enlace listo para copiar.</div>
+                            <div id="mediaUploadStatus" class="rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3 text-sm text-slate-300">Esperando subida.</div>
                             <label class="block space-y-2">
                                 <span class="text-sm text-slate-300">Último enlace subido</span>
                                 <input id="mediaLatestUrl" type="text" readonly class="input-shell text-slate-100">
@@ -613,7 +688,7 @@ $content = read_content_file();
                                     <h3 class="text-lg font-semibold">Biblioteca</h3>
                                     <p id="mediaLibraryStatus" class="text-sm text-slate-300">Cargando imágenes...</p>
                                 </div>
-                                <div class="text-sm text-slate-400">Haz clic en una tarjeta para previsualizar, copiar o asignar.</div>
+                                <div class="text-sm text-slate-400">Seleccionar · copiar · asignar</div>
                             </div>
                             <div id="mediaLibraryGrid" class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4"></div>
                         </div>
@@ -629,7 +704,7 @@ $content = read_content_file();
             <div>
                 <p class="text-cyan-200 text-xs uppercase tracking-[0.2em]">Media Manager</p>
                 <h3 class="text-2xl font-semibold">Seleccionar imagen para el campo</h3>
-                <p id="fieldMediaTargetLabel" class="text-sm text-slate-300 mt-1">Sin campo seleccionado.</p>
+                <p id="fieldMediaTargetLabel" class="text-sm text-slate-300 mt-1">Sin selección.</p>
             </div>
             <button type="button" id="closeFieldMediaModalBtn" class="rounded-xl bg-white/10 border border-white/20 px-4 py-2 hover:bg-white/20">Cerrar</button>
         </div>
@@ -640,7 +715,7 @@ $content = read_content_file();
                         <div class="text-4xl">⬆️</div>
                         <div>
                             <p class="font-semibold">Subir imagen para este campo</p>
-                            <p class="text-sm text-slate-300">Puedes arrastrar y soltar aquí.</p>
+                            <p class="text-sm text-slate-300">Drag & drop</p>
                         </div>
                     </div>
                 </label>
@@ -653,7 +728,7 @@ $content = read_content_file();
                     <button type="button" id="applyFieldManualUrlBtn" class="rounded-xl bg-cyan-300 text-slate-900 font-semibold px-4 py-3 hover:bg-cyan-200">Usar URL manual</button>
                     <button type="button" id="copyFieldManualUrlBtn" class="rounded-xl bg-white/10 border border-white/20 px-4 py-3 hover:bg-white/20">Copiar enlace</button>
                 </div>
-                <div id="fieldMediaStatus" class="rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3 text-sm text-slate-300">Selecciona o sube una imagen para asignarla a este campo.</div>
+                <div id="fieldMediaStatus" class="rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3 text-sm text-slate-300">Listo para asignar.</div>
             </div>
             <div class="space-y-4">
                 <div class="flex items-center justify-between gap-4 flex-wrap">
