@@ -378,14 +378,7 @@ function renderCollections() {
 
     const marketContainer = document.getElementById('marketCollection');
     if (marketContainer) {
-        const marketCards = market.map((item, index) => renderCollectionItem(item, index, 'tabs.mercado.items')).join('');
-        marketContainer.innerHTML = `
-            <div class="p-8 border border-white/5 rounded-3xl bg-white/5 flex flex-col items-center justify-center hover:bg-art-neon/10 transition">
-                <span class="text-4xl mb-4" data-edit-key="tabs.mercado.cta_symbol" data-edit-type="text">${getByPath(contentState, 'tabs.mercado.cta_symbol', '+')}</span>
-                <p class="text-xs font-bold tracking-widest uppercase" data-edit-key="tabs.mercado.cta_label" data-edit-type="text">${getByPath(contentState, 'tabs.mercado.cta_label', 'Postular Obra')}</p>
-            </div>
-            ${marketCards}
-        `;
+        marketContainer.innerHTML = market.map((item, index) => renderCollectionItem(item, index, 'tabs.mercado.items')).join('');
     }
 
     bindEditInteractions();

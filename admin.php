@@ -18,271 +18,609 @@ $content = read_content_file();
     <title>Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: radial-gradient(circle at top, #15324d 0%, #090d18 55%, #04050b 100%); }
-        .glass { background: linear-gradient(135deg, rgba(255,255,255,0.16), rgba(255,255,255,0.04)); backdrop-filter: blur(18px); border: 1px solid rgba(255,255,255,0.25); }
-        .admin-tab.active { background: rgba(34,211,238,.25); color: white; border-color: rgba(34,211,238,.5); }
+        :root {
+            color-scheme: dark;
+            --page-bg: radial-gradient(circle at top left, rgba(56, 189, 248, 0.2), transparent 28%), radial-gradient(circle at top right, rgba(217, 70, 239, 0.16), transparent 24%), linear-gradient(135deg, #050816 0%, #090d18 42%, #02040a 100%);
+            --panel-bg: linear-gradient(145deg, rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.36));
+            --panel-border: rgba(255, 255, 255, 0.14);
+            --panel-highlight: rgba(125, 211, 252, 0.22);
+            --text-soft: rgba(226, 232, 240, 0.74);
+        }
+        * { box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            margin: 0;
+            color: rgb(241 245 249);
+            background: var(--page-bg);
+            background-attachment: fixed;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.06), transparent 16%, transparent 84%, rgba(255,255,255,0.04));
+            pointer-events: none;
+        }
+        .glass {
+            background: var(--panel-bg);
+            backdrop-filter: blur(24px) saturate(160%);
+            -webkit-backdrop-filter: blur(24px) saturate(160%);
+            border: 1px solid var(--panel-border);
+            box-shadow: 0 20px 60px rgba(15, 23, 42, 0.45), inset 0 1px 0 rgba(255,255,255,0.06);
+        }
+        .glass-card {
+            background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+        }
+        .admin-layout {
+            position: relative;
+            z-index: 1;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 1rem;
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: 1fr;
+        }
+        .sidebar-shell {
+            position: fixed;
+            inset: 1rem auto 1rem 1rem;
+            width: min(340px, calc(100vw - 2rem));
+            max-width: calc(100vw - 2rem);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding: 1rem;
+            transform: translateX(-115%);
+            transition: transform .35s ease, opacity .35s ease;
+            opacity: 0;
+            z-index: 50;
+        }
+        .sidebar-shell.open { transform: translateX(0); opacity: 1; }
+        .sidebar-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.58);
+            backdrop-filter: blur(6px);
+            z-index: 40;
+        }
+        .admin-main {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .hero-banner {
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-banner::after {
+            content: '';
+            position: absolute;
+            inset: auto -20% -35% 20%;
+            height: 180px;
+            background: radial-gradient(circle, rgba(34, 211, 238, 0.22), transparent 68%);
+            pointer-events: none;
+        }
+        .metric-tile {
+            position: relative;
+            overflow: hidden;
+        }
+        .metric-tile::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(125, 211, 252, 0.08), transparent 60%);
+            pointer-events: none;
+        }
+        .admin-tab {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: .75rem;
+            padding: .95rem 1rem;
+            border-radius: 1.1rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.03);
+            color: rgba(226, 232, 240, 0.9);
+            text-align: left;
+            transition: all .2s ease;
+        }
+        .admin-tab:hover { border-color: rgba(125, 211, 252, 0.32); background: rgba(255,255,255,0.06); }
+        .admin-tab.active {
+            background: linear-gradient(135deg, rgba(34, 211, 238, 0.2), rgba(129, 140, 248, 0.16));
+            border-color: rgba(125, 211, 252, 0.4);
+            box-shadow: 0 12px 30px rgba(34, 211, 238, 0.12), inset 0 1px 0 rgba(255,255,255,0.08);
+            color: white;
+        }
         .admin-panel { display:none; }
         .admin-panel.active { display:block; }
+        .section-card {
+            border-radius: 1.75rem;
+            padding: 1.25rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: linear-gradient(180deg, rgba(2,6,23,.28), rgba(15,23,42,.44));
+        }
+        .section-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1rem; }
+        .section-heading p { color: var(--text-soft); }
+        .input-shell, .textarea-shell {
+            width: 100%;
+            border-radius: 1rem;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(15, 23, 42, 0.62);
+            padding: .85rem 1rem;
+            color: white;
+            outline: none;
+            transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+        }
+        .input-shell:focus, .textarea-shell:focus {
+            border-color: rgba(103, 232, 249, .7);
+            box-shadow: 0 0 0 4px rgba(34, 211, 238, .14);
+            background: rgba(15, 23, 42, 0.82);
+        }
+        .pill-btn {
+            border-radius: 1rem;
+            padding: .85rem 1.15rem;
+            font-weight: 600;
+            transition: transform .15s ease, filter .2s ease;
+        }
+        .pill-btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
         .media-dropzone.dragover { border-color: rgba(103, 232, 249, .95); background: rgba(34, 211, 238, .15); }
         .media-target-btn.active { border-color: rgba(103, 232, 249, .95); background: rgba(34, 211, 238, .18); color: white; }
+        @media (min-width: 1024px) {
+            .admin-layout { grid-template-columns: 320px minmax(0, 1fr); padding: 1.5rem; }
+            .sidebar-shell {
+                position: sticky;
+                top: 1.5rem;
+                inset: auto;
+                width: 100%;
+                max-width: none;
+                transform: none;
+                opacity: 1;
+                z-index: 1;
+                max-height: calc(100vh - 3rem);
+                overflow: auto;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen text-slate-100">
-    <div class="max-w-7xl mx-auto p-6 md:p-10 space-y-8">
-        <header class="glass rounded-3xl p-6 md:p-8 flex flex-col lg:flex-row justify-between gap-4">
-            <div>
-                <p class="text-cyan-200 text-xs uppercase tracking-[0.2em]">Artista CMS</p>
-                <h1 class="text-3xl md:text-4xl font-semibold">Dashboard Administrativo</h1>
-                <p class="text-slate-300 mt-2">Sesión iniciada como <?= htmlspecialchars((string) ($user['name'] ?? $user['username'] ?? ''), ENT_QUOTES, 'UTF-8') ?></p>
-            </div>
-            <div class="flex flex-wrap gap-3 items-start">
-                <a href="<?= htmlspecialchars(url_for('/'), ENT_QUOTES, 'UTF-8') ?>" class="rounded-xl bg-white/10 border border-white/20 px-4 py-2 hover:bg-white/20">Ver sitio</a>
-                <a href="<?= htmlspecialchars(url_for('/logout.php'), ENT_QUOTES, 'UTF-8') ?>" class="rounded-xl bg-white/10 border border-white/20 px-4 py-2 hover:bg-white/20">Cerrar sesión</a>
-            </div>
-        </header>
-
-        <section class="glass rounded-3xl p-4 md:p-6">
-            <div class="flex flex-wrap gap-3">
-                <button type="button" class="admin-tab active rounded-2xl border border-white/20 px-4 py-3" data-admin-tab="general">General</button>
-                <button type="button" class="admin-tab rounded-2xl border border-white/20 px-4 py-3" data-admin-tab="seo">SEO</button>
-                <button type="button" class="admin-tab rounded-2xl border border-white/20 px-4 py-3" data-admin-tab="galeria">Galería</button>
-                <button type="button" class="admin-tab rounded-2xl border border-white/20 px-4 py-3" data-admin-tab="market">Market</button>
-                <button type="button" class="admin-tab rounded-2xl border border-white/20 px-4 py-3" data-admin-tab="media">Media Manager</button>
-            </div>
-        </section>
-
-        <div id="adminAlert" class="hidden rounded-xl p-4 text-sm"></div>
-
-        <section id="panel-general" class="admin-panel active glass rounded-3xl p-6 md:p-8 space-y-8">
-            <div>
-                <h2 class="text-xl font-semibold mb-5">Ajustes generales</h2>
-                <div class="grid md:grid-cols-2 gap-4">
-                    <label class="block space-y-2">
-                        <span class="text-sm text-slate-300">Nombre del sitio</span>
-                        <input type="text" id="siteNameInput" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3 outline-none">
-                    </label>
-                    <label class="block space-y-2">
-                        <span class="text-sm text-slate-300">Tagline</span>
-                        <input type="text" id="siteTaglineInput" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3 outline-none">
-                    </label>
-                    <label class="block space-y-2 md:col-span-2">
-                        <span class="text-sm text-slate-300">Disponibilidad</span>
-                        <input type="text" id="availabilityInput" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3 outline-none">
-                    </label>
-                </div>
-                <div class="mt-5">
-                    <button type="button" id="saveGeneralBtn" class="rounded-xl bg-cyan-300 text-slate-900 font-semibold px-5 py-3 hover:bg-cyan-200">Guardar ajustes</button>
-                </div>
-            </div>
-
-            <div class="border-t border-white/10 pt-8 space-y-5">
-                <div>
-                    <h2 class="text-xl font-semibold">Datos de contacto y redes</h2>
-                    <p class="text-sm text-slate-300 mt-1">Si un campo queda vacío, no se mostrará en el sitio. El WhatsApp también se usa como fallback en Market cuando un ítem no tiene enlace propio.</p>
-                </div>
-                <div class="grid md:grid-cols-2 gap-4">
-                    <label class="block space-y-2 md:col-span-2">
-                        <span class="text-sm text-slate-300">Título del bloque</span>
-                        <input type="text" id="contactTitleInput" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3 outline-none">
-                    </label>
-                    <label class="block space-y-2 md:col-span-2">
-                        <span class="text-sm text-slate-300">Descripción</span>
-                        <textarea id="contactDescriptionInput" rows="3" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3 outline-none"></textarea>
-                    </label>
-                    <label class="block space-y-2">
-                        <span class="text-sm text-slate-300">WhatsApp</span>
-                        <input type="text" id="contactWhatsappInput" placeholder="5492233011023" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3 outline-none">
-                    </label>
-                    <label class="block space-y-2">
-                        <span class="text-sm text-slate-300">Email</span>
-                        <input type="email" id="contactEmailInput" placeholder="hola@dominio.com" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3 outline-none">
-                    </label>
-                    <label class="block space-y-2">
-                        <span class="text-sm text-slate-300">Instagram</span>
-                        <input type="text" id="contactInstagramInput" placeholder="https://instagram.com/..." class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3 outline-none">
-                    </label>
-                    <label class="block space-y-2">
-                        <span class="text-sm text-slate-300">Facebook</span>
-                        <input type="text" id="contactFacebookInput" placeholder="https://facebook.com/..." class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3 outline-none">
-                    </label>
-                    <label class="block space-y-2">
-                        <span class="text-sm text-slate-300">TikTok</span>
-                        <input type="text" id="contactTiktokInput" placeholder="https://tiktok.com/@..." class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3 outline-none">
-                    </label>
-                    <label class="block space-y-2">
-                        <span class="text-sm text-slate-300">YouTube</span>
-                        <input type="text" id="contactYoutubeInput" placeholder="https://youtube.com/..." class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3 outline-none">
-                    </label>
-                </div>
-                <div>
-                    <button type="button" id="saveContactBtn" class="rounded-xl bg-white text-slate-900 font-semibold px-5 py-3 hover:bg-slate-100">Guardar contacto y redes</button>
-                </div>
-            </div>
-
-            <div class="border-t border-white/10 pt-8 space-y-5">
-                <div>
-                    <h2 class="text-xl font-semibold">Imágenes globales del sitio</h2>
-                    <p class="text-sm text-slate-300 mt-1">Todos los campos de imagen principales ahora pueden abrir el media manager, subir archivos o reutilizar la biblioteca.</p>
-                </div>
-                <div class="grid xl:grid-cols-3 gap-5">
-                    <article class="rounded-3xl border border-white/10 bg-slate-950/40 p-5 space-y-4">
-                        <div>
-                            <h3 class="font-semibold text-lg">Imagen destacada del hero</h3>
-                            <p class="text-sm text-slate-400">Imagen principal de portada.</p>
-                        </div>
-                        <img id="heroFeaturedPreview" src="" alt="Vista previa hero" class="w-full h-44 rounded-2xl object-cover border border-white/10 bg-slate-900/50">
-                        <label class="block space-y-2">
-                            <span class="text-sm text-slate-300">URL o ruta</span>
-                            <input type="text" id="heroFeaturedInput" data-image-input-key="hero.featured_image" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3">
-                        </label>
-                        <div class="flex flex-wrap gap-3">
-                            <button type="button" class="media-target-btn rounded-xl bg-white/10 border border-white/20 px-4 py-3 hover:bg-white/20" data-media-target-key="hero.featured_image" data-media-target-type="image-object" data-media-target-input="heroFeaturedInput">Abrir media manager</button>
-                            <button type="button" class="rounded-xl bg-white/10 border border-white/20 px-4 py-3 hover:bg-white/20" data-copy-from-input="heroFeaturedInput">Copiar enlace</button>
-                        </div>
-                    </article>
-                    <article class="rounded-3xl border border-white/10 bg-slate-950/40 p-5 space-y-4">
-                        <div>
-                            <h3 class="font-semibold text-lg">Imagen de Academia</h3>
-                            <p class="text-sm text-slate-400">Imagen del bloque de clases.</p>
-                        </div>
-                        <img id="academiaImagePreview" src="" alt="Vista previa academia" class="w-full h-44 rounded-2xl object-cover border border-white/10 bg-slate-900/50">
-                        <label class="block space-y-2">
-                            <span class="text-sm text-slate-300">URL o ruta</span>
-                            <input type="text" id="academiaImageInput" data-image-input-key="tabs.academia.image" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3">
-                        </label>
-                        <div class="flex flex-wrap gap-3">
-                            <button type="button" class="media-target-btn rounded-xl bg-white/10 border border-white/20 px-4 py-3 hover:bg-white/20" data-media-target-key="tabs.academia.image" data-media-target-type="image-object" data-media-target-input="academiaImageInput">Abrir media manager</button>
-                            <button type="button" class="rounded-xl bg-white/10 border border-white/20 px-4 py-3 hover:bg-white/20" data-copy-from-input="academiaImageInput">Copiar enlace</button>
-                        </div>
-                    </article>
-                </div>
-                <div>
-                    <button type="button" id="saveSiteImagesBtn" class="rounded-xl bg-cyan-300 text-slate-900 font-semibold px-5 py-3 hover:bg-cyan-200">Guardar imágenes globales</button>
-                </div>
-            </div>
-
-            <div class="border-t border-white/10 pt-8 space-y-5">
-                <div class="flex items-center justify-between gap-4 flex-wrap">
+    <div id="adminSidebarBackdrop" class="sidebar-backdrop hidden lg:hidden"></div>
+    <div class="admin-layout">
+        <aside id="adminSidebar" class="sidebar-shell glass rounded-[2rem]">
+            <div class="space-y-6">
+                <div class="flex items-start justify-between gap-4">
                     <div>
-                        <h2 class="text-xl font-semibold">Fondos del sitio</h2>
-                        <p class="text-sm text-slate-300">Elige las imágenes que rotan de fondo en la portada.</p>
+                        <p class="text-cyan-200 text-[11px] uppercase tracking-[0.32em]">Artista CMS</p>
+                        <h1 class="mt-3 text-2xl font-semibold leading-tight">Admin premium<br>liquid glass</h1>
+                        <p class="mt-3 text-sm text-slate-300">Sesión iniciada como <?= htmlspecialchars((string) ($user['name'] ?? $user['username'] ?? ''), ENT_QUOTES, 'UTF-8') ?></p>
                     </div>
-                    <button type="button" id="addBackgroundBtn" class="rounded-xl bg-white text-slate-900 font-semibold px-5 py-3 hover:bg-slate-100">+ Agregar fondo</button>
+                    <button type="button" id="closeSidebarBtn" class="lg:hidden rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-200">✕</button>
                 </div>
-                <div id="backgroundCrud" class="grid xl:grid-cols-2 gap-5"></div>
-                <div>
-                    <button type="button" id="saveBackgroundsBtn" class="rounded-xl bg-cyan-300 text-slate-900 font-semibold px-5 py-3 hover:bg-cyan-200">Guardar fondos</button>
-                </div>
-            </div>
-
-            <div class="border-t border-white/10 pt-8">
-                <h2 class="text-xl font-semibold mb-5">Cambiar contraseña</h2>
-                <form id="passwordForm" class="grid md:grid-cols-3 gap-4">
-                    <input type="password" name="current_password" required placeholder="Contraseña actual" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3 outline-none">
-                    <input type="password" name="new_password" required placeholder="Nueva contraseña" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3 outline-none">
-                    <input type="password" name="confirm_password" required placeholder="Confirmar nueva contraseña" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3 outline-none">
-                    <div class="md:col-span-3">
-                        <button class="rounded-xl bg-white text-slate-900 font-semibold px-5 py-3 hover:bg-slate-100">Actualizar contraseña</button>
+                <div class="glass-card rounded-[1.6rem] p-4">
+                    <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Workspace</p>
+                    <p class="mt-3 text-sm text-slate-200">Gestioná contenido, imágenes y SEO desde un solo lugar con accesos rápidos y tabs laterales.</p>
+                    <div class="mt-4 flex flex-wrap gap-3">
+                        <a href="<?= htmlspecialchars(url_for('/'), ENT_QUOTES, 'UTF-8') ?>" class="pill-btn rounded-2xl bg-cyan-300 text-slate-950">Ver sitio</a>
+                        <a href="<?= htmlspecialchars(url_for('/logout.php'), ENT_QUOTES, 'UTF-8') ?>" class="pill-btn rounded-2xl border border-white/15 bg-white/5 text-slate-100">Cerrar sesión</a>
                     </div>
-                </form>
-            </div>
-        </section>
-
-        <section id="panel-seo" class="admin-panel glass rounded-3xl p-6 md:p-8 space-y-4">
-            <h2 class="text-xl font-semibold mb-2">Datos SEO</h2>
-            <label class="block space-y-2">
-                <span class="text-sm text-slate-300">SEO Title</span>
-                <input type="text" id="seoTitleInput" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3 outline-none">
-            </label>
-            <label class="block space-y-2">
-                <span class="text-sm text-slate-300">SEO Description</span>
-                <textarea id="seoDescriptionInput" rows="4" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3 outline-none"></textarea>
-            </label>
-            <label class="block space-y-2">
-                <span class="text-sm text-slate-300">SEO Keywords</span>
-                <input type="text" id="seoKeywordsInput" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3 outline-none">
-            </label>
-            <div class="grid lg:grid-cols-[minmax(0,1fr),320px] gap-5 items-start">
-                <label class="block space-y-2">
-                    <span class="text-sm text-slate-300">OG Image URL</span>
-                    <input type="text" id="seoOgImageInput" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3 outline-none">
-                </label>
-                <img id="seoOgPreview" src="" alt="Vista previa SEO OG" class="w-full h-40 rounded-2xl object-cover border border-white/10 bg-slate-900/50">
-            </div>
-            <div class="flex flex-wrap gap-3">
-                <button type="button" class="media-target-btn rounded-xl bg-white/10 border border-white/20 px-4 py-3 hover:bg-white/20" data-media-target-key="site.seo.og_image" data-media-target-type="plain-string" data-media-target-input="seoOgImageInput">Abrir media manager</button>
-                <button type="button" class="rounded-xl bg-white/10 border border-white/20 px-4 py-3 hover:bg-white/20" data-copy-from-input="seoOgImageInput">Copiar enlace</button>
-                <button type="button" id="saveSeoBtn" class="rounded-xl bg-fuchsia-300 text-slate-900 font-semibold px-5 py-3 hover:bg-fuchsia-200">Guardar SEO</button>
-            </div>
-        </section>
-
-        <section id="panel-galeria" class="admin-panel glass rounded-3xl p-6 md:p-8 space-y-6">
-            <div class="flex items-center justify-between gap-4 flex-wrap">
-                <div>
-                    <h2 class="text-xl font-semibold">CRUD Galería</h2>
-                    <p class="text-sm text-slate-300">Administra las obras visibles en la sección frontal.</p>
                 </div>
-                <button type="button" id="addGalleryItemBtn" class="rounded-xl bg-cyan-300 text-slate-900 font-semibold px-5 py-3 hover:bg-cyan-200">+ Agregar obra</button>
             </div>
-            <div id="galleryCrud" class="grid xl:grid-cols-2 gap-5"></div>
-            <div><button type="button" id="saveGalleryBtn" class="rounded-xl bg-white text-slate-900 font-semibold px-5 py-3 hover:bg-slate-100">Guardar galería</button></div>
-        </section>
 
-        <section id="panel-market" class="admin-panel glass rounded-3xl p-6 md:p-8 space-y-6">
-            <div class="flex items-center justify-between gap-4 flex-wrap">
-                <div>
-                    <h2 class="text-xl font-semibold">CRUD Market</h2>
-                    <p class="text-sm text-slate-300">Administra los artistas/obras destacados del market.</p>
-                </div>
-                <button type="button" id="addMarketItemBtn" class="rounded-xl bg-cyan-300 text-slate-900 font-semibold px-5 py-3 hover:bg-cyan-200">+ Agregar item</button>
-            </div>
-            <div id="marketCrud" class="grid xl:grid-cols-2 gap-5"></div>
-            <div><button type="button" id="saveMarketBtn" class="rounded-xl bg-white text-slate-900 font-semibold px-5 py-3 hover:bg-slate-100">Guardar market</button></div>
-        </section>
+            <nav class="space-y-3">
+                <button type="button" class="admin-tab active" data-admin-tab="general"><span>✨ General</span><span class="text-xs text-slate-400">Brand</span></button>
+                <button type="button" class="admin-tab" data-admin-tab="seo"><span>🚀 SEO</span><span class="text-xs text-slate-400">Meta</span></button>
+                <button type="button" class="admin-tab" data-admin-tab="galeria"><span>🖼️ Galería</span><span class="text-xs text-slate-400">Colección</span></button>
+                <button type="button" class="admin-tab" data-admin-tab="market"><span>🛍️ Market</span><span class="text-xs text-slate-400">Venta</span></button>
+                <button type="button" class="admin-tab" data-admin-tab="media"><span>📁 Media Manager</span><span class="text-xs text-slate-400">Assets</span></button>
+            </nav>
 
-        <section id="panel-media" class="admin-panel glass rounded-3xl p-6 md:p-8 space-y-6">
-            <div class="flex flex-col xl:flex-row gap-6">
-                <div class="xl:w-[360px] space-y-4">
-                    <div>
-                        <h2 class="text-xl font-semibold">Administrador de imágenes</h2>
-                        <p class="text-sm text-slate-300 mt-1">Arrastra, suelta o selecciona imágenes. Luego podrás copiar el enlace o asignarlas a cualquier campo.</p>
+            <div class="grid grid-cols-2 gap-3">
+                <article class="metric-tile glass-card rounded-[1.4rem] p-4">
+                    <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Obras</p>
+                    <p class="mt-3 text-3xl font-semibold"><?= count($content['tabs']['obras']['items'] ?? []) ?></p>
+                    <p class="mt-1 text-xs text-slate-400">En galería</p>
+                </article>
+                <article class="metric-tile glass-card rounded-[1.4rem] p-4">
+                    <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Market</p>
+                    <p class="mt-3 text-3xl font-semibold"><?= count($content['tabs']['mercado']['items'] ?? []) ?></p>
+                    <p class="mt-1 text-xs text-slate-400">Items activos</p>
+                </article>
+                <article class="metric-tile glass-card rounded-[1.4rem] p-4 col-span-2">
+                    <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Fondos rotativos</p>
+                    <div class="mt-3 flex items-end justify-between gap-3">
+                        <p class="text-3xl font-semibold"><?= count($content['backgrounds'] ?? []) ?></p>
+                        <p class="text-xs text-slate-400">Listos para portada</p>
                     </div>
-                    <label id="mediaDropzone" for="mediaUploadInput" class="media-dropzone block rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/40 p-6 text-center cursor-pointer transition">
-                        <div class="space-y-3">
-                            <div class="text-4xl">🖼️</div>
+                </article>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            <header class="hero-banner glass rounded-[2rem] p-5 md:p-7">
+                <div class="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+                    <div class="space-y-4 max-w-3xl">
+                        <div class="flex items-center gap-3">
+                            <button type="button" id="openSidebarBtn" class="lg:hidden rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-slate-100">☰ Tabs</button>
+                            <span class="rounded-full border border-cyan-300/25 bg-cyan-300/10 px-3 py-1 text-[11px] uppercase tracking-[0.28em] text-cyan-100">Premium SaaS Admin</span>
+                        </div>
+                        <div>
+                            <h2 class="text-3xl md:text-5xl font-semibold tracking-tight">Panel administrativo elegante, ordenado y preparado para móviles.</h2>
+                            <p class="mt-3 max-w-2xl text-sm md:text-base text-slate-300">Reorganicé el flujo del admin en secciones laterales, superficies glass y bloques accionables para que editar contenido, market y assets sea más rápido desde desktop o celular.</p>
+                        </div>
+                    </div>
+                    <div class="grid sm:grid-cols-3 gap-3 min-w-0 xl:min-w-[420px]">
+                        <article class="glass-card rounded-[1.5rem] p-4">
+                            <p class="text-xs uppercase tracking-[0.26em] text-slate-400">Sitio</p>
+                            <p class="mt-3 text-lg font-semibold"><?= htmlspecialchars((string) ($content['site']['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></p>
+                        </article>
+                        <article class="glass-card rounded-[1.5rem] p-4">
+                            <p class="text-xs uppercase tracking-[0.26em] text-slate-400">Estado</p>
+                            <p class="mt-3 text-lg font-semibold"><?= htmlspecialchars((string) ($content['site']['availability'] ?? 'No definido'), ENT_QUOTES, 'UTF-8') ?></p>
+                        </article>
+                        <article class="glass-card rounded-[1.5rem] p-4">
+                            <p class="text-xs uppercase tracking-[0.26em] text-slate-400">Biblioteca</p>
+                            <p class="mt-3 text-lg font-semibold">Media centralizada</p>
+                        </article>
+                    </div>
+                </div>
+            </header>
+
+            <div id="adminAlert" class="hidden rounded-xl p-4 text-sm"></div>
+
+            <section id="panel-general" class="admin-panel active glass rounded-[2rem] p-5 md:p-8 space-y-6">
+                <div class="grid xl:grid-cols-[1.2fr,0.8fr] gap-6">
+                    <article class="section-card space-y-5">
+                        <div class="section-heading">
                             <div>
-                                <p class="font-semibold">Arrastrar y soltar imágenes aquí</p>
-                                <p class="text-sm text-slate-300">O haz clic para seleccionar archivos JPG, PNG o WEBP de hasta 5MB.</p>
+                                <p class="text-xs uppercase tracking-[0.28em] text-cyan-200">Brand core</p>
+                                <h2 class="text-2xl font-semibold">Ajustes generales</h2>
+                                <p class="mt-2 text-sm">Define identidad del sitio, tagline comercial y mensaje de disponibilidad.</p>
                             </div>
                         </div>
-                    </label>
-                    <input id="mediaUploadInput" type="file" accept="image/png,image/jpeg,image/webp" class="hidden">
-                    <div class="flex flex-wrap gap-3">
-                        <button type="button" id="openMediaFileBtn" class="rounded-xl bg-cyan-300 text-slate-900 font-semibold px-5 py-3 hover:bg-cyan-200">Seleccionar imagen</button>
-                        <button type="button" id="refreshMediaLibraryBtn" class="rounded-xl bg-white/10 border border-white/20 px-5 py-3 hover:bg-white/20">Actualizar biblioteca</button>
-                    </div>
-                    <div id="mediaUploadStatus" class="rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3 text-sm text-slate-300">Aquí verás el estado de la subida y el enlace listo para copiar.</div>
-                    <label class="block space-y-2">
-                        <span class="text-sm text-slate-300">Último enlace subido</span>
-                        <input id="mediaLatestUrl" type="text" readonly class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3 text-slate-100 outline-none">
-                    </label>
-                    <div class="flex flex-wrap gap-3">
-                        <button type="button" id="copyLatestMediaBtn" class="rounded-xl bg-white/10 border border-white/20 px-4 py-3 hover:bg-white/20">Copiar último enlace</button>
-                        <button type="button" id="useLatestMediaForTargetBtn" class="rounded-xl bg-white/10 border border-white/20 px-4 py-3 hover:bg-white/20">Usar en campo seleccionado</button>
-                    </div>
-                </div>
-                <div class="flex-1 space-y-4">
-                    <div class="flex items-center justify-between gap-4 flex-wrap">
-                        <div>
-                            <h3 class="text-lg font-semibold">Biblioteca</h3>
-                            <p id="mediaLibraryStatus" class="text-sm text-slate-300">Cargando imágenes...</p>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <label class="block space-y-2">
+                                <span class="text-sm text-slate-300">Nombre del sitio</span>
+                                <input type="text" id="siteNameInput" class="input-shell">
+                            </label>
+                            <label class="block space-y-2">
+                                <span class="text-sm text-slate-300">Tagline</span>
+                                <input type="text" id="siteTaglineInput" class="input-shell">
+                            </label>
+                            <label class="block space-y-2 md:col-span-2">
+                                <span class="text-sm text-slate-300">Disponibilidad</span>
+                                <input type="text" id="availabilityInput" class="input-shell">
+                            </label>
                         </div>
-                        <div class="text-sm text-slate-400">Haz clic en una tarjeta para previsualizar, copiar o asignar.</div>
-                    </div>
-                    <div id="mediaLibraryGrid" class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4"></div>
+                        <div>
+                            <button type="button" id="saveGeneralBtn" class="pill-btn rounded-2xl bg-cyan-300 text-slate-950">Guardar ajustes</button>
+                        </div>
+                    </article>
+
+                    <article class="section-card space-y-5">
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.28em] text-fuchsia-200">Experience blocks</p>
+                            <h2 class="text-2xl font-semibold">Academia</h2>
+                            <p class="mt-2 text-sm text-slate-300">Centralizá el contenido del bloque educativo y la imagen asociada.</p>
+                        </div>
+                        <div class="grid gap-4">
+                            <label class="block space-y-2">
+                                <span class="text-sm text-slate-300">Título inicial</span>
+                                <input type="text" id="academiaTitlePrefixInput" class="input-shell">
+                            </label>
+                            <label class="block space-y-2">
+                                <span class="text-sm text-slate-300">Título destacado</span>
+                                <input type="text" id="academiaTitleHighlightInput" class="input-shell">
+                            </label>
+                            <label class="block space-y-2">
+                                <span class="text-sm text-slate-300">Descripción</span>
+                                <textarea id="academiaDescriptionInput" rows="4" class="textarea-shell"></textarea>
+                            </label>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <label class="block space-y-2">
+                                    <span class="text-sm text-slate-300">Texto del botón</span>
+                                    <input type="text" id="academiaButtonInput" class="input-shell">
+                                </label>
+                                <label class="block space-y-2">
+                                    <span class="text-sm text-slate-300">URL del botón</span>
+                                    <input type="url" id="academiaLinkUrlInput" class="input-shell">
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <button type="button" id="saveAcademiaBtn" class="pill-btn rounded-2xl bg-fuchsia-300 text-slate-950">Guardar academia</button>
+                        </div>
+                    </article>
                 </div>
-            </div>
-        </section>
+
+                <article class="section-card space-y-5">
+                    <div class="section-heading">
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.28em] text-cyan-200">Communication</p>
+                            <h2 class="text-2xl font-semibold">Datos de contacto y redes</h2>
+                            <p class="mt-2 text-sm">Si un campo queda vacío, no se mostrará en el sitio. WhatsApp se usa como fallback en Market cuando un ítem no tiene enlace propio.</p>
+                        </div>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <label class="block space-y-2 md:col-span-2">
+                            <span class="text-sm text-slate-300">Título del bloque</span>
+                            <input type="text" id="contactTitleInput" class="input-shell">
+                        </label>
+                        <label class="block space-y-2 md:col-span-2">
+                            <span class="text-sm text-slate-300">Descripción</span>
+                            <textarea id="contactDescriptionInput" rows="3" class="textarea-shell"></textarea>
+                        </label>
+                        <label class="block space-y-2">
+                            <span class="text-sm text-slate-300">WhatsApp</span>
+                            <input type="text" id="contactWhatsappInput" placeholder="5492233011023" class="input-shell">
+                        </label>
+                        <label class="block space-y-2">
+                            <span class="text-sm text-slate-300">Email</span>
+                            <input type="email" id="contactEmailInput" placeholder="hola@dominio.com" class="input-shell">
+                        </label>
+                        <label class="block space-y-2">
+                            <span class="text-sm text-slate-300">Instagram</span>
+                            <input type="text" id="contactInstagramInput" placeholder="https://instagram.com/..." class="input-shell">
+                        </label>
+                        <label class="block space-y-2">
+                            <span class="text-sm text-slate-300">Facebook</span>
+                            <input type="text" id="contactFacebookInput" placeholder="https://facebook.com/..." class="input-shell">
+                        </label>
+                        <label class="block space-y-2">
+                            <span class="text-sm text-slate-300">TikTok</span>
+                            <input type="text" id="contactTiktokInput" placeholder="https://tiktok.com/@..." class="input-shell">
+                        </label>
+                        <label class="block space-y-2">
+                            <span class="text-sm text-slate-300">YouTube</span>
+                            <input type="text" id="contactYoutubeInput" placeholder="https://youtube.com/..." class="input-shell">
+                        </label>
+                    </div>
+                    <div>
+                        <button type="button" id="saveContactBtn" class="pill-btn rounded-2xl bg-white text-slate-950">Guardar contacto y redes</button>
+                    </div>
+                </article>
+
+                <article class="section-card space-y-5">
+                    <div class="section-heading">
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.28em] text-cyan-200">Asset shortcuts</p>
+                            <h2 class="text-2xl font-semibold">Imágenes clave del sitio</h2>
+                            <p class="mt-2 text-sm">Todos los campos de imagen principales pueden abrir el media manager, subir archivos o reutilizar la biblioteca.</p>
+                        </div>
+                    </div>
+                    <div class="grid xl:grid-cols-3 gap-5">
+                        <article class="glass-card rounded-[1.6rem] p-5 space-y-4">
+                            <div>
+                                <h3 class="font-semibold text-lg">Imagen destacada del hero</h3>
+                                <p class="text-sm text-slate-400">Imagen principal de portada.</p>
+                            </div>
+                            <img id="heroFeaturedPreview" src="" alt="Vista previa hero" class="w-full h-44 rounded-2xl object-cover border border-white/10 bg-slate-900/50">
+                            <label class="block space-y-2">
+                                <span class="text-sm text-slate-300">URL o ruta</span>
+                                <input type="text" id="heroFeaturedInput" data-image-input-key="hero.featured_image" class="input-shell">
+                            </label>
+                            <div class="flex flex-wrap gap-3">
+                                <button type="button" class="media-target-btn pill-btn rounded-2xl bg-white/10 border border-white/20 text-slate-100" data-media-target-key="hero.featured_image" data-media-target-type="image-object" data-media-target-input="heroFeaturedInput">Abrir media manager</button>
+                                <button type="button" class="pill-btn rounded-2xl bg-white/10 border border-white/20 text-slate-100" data-copy-from-input="heroFeaturedInput">Copiar enlace</button>
+                            </div>
+                        </article>
+                        <article class="glass-card rounded-[1.6rem] p-5 space-y-4">
+                            <div>
+                                <h3 class="font-semibold text-lg">Imagen de Academia</h3>
+                                <p class="text-sm text-slate-400">Imagen del bloque de clases.</p>
+                            </div>
+                            <img id="academiaImagePreview" src="" alt="Vista previa academia" class="w-full h-44 rounded-2xl object-cover border border-white/10 bg-slate-900/50">
+                            <label class="block space-y-2">
+                                <span class="text-sm text-slate-300">URL o ruta</span>
+                                <input type="text" id="academiaImageInput" data-image-input-key="tabs.academia.image" class="input-shell">
+                            </label>
+                            <div class="flex flex-wrap gap-3">
+                                <button type="button" class="media-target-btn pill-btn rounded-2xl bg-white/10 border border-white/20 text-slate-100" data-media-target-key="tabs.academia.image" data-media-target-type="image-object" data-media-target-input="academiaImageInput">Abrir media manager</button>
+                                <button type="button" class="pill-btn rounded-2xl bg-white/10 border border-white/20 text-slate-100" data-copy-from-input="academiaImageInput">Copiar enlace</button>
+                            </div>
+                        </article>
+                    </div>
+                    <div>
+                        <button type="button" id="saveSiteImagesBtn" class="pill-btn rounded-2xl bg-cyan-300 text-slate-950">Guardar imágenes globales</button>
+                    </div>
+                </article>
+
+                <article class="section-card space-y-5">
+                    <div class="section-heading">
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.28em] text-cyan-200">Ambient</p>
+                            <h2 class="text-2xl font-semibold">Fondos del sitio</h2>
+                            <p class="mt-2 text-sm">Elige las imágenes que rotan de fondo en la portada.</p>
+                        </div>
+                        <button type="button" id="addBackgroundBtn" class="pill-btn rounded-2xl bg-white text-slate-950">+ Agregar fondo</button>
+                    </div>
+                    <div id="backgroundCrud" class="grid xl:grid-cols-2 gap-5"></div>
+                    <div>
+                        <button type="button" id="saveBackgroundsBtn" class="pill-btn rounded-2xl bg-cyan-300 text-slate-950">Guardar fondos</button>
+                    </div>
+                </article>
+
+                <article class="section-card space-y-5">
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.28em] text-cyan-200">Security</p>
+                        <h2 class="text-2xl font-semibold">Cambiar contraseña</h2>
+                    </div>
+                    <form id="passwordForm" class="grid md:grid-cols-3 gap-4">
+                        <input type="password" name="current_password" required placeholder="Contraseña actual" class="input-shell">
+                        <input type="password" name="new_password" required placeholder="Nueva contraseña" class="input-shell">
+                        <input type="password" name="confirm_password" required placeholder="Confirmar nueva contraseña" class="input-shell">
+                        <div class="md:col-span-3">
+                            <button class="pill-btn rounded-2xl bg-white text-slate-950">Actualizar contraseña</button>
+                        </div>
+                    </form>
+                </article>
+            </section>
+
+            <section id="panel-seo" class="admin-panel glass rounded-[2rem] p-5 md:p-8 space-y-6">
+                <article class="section-card space-y-5">
+                    <div class="section-heading">
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.28em] text-fuchsia-200">Visibility</p>
+                            <h2 class="text-2xl font-semibold">Datos SEO</h2>
+                            <p class="mt-2 text-sm">Optimiza títulos, descripción, keywords y preview para compartir.</p>
+                        </div>
+                    </div>
+                    <div class="grid xl:grid-cols-[minmax(0,1fr),360px] gap-5 items-start">
+                        <div class="space-y-4">
+                            <label class="block space-y-2">
+                                <span class="text-sm text-slate-300">SEO Title</span>
+                                <input type="text" id="seoTitleInput" class="input-shell">
+                            </label>
+                            <label class="block space-y-2">
+                                <span class="text-sm text-slate-300">SEO Description</span>
+                                <textarea id="seoDescriptionInput" rows="5" class="textarea-shell"></textarea>
+                            </label>
+                            <label class="block space-y-2">
+                                <span class="text-sm text-slate-300">SEO Keywords</span>
+                                <input type="text" id="seoKeywordsInput" class="input-shell">
+                            </label>
+                            <div class="flex flex-wrap gap-3">
+                                <button type="button" class="media-target-btn pill-btn rounded-2xl bg-white/10 border border-white/20 text-slate-100" data-media-target-key="site.seo.og_image" data-media-target-type="plain-string" data-media-target-input="seoOgImageInput">Abrir media manager</button>
+                                <button type="button" class="pill-btn rounded-2xl bg-white/10 border border-white/20 text-slate-100" data-copy-from-input="seoOgImageInput">Copiar enlace</button>
+                                <button type="button" id="saveSeoBtn" class="pill-btn rounded-2xl bg-fuchsia-300 text-slate-950">Guardar SEO</button>
+                            </div>
+                        </div>
+                        <div class="glass-card rounded-[1.6rem] p-5 space-y-4">
+                            <div>
+                                <h3 class="text-lg font-semibold">OG image</h3>
+                                <p class="text-sm text-slate-300">Selecciona la imagen principal para previews sociales.</p>
+                            </div>
+                            <label class="block space-y-2">
+                                <span class="text-sm text-slate-300">OG Image URL</span>
+                                <input type="text" id="seoOgImageInput" class="input-shell">
+                            </label>
+                            <img id="seoOgPreview" src="" alt="Vista previa SEO OG" class="w-full h-56 rounded-2xl object-cover border border-white/10 bg-slate-900/50">
+                        </div>
+                    </div>
+                </article>
+            </section>
+
+            <section id="panel-galeria" class="admin-panel glass rounded-[2rem] p-5 md:p-8 space-y-6">
+                <article class="section-card space-y-5">
+                    <div class="grid xl:grid-cols-[0.9fr,1.1fr] gap-5">
+                        <div class="space-y-4">
+                            <div>
+                                <p class="text-xs uppercase tracking-[0.28em] text-cyan-200">Section content</p>
+                                <h2 class="text-2xl font-semibold">Cabecera de Galería</h2>
+                                <p class="mt-2 text-sm text-slate-300">Edita el título visible antes del listado de obras.</p>
+                            </div>
+                            <label class="block space-y-2">
+                                <span class="text-sm text-slate-300">Título inicial</span>
+                                <input type="text" id="galleryTitlePrefixInput" class="input-shell">
+                            </label>
+                            <label class="block space-y-2">
+                                <span class="text-sm text-slate-300">Título destacado</span>
+                                <input type="text" id="galleryTitleHighlightInput" class="input-shell">
+                            </label>
+                        </div>
+                        <div class="glass-card rounded-[1.6rem] p-5 flex flex-col justify-between gap-4">
+                            <div>
+                                <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Curaduría</p>
+                                <h3 class="mt-2 text-xl font-semibold">CRUD de obras</h3>
+                                <p class="mt-2 text-sm text-slate-300">Administra las obras visibles en la sección frontal con acceso directo al media manager para cada imagen.</p>
+                            </div>
+                            <div class="flex flex-wrap gap-3">
+                                <button type="button" id="addGalleryItemBtn" class="pill-btn rounded-2xl bg-cyan-300 text-slate-950">+ Agregar obra</button>
+                                <button type="button" id="saveGalleryBtn" class="pill-btn rounded-2xl bg-white text-slate-950">Guardar galería</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="galleryCrud" class="grid xl:grid-cols-2 gap-5"></div>
+                </article>
+            </section>
+
+            <section id="panel-market" class="admin-panel glass rounded-[2rem] p-5 md:p-8 space-y-6">
+                <article class="section-card space-y-5">
+                    <div class="grid xl:grid-cols-[0.9fr,1.1fr] gap-5">
+                        <div class="space-y-4">
+                            <div>
+                                <p class="text-xs uppercase tracking-[0.28em] text-cyan-200">Section content</p>
+                                <h2 class="text-2xl font-semibold">Cabecera de Market</h2>
+                                <p class="mt-2 text-sm text-slate-300">Ordena el mensaje del bloque y mantén clara la propuesta comercial.</p>
+                            </div>
+                            <label class="block space-y-2">
+                                <span class="text-sm text-slate-300">Título inicial</span>
+                                <input type="text" id="marketTitlePrefixInput" class="input-shell">
+                            </label>
+                            <label class="block space-y-2">
+                                <span class="text-sm text-slate-300">Título destacado</span>
+                                <input type="text" id="marketTitleHighlightInput" class="input-shell">
+                            </label>
+                            <label class="block space-y-2">
+                                <span class="text-sm text-slate-300">Descripción</span>
+                                <textarea id="marketDescriptionInput" rows="4" class="textarea-shell"></textarea>
+                            </label>
+                        </div>
+                        <div class="glass-card rounded-[1.6rem] p-5 flex flex-col justify-between gap-4">
+                            <div>
+                                <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Venta asistida</p>
+                                <h3 class="mt-2 text-xl font-semibold">Items destacados</h3>
+                                <p class="mt-2 text-sm text-slate-300">La card de “+” ya no aparece en el sitio. Aquí gestionas solo los items reales del market y sus imágenes.</p>
+                            </div>
+                            <div class="flex flex-wrap gap-3">
+                                <button type="button" id="addMarketItemBtn" class="pill-btn rounded-2xl bg-cyan-300 text-slate-950">+ Agregar item</button>
+                                <button type="button" id="saveMarketBtn" class="pill-btn rounded-2xl bg-white text-slate-950">Guardar market</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="marketCrud" class="grid xl:grid-cols-2 gap-5"></div>
+                </article>
+            </section>
+
+            <section id="panel-media" class="admin-panel glass rounded-[2rem] p-5 md:p-8 space-y-6">
+                <article class="section-card">
+                    <div class="flex flex-col xl:flex-row gap-6">
+                        <div class="xl:w-[360px] space-y-4">
+                            <div>
+                                <p class="text-xs uppercase tracking-[0.28em] text-cyan-200">Asset hub</p>
+                                <h2 class="text-2xl font-semibold">Administrador de imágenes</h2>
+                                <p class="text-sm text-slate-300 mt-1">Arrastra, suelta o selecciona imágenes. Luego podrás copiar el enlace o asignarlas a cualquier campo.</p>
+                            </div>
+                            <label id="mediaDropzone" for="mediaUploadInput" class="media-dropzone block rounded-3xl border-2 border-dashed border-white/20 bg-slate-950/40 p-6 text-center cursor-pointer transition">
+                                <div class="space-y-3">
+                                    <div class="text-4xl">🖼️</div>
+                                    <div>
+                                        <p class="font-semibold">Arrastrar y soltar imágenes aquí</p>
+                                        <p class="text-sm text-slate-300">O haz clic para seleccionar archivos JPG, PNG o WEBP de hasta 5MB.</p>
+                                    </div>
+                                </div>
+                            </label>
+                            <input id="mediaUploadInput" type="file" accept="image/png,image/jpeg,image/webp" class="hidden">
+                            <div class="flex flex-wrap gap-3">
+                                <button type="button" id="openMediaFileBtn" class="pill-btn rounded-2xl bg-cyan-300 text-slate-950">Seleccionar imagen</button>
+                                <button type="button" id="refreshMediaLibraryBtn" class="pill-btn rounded-2xl bg-white/10 border border-white/20 text-slate-100">Actualizar biblioteca</button>
+                            </div>
+                            <div id="mediaUploadStatus" class="rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3 text-sm text-slate-300">Aquí verás el estado de la subida y el enlace listo para copiar.</div>
+                            <label class="block space-y-2">
+                                <span class="text-sm text-slate-300">Último enlace subido</span>
+                                <input id="mediaLatestUrl" type="text" readonly class="input-shell text-slate-100">
+                            </label>
+                            <div class="flex flex-wrap gap-3">
+                                <button type="button" id="copyLatestMediaBtn" class="pill-btn rounded-2xl bg-white/10 border border-white/20 text-slate-100">Copiar último enlace</button>
+                                <button type="button" id="useLatestMediaForTargetBtn" class="pill-btn rounded-2xl bg-white/10 border border-white/20 text-slate-100">Usar en campo seleccionado</button>
+                            </div>
+                        </div>
+                        <div class="flex-1 space-y-4">
+                            <div class="flex items-center justify-between gap-4 flex-wrap">
+                                <div>
+                                    <h3 class="text-lg font-semibold">Biblioteca</h3>
+                                    <p id="mediaLibraryStatus" class="text-sm text-slate-300">Cargando imágenes...</p>
+                                </div>
+                                <div class="text-sm text-slate-400">Haz clic en una tarjeta para previsualizar, copiar o asignar.</div>
+                            </div>
+                            <div id="mediaLibraryGrid" class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4"></div>
+                        </div>
+                    </div>
+                </article>
+            </section>
+        </main>
     </div>
 
 <div id="fieldMediaModal" class="hidden fixed inset-0 bg-black/70 z-[100] items-center justify-center px-4 py-8 overflow-y-auto">
@@ -628,6 +966,16 @@ function hydrateGeneralFields() {
     document.getElementById('contactFacebookInput').value = getByPath(adminState, 'site.contact.facebook', '');
     document.getElementById('contactTiktokInput').value = getByPath(adminState, 'site.contact.tiktok', '');
     document.getElementById('contactYoutubeInput').value = getByPath(adminState, 'site.contact.youtube', '');
+    document.getElementById('academiaTitlePrefixInput').value = getByPath(adminState, 'tabs.academia.title_prefix', '');
+    document.getElementById('academiaTitleHighlightInput').value = getByPath(adminState, 'tabs.academia.title_highlight', '');
+    document.getElementById('academiaDescriptionInput').value = getByPath(adminState, 'tabs.academia.description', '');
+    document.getElementById('academiaButtonInput').value = getByPath(adminState, 'tabs.academia.button', '');
+    document.getElementById('academiaLinkUrlInput').value = getByPath(adminState, 'tabs.academia.link_url', '');
+    document.getElementById('galleryTitlePrefixInput').value = getByPath(adminState, 'tabs.obras.title_prefix', '');
+    document.getElementById('galleryTitleHighlightInput').value = getByPath(adminState, 'tabs.obras.title_highlight', '');
+    document.getElementById('marketTitlePrefixInput').value = getByPath(adminState, 'tabs.mercado.title_prefix', '');
+    document.getElementById('marketTitleHighlightInput').value = getByPath(adminState, 'tabs.mercado.title_highlight', '');
+    document.getElementById('marketDescriptionInput').value = getByPath(adminState, 'tabs.mercado.description', '');
     document.getElementById('seoTitleInput').value = getByPath(adminState, 'site.title', '');
     document.getElementById('seoDescriptionInput').value = getByPath(adminState, 'site.seo.description', '');
     document.getElementById('seoKeywordsInput').value = getByPath(adminState, 'site.seo.keywords', '');
@@ -907,12 +1255,27 @@ function setupDropzone(dropzoneId, inputId, onFile) {
     });
 }
 
+function closeSidebar() {
+    document.getElementById('adminSidebar')?.classList.remove('open');
+    document.getElementById('adminSidebarBackdrop')?.classList.add('hidden');
+}
+
+function openSidebar() {
+    document.getElementById('adminSidebar')?.classList.add('open');
+    document.getElementById('adminSidebarBackdrop')?.classList.remove('hidden');
+}
+
+document.getElementById('openSidebarBtn')?.addEventListener('click', openSidebar);
+document.getElementById('closeSidebarBtn')?.addEventListener('click', closeSidebar);
+document.getElementById('adminSidebarBackdrop')?.addEventListener('click', closeSidebar);
+
 document.querySelectorAll('[data-admin-tab]').forEach((button) => {
     button.addEventListener('click', () => {
         document.querySelectorAll('[data-admin-tab]').forEach((tab) => tab.classList.remove('active'));
         document.querySelectorAll('.admin-panel').forEach((panel) => panel.classList.remove('active'));
         button.classList.add('active');
         document.getElementById(`panel-${button.dataset.adminTab}`)?.classList.add('active');
+        closeSidebar();
         if (button.dataset.adminTab === 'media') {
             loadMediaLibrary({ statusIds: ['mediaLibraryStatus'], renderGlobal: true, renderField: false });
         }
@@ -925,6 +1288,20 @@ document.getElementById('saveGeneralBtn').addEventListener('click', async () => 
     setByPath(adminState, 'site.availability', document.getElementById('availabilityInput').value.trim());
     try {
         await saveContentState('Ajustes guardados.');
+    } catch (error) {
+        showAlert(error.message, 'error');
+    }
+});
+
+
+document.getElementById('saveAcademiaBtn').addEventListener('click', async () => {
+    setByPath(adminState, 'tabs.academia.title_prefix', document.getElementById('academiaTitlePrefixInput').value.trim());
+    setByPath(adminState, 'tabs.academia.title_highlight', document.getElementById('academiaTitleHighlightInput').value.trim());
+    setByPath(adminState, 'tabs.academia.description', document.getElementById('academiaDescriptionInput').value.trim());
+    setByPath(adminState, 'tabs.academia.button', document.getElementById('academiaButtonInput').value.trim());
+    setByPath(adminState, 'tabs.academia.link_url', document.getElementById('academiaLinkUrlInput').value.trim());
+    try {
+        await saveContentState('Academia guardada.');
     } catch (error) {
         showAlert(error.message, 'error');
     }
@@ -1016,6 +1393,8 @@ document.getElementById('addMarketItemBtn').addEventListener('click', async () =
 });
 
 document.getElementById('saveGalleryBtn').addEventListener('click', async () => {
+    setByPath(adminState, 'tabs.obras.title_prefix', document.getElementById('galleryTitlePrefixInput').value.trim());
+    setByPath(adminState, 'tabs.obras.title_highlight', document.getElementById('galleryTitleHighlightInput').value.trim());
     try {
         await saveContentState('Galería guardada.');
     } catch (error) {
@@ -1024,6 +1403,9 @@ document.getElementById('saveGalleryBtn').addEventListener('click', async () => 
 });
 
 document.getElementById('saveMarketBtn').addEventListener('click', async () => {
+    setByPath(adminState, 'tabs.mercado.title_prefix', document.getElementById('marketTitlePrefixInput').value.trim());
+    setByPath(adminState, 'tabs.mercado.title_highlight', document.getElementById('marketTitleHighlightInput').value.trim());
+    setByPath(adminState, 'tabs.mercado.description', document.getElementById('marketDescriptionInput').value.trim());
     try {
         await saveContentState('Market guardado.');
     } catch (error) {
