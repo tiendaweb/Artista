@@ -20,6 +20,8 @@ const contentState = window.APP_CONTENT_STATE || {};
 let editMode = false;
 let currentImageKey = '';
 let currentLinkKey = '';
+let currentCollectionKey = '';
+let currentCollectionIndex = -1;
 let imageMode = 'url';
 let libraryLoading = false;
 let selectedLibraryUrl = '';
@@ -163,6 +165,65 @@ function createEmptyCollectionItem(collectionKey) {
     };
 }
 
+function getCollectionLabels(collectionKey) {
+    return collectionKey === 'tabs.mercado.items'
+        ? { singular: 'item market', plural: 'market' }
+        : { singular: 'obra', plural: 'galería' };
+}
+
+function closeCollectionItemModal() {
+    document.getElementById('collectionItemModal').classList.add('hidden');
+    document.getElementById('collectionItemModal').classList.remove('flex');
+    document.getElementById('collectionItemFeedback').textContent = '';
+    currentCollectionKey = '';
+    currentCollectionIndex = -1;
+}
+
+function openCollectionItemModal(collectionKey, index = -1) {
+    currentCollectionKey = collectionKey;
+    currentCollectionIndex = index;
+
+    const labels = getCollectionLabels(collectionKey);
+    const item = index >= 0
+        ? getByPath(contentState, `${collectionKey}[${index}]`, createEmptyCollectionItem(collectionKey))
+        : createEmptyCollectionItem(collectionKey);
+
+    document.getElementById('collectionModalEyebrow').textContent = labels.plural;
+    document.getElementById('collectionModalTitle').textContent = index >= 0
+        ? `Editar ${labels.singular}`
+        : `Agregar ${labels.singular}`;
+    document.getElementById('collectionTitleInput').value = item.title || '';
+    document.getElementById('collectionSubtitleInput').value = item.subtitle || '';
+    document.getElementById('collectionDescriptionInput').value = item.description || '';
+    document.getElementById('collectionImageInput').value = item.image?.value || '';
+    document.getElementById('collectionAltInput').value = item.alt || item.image?.alt || '';
+    document.getElementById('collectionLinkLabelInput').value = item.link_label || 'Ver más';
+    document.getElementById('collectionLinkUrlInput').value = item.link_url || 'https://';
+    document.getElementById('collectionItemFeedback').textContent = '';
+    document.getElementById('collectionItemFeedback').className = 'text-xs';
+
+    document.getElementById('collectionItemModal').classList.remove('hidden');
+    document.getElementById('collectionItemModal').classList.add('flex');
+}
+
+function buildCollectionItemPayload() {
+    const imageValue = document.getElementById('collectionImageInput').value.trim();
+
+    return {
+        image: {
+            source_type: /^https?:\/\//i.test(imageValue) ? 'url' : (imageValue ? 'upload' : 'url'),
+            value: imageValue,
+            alt: document.getElementById('collectionAltInput').value.trim(),
+        },
+        alt: document.getElementById('collectionAltInput').value.trim(),
+        title: document.getElementById('collectionTitleInput').value.trim(),
+        subtitle: document.getElementById('collectionSubtitleInput').value.trim(),
+        description: document.getElementById('collectionDescriptionInput').value.trim(),
+        link_label: document.getElementById('collectionLinkLabelInput').value.trim() || 'Ver más',
+        link_url: document.getElementById('collectionLinkUrlInput').value.trim() || 'https://',
+    };
+}
+
 function renderCollectionItem(item, index, collectionKey) {
     const isMarket = collectionKey === 'tabs.mercado.items';
     const titleKey = `${collectionKey}[${index}].title`;
@@ -176,11 +237,15 @@ function renderCollectionItem(item, index, collectionKey) {
     const deleteButton = isAuthenticated
         ? `<button type="button" class="delete-icon" data-delete-collection="${collectionKey}" data-index="${index}">✕</button>`
         : '';
+    const editButton = isAuthenticated
+        ? `<button type="button" class="item-edit-btn" data-edit-collection="${collectionKey}" data-index="${index}">Editar</button>`
+        : '';
 
     if (isMarket) {
         return `
             <article class="glass p-4 rounded-2xl editable-wrapper" data-collection-item="${collectionKey}" data-index="${index}">
                 ${deleteButton}
+                ${editButton}
                 <div class="aspect-square bg-gray-800 rounded-xl mb-4 overflow-hidden">
                     <img src="${imageSrc}" data-edit-key="${imageKey}" data-edit-type="image" data-source-type="${sourceType}" class="w-full h-full object-cover" alt="${item.alt || ''}">
                 </div>
@@ -199,6 +264,7 @@ function renderCollectionItem(item, index, collectionKey) {
     return `
         <article class="glass glass-hover p-4 rounded-3xl break-inside-avoid editable-wrapper" data-collection-item="${collectionKey}" data-index="${index}">
             ${deleteButton}
+            ${editButton}
             <img src="${imageSrc}" data-edit-key="${imageKey}" data-edit-type="image" data-source-type="${sourceType}" class="rounded-2xl w-full mb-4" alt="${item.alt || ''}">
             <span class="edit-icon" data-edit-target="${imageKey}">✎</span>
             <h3 class="font-serif text-xl" data-edit-key="${titleKey}" data-edit-type="text">${item.title || ''}</h3>
@@ -267,18 +333,15 @@ function bindEditInteractions() {
         };
     });
 
+    document.querySelectorAll('[data-edit-collection]').forEach((button) => {
+        button.onclick = () => {
+            openCollectionItemModal(button.dataset.editCollection, Number(button.dataset.index));
+        };
+    });
+
     document.querySelectorAll('[data-add-collection]').forEach((button) => {
-        button.onclick = async () => {
-            const collectionKey = button.dataset.addCollection;
-            const items = getByPath(contentState, collectionKey, []);
-            items.push(createEmptyCollectionItem(collectionKey));
-            setByPath(contentState, collectionKey, items);
-            renderCollections();
-            try {
-                await persistContent([collectionKey]);
-            } catch (error) {
-                alert(error.message);
-            }
+        button.onclick = () => {
+            openCollectionItemModal(button.dataset.addCollection);
         };
     });
 
@@ -466,6 +529,56 @@ if (isAuthenticated) {
             feedback.className = 'text-xs text-green-400';
         } catch (error) {
             feedback.textContent = error.message;
+            feedback.className = 'text-xs text-red-400';
+        }
+    });
+
+    const collectionModalCloseButtons = ['cancelCollectionItemModal', 'closeCollectionItemModalTop'];
+    collectionModalCloseButtons.forEach((buttonId) => {
+        document.getElementById(buttonId).addEventListener('click', () => {
+            closeCollectionItemModal();
+        });
+    });
+
+    document.getElementById('saveCollectionItemModal').addEventListener('click', async () => {
+        const feedback = document.getElementById('collectionItemFeedback');
+        const payload = buildCollectionItemPayload();
+        const labels = getCollectionLabels(currentCollectionKey);
+
+        if (!currentCollectionKey) {
+            feedback.textContent = 'No se encontró la colección a guardar.';
+            feedback.className = 'text-xs text-red-400';
+            return;
+        }
+
+        if (!payload.title) {
+            feedback.textContent = 'El título es obligatorio.';
+            feedback.className = 'text-xs text-red-400';
+            return;
+        }
+
+        if (payload.link_url && !/^https?:\/\//i.test(payload.link_url)) {
+            feedback.textContent = 'La URL del enlace debe comenzar con http:// o https://.';
+            feedback.className = 'text-xs text-red-400';
+            return;
+        }
+
+        const items = [...getByPath(contentState, currentCollectionKey, [])];
+        if (currentCollectionIndex >= 0) {
+            items[currentCollectionIndex] = payload;
+        } else {
+            items.push(payload);
+        }
+
+        setByPath(contentState, currentCollectionKey, items);
+        renderCollections();
+
+        try {
+            await persistContent([currentCollectionKey]);
+            closeCollectionItemModal();
+            alert(`El ${labels.singular} se guardó correctamente.`);
+        } catch (error) {
+            feedback.textContent = error.message || 'No se pudo guardar el elemento.';
             feedback.className = 'text-xs text-red-400';
         }
     });
