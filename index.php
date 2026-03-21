@@ -321,7 +321,7 @@ foreach (['instagram' => 'Instagram', 'facebook' => 'Facebook', 'tiktok' => 'Tik
     </div>
 </nav>
 
-<div id="imageModal" class="hidden fixed inset-0 bg-black/70 z-[100] items-center justify-center px-4">
+<div id="imageModal" class="hidden fixed inset-0 bg-black/70 z-[120] items-center justify-center px-4">
     <div class="glass rounded-2xl p-6 max-w-xl w-full space-y-4">
         <h3 class="font-serif text-2xl">Editar imagen</h3>
         <div class="flex gap-2 text-sm">
@@ -332,6 +332,7 @@ foreach (['instagram' => 'Instagram', 'facebook' => 'Facebook', 'tiktok' => 'Tik
         <div id="urlPane" class="space-y-2">
             <label class="block text-xs">URL de imagen</label>
             <input id="imageUrlInput" type="url" class="w-full text-black px-3 py-2 rounded" placeholder="https://...">
+            <p class="text-[11px] text-white/60">También puedes usar este media manager para completar el formulario de galería o market.</p>
         </div>
         <div id="uploadPane" class="hidden space-y-2">
             <label class="block text-xs">Archivo (jpg/png/webp, máx 5MB)</label>
@@ -390,10 +391,24 @@ foreach (['instagram' => 'Instagram', 'facebook' => 'Facebook', 'tiktok' => 'Tik
                 <span class="text-xs">Descripción</span>
                 <textarea id="collectionDescriptionInput" rows="4" class="w-full text-black px-3 py-2 rounded" placeholder="Descripción"></textarea>
             </label>
-            <label class="block space-y-2 md:col-span-2">
-                <span class="text-xs">Imagen (URL o ruta subida)</span>
-                <input id="collectionImageInput" type="text" class="w-full text-black px-3 py-2 rounded" placeholder="https://... o /public/uploads/...">
-            </label>
+            <div class="md:col-span-2 space-y-3">
+                <label class="block space-y-2">
+                    <span class="text-xs">Imagen (URL o ruta subida)</span>
+                    <input id="collectionImageInput" type="text" class="w-full text-black px-3 py-2 rounded" placeholder="https://... o /public/uploads/...">
+                </label>
+                <div class="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
+                    <p class="text-[11px] text-white/60">Abre el media manager para subir, explorar biblioteca o pegar una URL sin salir del formulario.</p>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" id="openCollectionMediaManagerBtn" class="px-4 py-2 rounded bg-art-neon text-black font-bold">Abrir media manager</button>
+                        <button type="button" id="clearCollectionImageBtn" class="px-4 py-2 rounded bg-white/10">Limpiar imagen</button>
+                    </div>
+                </div>
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-3">
+                    <p class="text-[11px] uppercase tracking-[0.2em] text-white/50 mb-2">Vista previa</p>
+                    <img id="collectionImagePreview" src="" alt="Vista previa del formulario" class="w-full h-56 object-cover rounded-xl bg-black/30 hidden">
+                    <div id="collectionImageEmpty" class="rounded-xl border border-dashed border-white/10 px-4 py-8 text-center text-xs text-white/45">Todavía no seleccionaste una imagen.</div>
+                </div>
+            </div>
             <label class="block space-y-2">
                 <span class="text-xs">Alt de imagen</span>
                 <input id="collectionAltInput" type="text" class="w-full text-black px-3 py-2 rounded" placeholder="Texto alternativo">
