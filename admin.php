@@ -77,6 +77,50 @@ $content = read_content_file();
 
             <div class="border-t border-white/10 pt-8 space-y-5">
                 <div>
+                    <h2 class="text-xl font-semibold">Datos de contacto y redes</h2>
+                    <p class="text-sm text-slate-300 mt-1">Si un campo queda vacío, no se mostrará en el sitio. El WhatsApp también se usa como fallback en Market cuando un ítem no tiene enlace propio.</p>
+                </div>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <label class="block space-y-2 md:col-span-2">
+                        <span class="text-sm text-slate-300">Título del bloque</span>
+                        <input type="text" id="contactTitleInput" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3 outline-none">
+                    </label>
+                    <label class="block space-y-2 md:col-span-2">
+                        <span class="text-sm text-slate-300">Descripción</span>
+                        <textarea id="contactDescriptionInput" rows="3" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3 outline-none"></textarea>
+                    </label>
+                    <label class="block space-y-2">
+                        <span class="text-sm text-slate-300">WhatsApp</span>
+                        <input type="text" id="contactWhatsappInput" placeholder="5492233011023" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3 outline-none">
+                    </label>
+                    <label class="block space-y-2">
+                        <span class="text-sm text-slate-300">Email</span>
+                        <input type="email" id="contactEmailInput" placeholder="hola@dominio.com" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3 outline-none">
+                    </label>
+                    <label class="block space-y-2">
+                        <span class="text-sm text-slate-300">Instagram</span>
+                        <input type="text" id="contactInstagramInput" placeholder="https://instagram.com/..." class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3 outline-none">
+                    </label>
+                    <label class="block space-y-2">
+                        <span class="text-sm text-slate-300">Facebook</span>
+                        <input type="text" id="contactFacebookInput" placeholder="https://facebook.com/..." class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3 outline-none">
+                    </label>
+                    <label class="block space-y-2">
+                        <span class="text-sm text-slate-300">TikTok</span>
+                        <input type="text" id="contactTiktokInput" placeholder="https://tiktok.com/@..." class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3 outline-none">
+                    </label>
+                    <label class="block space-y-2">
+                        <span class="text-sm text-slate-300">YouTube</span>
+                        <input type="text" id="contactYoutubeInput" placeholder="https://youtube.com/..." class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3 outline-none">
+                    </label>
+                </div>
+                <div>
+                    <button type="button" id="saveContactBtn" class="rounded-xl bg-white text-slate-900 font-semibold px-5 py-3 hover:bg-slate-100">Guardar contacto y redes</button>
+                </div>
+            </div>
+
+            <div class="border-t border-white/10 pt-8 space-y-5">
+                <div>
                     <h2 class="text-xl font-semibold">Imágenes globales del sitio</h2>
                     <p class="text-sm text-slate-300 mt-1">Todos los campos de imagen principales ahora pueden abrir el media manager, subir archivos o reutilizar la biblioteca.</p>
                 </div>
@@ -409,15 +453,16 @@ function updateStandalonePreviews() {
     document.getElementById('seoOgPreview').src = seoValue || imagePreviewFallback('SEO OG');
 }
 
-function emptyItem(title) {
+function emptyItem(title, options = {}) {
+    const { linkLabel = 'Ver más', linkUrl = '' } = options;
     return {
         image: { source_type: 'url', value: '', alt: '' },
         alt: '',
         title,
         subtitle: '',
         description: '',
-        link_label: 'Ver más',
-        link_url: 'https://',
+        link_label: linkLabel,
+        link_url: linkUrl,
     };
 }
 
@@ -450,6 +495,10 @@ function renderMediaCard(image, actions = {}) {
 function renderCrudCard(item, index, collectionKey) {
     const isMarket = collectionKey === 'tabs.mercado.items';
     const imageKey = `${collectionKey}[${index}].image`;
+    const linkLabelPlaceholder = isMarket ? 'Consultar por WhatsApp' : 'Ver más';
+    const linkHelpText = isMarket
+        ? 'Si dejas la URL vacía, el sitio abrirá WhatsApp con una consulta por esta obra usando el número configurado.'
+        : 'Si completas una URL, el botón llevará a ese enlace.';
     const imageValue = item.image?.value || '';
     const preview = imageValue || imagePreviewFallback('Sin imagen');
 
@@ -468,8 +517,9 @@ function renderCrudCard(item, index, collectionKey) {
                 <button type="button" class="media-target-btn rounded-xl bg-white/10 border border-white/20 px-4 py-3 hover:bg-white/20" data-media-target-key="${imageKey}" data-media-target-type="image-object" data-media-target-input="image-input-${collectionKey.replace(/[^a-z0-9]+/gi, '-')}-${index}">Abrir media manager</button>
                 <button type="button" class="rounded-xl bg-white/10 border border-white/20 px-4 py-3 hover:bg-white/20" data-copy-from-input="image-input-${collectionKey.replace(/[^a-z0-9]+/gi, '-')}-${index}">Copiar enlace</button>
             </div>
-            <label class="block space-y-2"><span class="text-sm text-slate-300">Etiqueta del enlace</span><input type="text" value="${item.link_label || ''}" data-input-key="${collectionKey}[${index}].link_label" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3"></label>
-            <label class="block space-y-2"><span class="text-sm text-slate-300">URL del enlace</span><input type="url" value="${item.link_url || ''}" data-input-key="${collectionKey}[${index}].link_url" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3"></label>
+            <label class="block space-y-2"><span class="text-sm text-slate-300">Etiqueta del enlace</span><input type="text" value="${item.link_label || linkLabelPlaceholder}" data-input-key="${collectionKey}[${index}].link_label" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3"></label>
+            <label class="block space-y-2"><span class="text-sm text-slate-300">URL del enlace</span><input type="url" value="${item.link_url || ''}" data-input-key="${collectionKey}[${index}].link_url" placeholder="${isMarket ? 'Opcional: si queda vacío usa WhatsApp' : 'https://...'}" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3"></label>
+            <p class="text-xs text-slate-400">${linkHelpText}</p>
         </article>
     `;
 }
@@ -570,6 +620,14 @@ function hydrateGeneralFields() {
     document.getElementById('siteNameInput').value = getByPath(adminState, 'site.name', '');
     document.getElementById('siteTaglineInput').value = getByPath(adminState, 'site.tagline', '');
     document.getElementById('availabilityInput').value = getByPath(adminState, 'site.availability', '');
+    document.getElementById('contactTitleInput').value = getByPath(adminState, 'site.contact.title', 'Contacto');
+    document.getElementById('contactDescriptionInput').value = getByPath(adminState, 'site.contact.description', '');
+    document.getElementById('contactWhatsappInput').value = getByPath(adminState, 'site.contact.whatsapp', '5492233011023');
+    document.getElementById('contactEmailInput').value = getByPath(adminState, 'site.contact.email', '');
+    document.getElementById('contactInstagramInput').value = getByPath(adminState, 'site.contact.instagram', '');
+    document.getElementById('contactFacebookInput').value = getByPath(adminState, 'site.contact.facebook', '');
+    document.getElementById('contactTiktokInput').value = getByPath(adminState, 'site.contact.tiktok', '');
+    document.getElementById('contactYoutubeInput').value = getByPath(adminState, 'site.contact.youtube', '');
     document.getElementById('seoTitleInput').value = getByPath(adminState, 'site.title', '');
     document.getElementById('seoDescriptionInput').value = getByPath(adminState, 'site.seo.description', '');
     document.getElementById('seoKeywordsInput').value = getByPath(adminState, 'site.seo.keywords', '');
@@ -872,6 +930,22 @@ document.getElementById('saveGeneralBtn').addEventListener('click', async () => 
     }
 });
 
+document.getElementById('saveContactBtn').addEventListener('click', async () => {
+    setByPath(adminState, 'site.contact.title', document.getElementById('contactTitleInput').value.trim() || 'Contacto');
+    setByPath(adminState, 'site.contact.description', document.getElementById('contactDescriptionInput').value.trim());
+    setByPath(adminState, 'site.contact.whatsapp', document.getElementById('contactWhatsappInput').value.trim());
+    setByPath(adminState, 'site.contact.email', document.getElementById('contactEmailInput').value.trim());
+    setByPath(adminState, 'site.contact.instagram', document.getElementById('contactInstagramInput').value.trim());
+    setByPath(adminState, 'site.contact.facebook', document.getElementById('contactFacebookInput').value.trim());
+    setByPath(adminState, 'site.contact.tiktok', document.getElementById('contactTiktokInput').value.trim());
+    setByPath(adminState, 'site.contact.youtube', document.getElementById('contactYoutubeInput').value.trim());
+    try {
+        await saveContentState('Contacto y redes guardados.');
+    } catch (error) {
+        showAlert(error.message, 'error');
+    }
+});
+
 document.getElementById('saveSiteImagesBtn').addEventListener('click', async () => {
     setImageValueByKey('hero.featured_image', document.getElementById('heroFeaturedInput').value.trim(), 'image-object');
     setImageValueByKey('tabs.academia.image', document.getElementById('academiaImageInput').value.trim(), 'image-object');
@@ -922,7 +996,7 @@ document.getElementById('passwordForm').addEventListener('submit', async (event)
 });
 
 document.getElementById('addGalleryItemBtn').addEventListener('click', async () => {
-    getByPath(adminState, 'tabs.obras.items', []).push(emptyItem('Nueva obra'));
+    getByPath(adminState, 'tabs.obras.items', []).push(emptyItem('Nueva obra', { linkLabel: 'Ver más', linkUrl: '' }));
     renderCrudSections();
     try {
         await saveContentState('Obra agregada.');
@@ -932,7 +1006,7 @@ document.getElementById('addGalleryItemBtn').addEventListener('click', async () 
 });
 
 document.getElementById('addMarketItemBtn').addEventListener('click', async () => {
-    getByPath(adminState, 'tabs.mercado.items', []).push(emptyItem('Nuevo artista'));
+    getByPath(adminState, 'tabs.mercado.items', []).push(emptyItem('Nuevo artista', { linkLabel: 'Consultar por WhatsApp', linkUrl: '' }));
     renderCrudSections();
     try {
         await saveContentState('Item de market agregado.');

@@ -78,6 +78,19 @@ function normalize_image_reference($image, array $fallback = []): array
     ];
 }
 
+
+function normalize_contact_details($contact, array $fallback = []): array
+{
+    $fields = ['title', 'description', 'whatsapp', 'email', 'instagram', 'facebook', 'tiktok', 'youtube'];
+    $normalized = [];
+
+    foreach ($fields as $field) {
+        $normalized[$field] = trim((string) (is_array($contact) ? ($contact[$field] ?? ($fallback[$field] ?? '')) : ($fallback[$field] ?? '')));
+    }
+
+    return $normalized;
+}
+
 function normalize_art_item($item, array $fallback = []): array
 {
     $fallbackImage = normalize_image_reference($fallback['image'] ?? []);
@@ -97,6 +110,11 @@ function normalize_content_structure(array $content): array
 {
     $defaults = content_defaults();
     $normalized = array_replace_recursive($defaults, $content);
+
+    $normalized['site']['contact'] = normalize_contact_details(
+        $normalized['site']['contact'] ?? [],
+        $defaults['site']['contact'] ?? []
+    );
 
     $normalized['hero']['featured_image'] = normalize_image_reference(
         $normalized['hero']['featured_image'] ?? [],

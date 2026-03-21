@@ -153,15 +153,26 @@ function switchImageMode(mode) {
     });
 }
 
+function whatsappNumber(number = '') {
+    return String(number || '').replace(/\D+/g, '');
+}
+
+function buildWhatsappUrl(number = '', message = '') {
+    const normalized = whatsappNumber(number);
+    if (!normalized) return '';
+    return `https://wa.me/${normalized}?text=${encodeURIComponent(message)}`;
+}
+
 function createEmptyCollectionItem(collectionKey) {
+    const isMarket = collectionKey === 'tabs.mercado.items';
     return {
         image: { source_type: 'url', value: '', alt: '' },
         alt: '',
-        title: collectionKey === 'tabs.mercado.items' ? 'Nuevo artista' : 'Nueva obra',
+        title: isMarket ? 'Nuevo artista' : 'Nueva obra',
         subtitle: '',
         description: '',
-        link_label: 'Ver más',
-        link_url: 'https://',
+        link_label: isMarket ? 'Consultar por WhatsApp' : 'Ver más',
+        link_url: '',
     };
 }
 
@@ -197,8 +208,8 @@ function openCollectionItemModal(collectionKey, index = -1) {
     document.getElementById('collectionDescriptionInput').value = item.description || '';
     document.getElementById('collectionImageInput').value = item.image?.value || '';
     document.getElementById('collectionAltInput').value = item.alt || item.image?.alt || '';
-    document.getElementById('collectionLinkLabelInput').value = item.link_label || 'Ver más';
-    document.getElementById('collectionLinkUrlInput').value = item.link_url || 'https://';
+    document.getElementById('collectionLinkLabelInput').value = item.link_label || (collectionKey === 'tabs.mercado.items' ? 'Consultar por WhatsApp' : 'Ver más');
+    document.getElementById('collectionLinkUrlInput').value = item.link_url || '';
     document.getElementById('collectionItemFeedback').textContent = '';
     document.getElementById('collectionItemFeedback').className = 'text-xs';
 
@@ -219,8 +230,8 @@ function buildCollectionItemPayload() {
         title: document.getElementById('collectionTitleInput').value.trim(),
         subtitle: document.getElementById('collectionSubtitleInput').value.trim(),
         description: document.getElementById('collectionDescriptionInput').value.trim(),
-        link_label: document.getElementById('collectionLinkLabelInput').value.trim() || 'Ver más',
-        link_url: document.getElementById('collectionLinkUrlInput').value.trim() || 'https://',
+        link_label: document.getElementById('collectionLinkLabelInput').value.trim() || (currentCollectionKey === 'tabs.mercado.items' ? 'Consultar por WhatsApp' : 'Ver más'),
+        link_url: document.getElementById('collectionLinkUrlInput').value.trim(),
     };
 }
 
@@ -234,6 +245,12 @@ function renderCollectionItem(item, index, collectionKey) {
     const linkUrlKey = `${collectionKey}[${index}].link_url`;
     const imageSrc = item.image?.value || '';
     const sourceType = item.image?.source_type || 'url';
+    const whatsapp = getByPath(contentState, 'site.contact.whatsapp', '');
+    const fallbackMarketUrl = isMarket && !item.link_url
+        ? buildWhatsappUrl(whatsapp, `Hola, me interesa comprar la obra ${item.title || 'esta obra'}. ¿Está disponible?`)
+        : '';
+    const actionUrl = item.link_url || fallbackMarketUrl || '#';
+    const actionLabel = item.link_label || (isMarket && fallbackMarketUrl ? 'Consultar por WhatsApp' : 'Ver más');
     const deleteButton = isAuthenticated
         ? `<button type="button" class="delete-icon" data-delete-collection="${collectionKey}" data-index="${index}">✕</button>`
         : '';
@@ -253,8 +270,8 @@ function renderCollectionItem(item, index, collectionKey) {
                 <p class="text-sm font-bold" data-edit-key="${titleKey}" data-edit-type="text">${item.title || ''}</p>
                 <p class="text-[10px] text-art-neon uppercase tracking-[0.2em] mb-3" data-edit-key="${subtitleKey}" data-edit-type="text">${item.subtitle || ''}</p>
                 <p class="text-sm opacity-60 mb-4" data-edit-key="${descriptionKey}" data-edit-type="text">${item.description || ''}</p>
-                <a href="${item.link_url || '#'}" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 text-sm text-art-neon" data-edit-link-key="${linkUrlKey}">
-                    <span data-edit-key="${linkLabelKey}" data-edit-type="text">${item.link_label || 'Ver más'}</span>
+                <a href="${actionUrl}" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 text-sm text-art-neon" data-edit-link-key="${linkUrlKey}">
+                    <span data-edit-key="${linkLabelKey}" data-edit-type="text">${actionLabel}</span>
                 </a>
                 <span class="edit-icon" data-edit-link-target="${linkUrlKey}">🔗</span>
             </article>
@@ -270,8 +287,8 @@ function renderCollectionItem(item, index, collectionKey) {
             <h3 class="font-serif text-xl" data-edit-key="${titleKey}" data-edit-type="text">${item.title || ''}</h3>
             <p class="text-xs text-art-neon mb-2" data-edit-key="${subtitleKey}" data-edit-type="text">${item.subtitle || ''}</p>
             <p class="text-sm opacity-60 mb-4" data-edit-key="${descriptionKey}" data-edit-type="text">${item.description || ''}</p>
-            <a href="${item.link_url || '#'}" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 text-sm text-art-neon" data-edit-link-key="${linkUrlKey}">
-                <span data-edit-key="${linkLabelKey}" data-edit-type="text">${item.link_label || 'Ver más'}</span>
+            <a href="${actionUrl}" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 text-sm text-art-neon" data-edit-link-key="${linkUrlKey}">
+                <span data-edit-key="${linkLabelKey}" data-edit-type="text">${actionLabel}</span>
             </a>
             <span class="edit-icon" data-edit-link-target="${linkUrlKey}">🔗</span>
             <span class="field-message" data-message-for="${titleKey}"></span>

@@ -19,10 +19,71 @@ function image_url($image): string
     return esc((string) ($image['value'] ?? ''));
 }
 
+function whatsapp_number(string $number): string
+{
+    return preg_replace('/\D+/', '', $number) ?? '';
+}
+
+function whatsapp_link(string $number, string $message): string
+{
+    $normalized = whatsapp_number($number);
+    if ($normalized === '') {
+        return '';
+    }
+
+    return 'https://wa.me/' . $normalized . '?text=' . rawurlencode($message);
+}
+
+function normalize_external_link(string $value): string
+{
+    $trimmed = trim($value);
+    if ($trimmed === '') {
+        return '';
+    }
+
+    if (preg_match('/^https?:\/\//i', $trimmed)) {
+        return $trimmed;
+    }
+
+    return 'https://' . ltrim($trimmed, '/');
+}
+
 $backgrounds = $content['backgrounds'] ?? [];
 $stats = $content['stats'] ?? [];
 $galleryItems = $content['tabs']['obras']['items'] ?? [];
 $marketItems = $content['tabs']['mercado']['items'] ?? [];
+$contact = $content['site']['contact'] ?? [];
+$contactLinks = [];
+
+if (!empty($contact['whatsapp'])) {
+    $contactLinks[] = [
+        'label' => 'WhatsApp',
+        'value' => $contact['whatsapp'],
+        'url' => whatsapp_link((string) $contact['whatsapp'], 'Hola, quiero consultar sobre una obra de ' . ($content['site']['name'] ?? 'la galería') . '.'),
+    ];
+}
+
+if (!empty($contact['email'])) {
+    $email = trim((string) $contact['email']);
+    $contactLinks[] = [
+        'label' => 'Email',
+        'value' => $email,
+        'url' => 'mailto:' . $email,
+    ];
+}
+
+foreach (['instagram' => 'Instagram', 'facebook' => 'Facebook', 'tiktok' => 'TikTok', 'youtube' => 'YouTube'] as $field => $label) {
+    $value = trim((string) ($contact[$field] ?? ''));
+    if ($value === '') {
+        continue;
+    }
+
+    $contactLinks[] = [
+        'label' => $label,
+        'value' => $value,
+        'url' => normalize_external_link($value),
+    ];
+}
 ?>
 <!DOCTYPE html>
 <html lang="<?= esc($content['site']['lang'] ?? 'es') ?>">
@@ -180,6 +241,20 @@ $marketItems = $content['tabs']['mercado']['items'] ?? [];
                     <p class="text-xs font-bold tracking-widest uppercase" data-edit-key="tabs.mercado.cta_label" data-edit-type="text"><?= esc($content['tabs']['mercado']['cta_label'] ?? '') ?></p>
                 </div>
                 <?php foreach ($marketItems as $i => $item): ?>
+                    <?php
+                        $marketTitle = trim((string) ($item['title'] ?? 'esta obra'));
+                        $marketLinkUrl = trim((string) ($item['link_url'] ?? ''));
+                        $marketLinkLabel = trim((string) ($item['link_label'] ?? ''));
+                        if ($marketLinkUrl === '' && !empty($contact['whatsapp'])) {
+                            $marketLinkUrl = whatsapp_link((string) $contact['whatsapp'], 'Hola, me interesa comprar la obra ' . $marketTitle . '. ¿Está disponible?');
+                            if ($marketLinkLabel === '') {
+                                $marketLinkLabel = 'Consultar por WhatsApp';
+                            }
+                        }
+                        if ($marketLinkLabel === '') {
+                            $marketLinkLabel = 'Ver más';
+                        }
+                    ?>
                     <article class="glass p-4 rounded-2xl editable-wrapper" data-collection-item="tabs.mercado.items" data-index="<?= $i ?>">
                         <?php if ($isLoggedIn): ?><button type="button" class="delete-icon" data-delete-collection="tabs.mercado.items" data-index="<?= $i ?>">✕</button><?php endif; ?>
                         <?php if ($isLoggedIn): ?><button type="button" class="item-edit-btn" data-edit-collection="tabs.mercado.items" data-index="<?= $i ?>">Editar</button><?php endif; ?>
@@ -190,8 +265,8 @@ $marketItems = $content['tabs']['mercado']['items'] ?? [];
                         <p class="text-sm font-bold" data-edit-key="tabs.mercado.items[<?= $i ?>].title" data-edit-type="text"><?= esc($item['title'] ?? '') ?></p>
                         <p class="text-[10px] text-art-neon uppercase tracking-[0.2em] mb-3" data-edit-key="tabs.mercado.items[<?= $i ?>].subtitle" data-edit-type="text"><?= esc($item['subtitle'] ?? '') ?></p>
                         <p class="text-sm opacity-60 mb-4" data-edit-key="tabs.mercado.items[<?= $i ?>].description" data-edit-type="text"><?= esc($item['description'] ?? '') ?></p>
-                        <a href="<?= esc($item['link_url'] ?? '#') ?>" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 text-sm text-art-neon" data-edit-link-key="tabs.mercado.items[<?= $i ?>].link_url">
-                            <span data-edit-key="tabs.mercado.items[<?= $i ?>].link_label" data-edit-type="text"><?= esc($item['link_label'] ?? 'Ver más') ?></span>
+                        <a href="<?= esc($marketLinkUrl ?: '#') ?>" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 text-sm text-art-neon" data-edit-link-key="tabs.mercado.items[<?= $i ?>].link_url">
+                            <span data-edit-key="tabs.mercado.items[<?= $i ?>].link_label" data-edit-type="text"><?= esc($marketLinkLabel) ?></span>
                         </a>
                         <span class="edit-icon" data-edit-link-target="tabs.mercado.items[<?= $i ?>].link_url">🔗</span>
                     </article>
@@ -217,6 +292,28 @@ $marketItems = $content['tabs']['mercado']['items'] ?? [];
         </div>
     </div>
 </main>
+
+
+<?php if ($contactLinks !== []): ?>
+    <section class="max-w-7xl mx-auto px-6 pb-24">
+        <div class="glass rounded-[2.5rem] p-8 md:p-10 space-y-6">
+            <div class="max-w-2xl space-y-2">
+                <p class="text-art-neon uppercase tracking-[0.3em] text-xs"><?= esc($contact['title'] ?? 'Contacto') ?></p>
+                <?php if (!empty($contact['description'])): ?>
+                    <p class="text-sm md:text-base text-gray-300"><?= esc($contact['description']) ?></p>
+                <?php endif; ?>
+            </div>
+            <div class="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                <?php foreach ($contactLinks as $contactLink): ?>
+                    <a href="<?= esc($contactLink['url']) ?>" target="_blank" rel="noreferrer" class="glass glass-hover rounded-3xl px-5 py-4 flex flex-col gap-2">
+                        <span class="text-[11px] uppercase tracking-[0.25em] text-art-neon"><?= esc($contactLink['label']) ?></span>
+                        <span class="text-sm md:text-base break-all"><?= esc($contactLink['value']) ?></span>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </section>
+<?php endif; ?>
 
 <nav class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
     <div class="glass px-4 py-3 rounded-full flex gap-2 border-white/20">
