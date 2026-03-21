@@ -63,13 +63,14 @@ $marketItems = $content['tabs']['mercado']['items'] ?? [];
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         .nav-btn.active { background: rgba(255,255,255,.1); color: #00F2FF; }
         .editable-wrapper { position: relative; }
-        .edit-icon, .delete-icon { display: none; position: absolute; top: .75rem; z-index: 5; border-radius: 9999px; width: 1.8rem; height: 1.8rem; align-items: center; justify-content: center; cursor: pointer; font-size: .8rem; }
+        .edit-icon, .delete-icon, .item-edit-btn { display: none; position: absolute; top: .75rem; z-index: 5; border-radius: 9999px; height: 1.8rem; align-items: center; justify-content: center; cursor: pointer; font-size: .8rem; }
         .edit-icon { right: .75rem; background: #00F2FF; color: #000; }
         .delete-icon { right: 3rem; background: rgba(239,68,68,.9); color: #fff; }
+        .item-edit-btn { right: 5.25rem; padding: 0 .75rem; background: rgba(255,255,255,.9); color: #000; font-weight: 700; font-size: .65rem; letter-spacing: .08em; text-transform: uppercase; }
         .collection-toolbar { display:none; }
         body.edit-mode [data-edit-key], body.edit-mode [data-edit-link-key] { outline: 1px dashed rgba(0,242,255,.45); outline-offset: 4px; border-radius: .2rem; }
         body.edit-mode [data-edit-type="text"] { cursor: text; }
-        body.edit-mode .edit-icon, body.edit-mode .delete-icon, body.edit-mode .collection-toolbar { display: inline-flex; }
+        body.edit-mode .edit-icon, body.edit-mode .delete-icon, body.edit-mode .item-edit-btn, body.edit-mode .collection-toolbar { display: inline-flex; }
         body.edit-mode .collection-toolbar { display:flex; }
         .field-message { display:none; font-size:.7rem; margin-top:.3rem; }
         .field-message.ok { color: #34d399; display:block; }
@@ -148,6 +149,7 @@ $marketItems = $content['tabs']['mercado']['items'] ?? [];
             <?php foreach ($galleryItems as $i => $item): ?>
                 <article class="glass glass-hover p-4 rounded-3xl break-inside-avoid editable-wrapper" data-collection-item="tabs.obras.items" data-index="<?= $i ?>">
                     <?php if ($isLoggedIn): ?><button type="button" class="delete-icon" data-delete-collection="tabs.obras.items" data-index="<?= $i ?>">✕</button><?php endif; ?>
+                    <?php if ($isLoggedIn): ?><button type="button" class="item-edit-btn" data-edit-collection="tabs.obras.items" data-index="<?= $i ?>">Editar</button><?php endif; ?>
                     <img src="<?= image_url($item['image'] ?? []) ?>" data-edit-key="tabs.obras.items[<?= $i ?>].image" data-edit-type="image" data-source-type="<?= esc($item['image']['source_type'] ?? 'url') ?>" class="rounded-2xl w-full mb-4" alt="<?= esc($item['alt'] ?? '') ?>">
                     <span class="edit-icon" data-edit-target="tabs.obras.items[<?= $i ?>].image">✎</span>
                     <h3 class="font-serif text-xl" data-edit-key="tabs.obras.items[<?= $i ?>].title" data-edit-type="text"><?= esc($item['title'] ?? '') ?></h3>
@@ -180,6 +182,7 @@ $marketItems = $content['tabs']['mercado']['items'] ?? [];
                 <?php foreach ($marketItems as $i => $item): ?>
                     <article class="glass p-4 rounded-2xl editable-wrapper" data-collection-item="tabs.mercado.items" data-index="<?= $i ?>">
                         <?php if ($isLoggedIn): ?><button type="button" class="delete-icon" data-delete-collection="tabs.mercado.items" data-index="<?= $i ?>">✕</button><?php endif; ?>
+                        <?php if ($isLoggedIn): ?><button type="button" class="item-edit-btn" data-edit-collection="tabs.mercado.items" data-index="<?= $i ?>">Editar</button><?php endif; ?>
                         <div class="aspect-square bg-gray-800 rounded-xl mb-4 overflow-hidden">
                             <img src="<?= image_url($item['image'] ?? []) ?>" data-edit-key="tabs.mercado.items[<?= $i ?>].image" data-edit-type="image" data-source-type="<?= esc($item['image']['source_type'] ?? 'url') ?>" class="w-full h-full object-cover" alt="<?= esc($item['alt'] ?? '') ?>">
                         </div>
@@ -266,6 +269,56 @@ $marketItems = $content['tabs']['mercado']['items'] ?? [];
         <div class="flex justify-end gap-2">
             <button id="cancelLinkModal" class="px-4 py-2 rounded bg-white/10">Cancelar</button>
             <button id="saveLinkModal" class="px-4 py-2 rounded bg-art-neon text-black font-bold">Guardar enlace</button>
+        </div>
+    </div>
+</div>
+
+<div id="collectionItemModal" class="hidden fixed inset-0 bg-black/70 z-[110] items-center justify-center px-4 py-8 overflow-y-auto">
+    <div class="glass rounded-2xl p-6 max-w-2xl w-full space-y-4">
+        <div class="flex items-start justify-between gap-4">
+            <div>
+                <p id="collectionModalEyebrow" class="text-xs uppercase tracking-[0.3em] text-art-neon"></p>
+                <h3 id="collectionModalTitle" class="font-serif text-2xl">Editar elemento</h3>
+            </div>
+            <button type="button" id="closeCollectionItemModalTop" class="px-3 py-2 rounded bg-white/10">✕</button>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4">
+            <label class="block space-y-2">
+                <span class="text-xs">Título</span>
+                <input id="collectionTitleInput" type="text" class="w-full text-black px-3 py-2 rounded" placeholder="Título">
+            </label>
+            <label class="block space-y-2">
+                <span class="text-xs">Subtítulo</span>
+                <input id="collectionSubtitleInput" type="text" class="w-full text-black px-3 py-2 rounded" placeholder="Subtítulo">
+            </label>
+            <label class="block space-y-2 md:col-span-2">
+                <span class="text-xs">Descripción</span>
+                <textarea id="collectionDescriptionInput" rows="4" class="w-full text-black px-3 py-2 rounded" placeholder="Descripción"></textarea>
+            </label>
+            <label class="block space-y-2 md:col-span-2">
+                <span class="text-xs">Imagen (URL o ruta subida)</span>
+                <input id="collectionImageInput" type="text" class="w-full text-black px-3 py-2 rounded" placeholder="https://... o /public/uploads/...">
+            </label>
+            <label class="block space-y-2">
+                <span class="text-xs">Alt de imagen</span>
+                <input id="collectionAltInput" type="text" class="w-full text-black px-3 py-2 rounded" placeholder="Texto alternativo">
+            </label>
+            <label class="block space-y-2">
+                <span class="text-xs">Etiqueta del enlace</span>
+                <input id="collectionLinkLabelInput" type="text" class="w-full text-black px-3 py-2 rounded" placeholder="Ver más">
+            </label>
+            <label class="block space-y-2 md:col-span-2">
+                <span class="text-xs">URL del enlace</span>
+                <input id="collectionLinkUrlInput" type="url" class="w-full text-black px-3 py-2 rounded" placeholder="https://...">
+            </label>
+        </div>
+
+        <p id="collectionItemFeedback" class="text-xs"></p>
+
+        <div class="flex justify-end gap-2">
+            <button id="cancelCollectionItemModal" class="px-4 py-2 rounded bg-white/10">Cancelar</button>
+            <button id="saveCollectionItemModal" class="px-4 py-2 rounded bg-art-neon text-black font-bold">Guardar elemento</button>
         </div>
     </div>
 </div>
