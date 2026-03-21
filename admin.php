@@ -72,6 +72,20 @@ $content = read_content_file();
                 </div>
             </div>
 
+            <div class="border-t border-white/10 pt-8 space-y-5">
+                <div class="flex items-center justify-between gap-4 flex-wrap">
+                    <div>
+                        <h2 class="text-xl font-semibold">Fondos del sitio</h2>
+                        <p class="text-sm text-slate-300">Elige las imágenes que rotan de fondo en la portada.</p>
+                    </div>
+                    <button type="button" id="addBackgroundBtn" class="rounded-xl bg-white text-slate-900 font-semibold px-5 py-3 hover:bg-slate-100">+ Agregar fondo</button>
+                </div>
+                <div id="backgroundCrud" class="grid xl:grid-cols-2 gap-5"></div>
+                <div>
+                    <button type="button" id="saveBackgroundsBtn" class="rounded-xl bg-cyan-300 text-slate-900 font-semibold px-5 py-3 hover:bg-cyan-200">Guardar fondos</button>
+                </div>
+            </div>
+
             <div class="border-t border-white/10 pt-8">
                 <h2 class="text-xl font-semibold mb-5">Cambiar contraseña</h2>
                 <form id="passwordForm" class="grid md:grid-cols-3 gap-4">
@@ -131,11 +145,30 @@ $content = read_content_file();
         </section>
     </div>
 
+<div id="backgroundLibraryModal" class="hidden fixed inset-0 bg-black/70 z-[100] items-center justify-center px-4">
+    <div class="glass rounded-2xl p-6 max-w-4xl w-full space-y-4">
+        <div class="flex items-start justify-between gap-4">
+            <div>
+                <p class="text-cyan-200 text-xs uppercase tracking-[0.2em]">Biblioteca</p>
+                <h3 class="text-2xl font-semibold">Elegir imagen de fondo</h3>
+            </div>
+            <button type="button" id="closeBackgroundLibraryBtn" class="rounded-xl bg-white/10 border border-white/20 px-4 py-2 hover:bg-white/20">Cerrar</button>
+        </div>
+        <p id="backgroundLibraryStatus" class="text-xs text-slate-300">Cargando imágenes...</p>
+        <div id="backgroundLibraryGrid" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 max-h-[60vh] overflow-y-auto pr-1"></div>
+        <div class="flex justify-end gap-2">
+            <button type="button" id="cancelBackgroundLibraryBtn" class="rounded-xl bg-white/10 border border-white/20 px-4 py-2 hover:bg-white/20">Cancelar</button>
+            <button type="button" id="confirmBackgroundLibraryBtn" class="rounded-xl bg-cyan-300 text-slate-900 font-semibold px-4 py-2 hover:bg-cyan-200">Usar imagen</button>
+        </div>
+    </div>
+</div>
+
 <script>
 const adminState = <?= json_encode($content, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
 const endpoints = {
     saveContent: <?= json_encode(url_for('/api/save-content.php'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
     adminAction: <?= json_encode(url_for('/api/admin-action.php'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+    listImages: <?= json_encode(url_for('/api/list-images.php'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
 };
 
 function pathSegments(key) {
@@ -192,6 +225,12 @@ function emptyItem(title) {
     };
 }
 
+function emptyBackground() {
+    return {
+        image: { source_type: 'url', value: '' },
+    };
+}
+
 function renderCrudCard(item, index, collectionKey) {
     const isMarket = collectionKey === 'tabs.mercado.items';
     return `
@@ -208,6 +247,159 @@ function renderCrudCard(item, index, collectionKey) {
             <label class="block space-y-2"><span class="text-sm text-slate-300">URL del enlace</span><input type="url" value="${item.link_url || ''}" data-input-key="${collectionKey}[${index}].link_url" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3"></label>
         </article>
     `;
+}
+
+let backgroundModalIndex = -1;
+let backgroundLibraryLoading = false;
+let selectedBackgroundUrl = '';
+
+function normalizeImageUrl(url) {
+    if (!url) return '';
+    if (/^https?:\/\//i.test(url)) return url;
+    try {
+        return new URL(url, window.location.origin).toString();
+    } catch (error) {
+        return url;
+    }
+}
+
+function renderBackgroundCard(background, index) {
+    const imageValue = background?.image?.value || '';
+    const preview = imageValue || 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="600" height="360"><rect width="100%" height="100%" fill="#0f172a"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#94a3b8" font-family="sans-serif" font-size="24">Sin imagen</text></svg>');
+
+    return `
+        <article class="rounded-3xl border border-white/10 bg-slate-950/40 p-5 space-y-4">
+            <div class="flex items-center justify-between gap-4">
+                <h3 class="font-semibold text-lg">Fondo #${index + 1}</h3>
+                <button type="button" class="rounded-xl bg-red-500/80 px-3 py-2 text-sm" data-remove-background="${index}">Eliminar</button>
+            </div>
+            <img src="${preview}" alt="Vista previa del fondo ${index + 1}" class="w-full h-40 rounded-2xl object-cover border border-white/10 bg-slate-900/50">
+            <label class="block space-y-2">
+                <span class="text-sm text-slate-300">Imagen de fondo (URL o ruta subida)</span>
+                <input type="text" value="${imageValue}" data-background-key="backgrounds[${index}].image" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3">
+            </label>
+            <div class="flex gap-3 flex-wrap">
+                <button type="button" class="rounded-xl bg-white/10 border border-white/20 px-4 py-3 hover:bg-white/20" data-open-background-library="${index}">Elegir de biblioteca</button>
+            </div>
+        </article>
+    `;
+}
+
+function renderBackgrounds() {
+    const backgrounds = getByPath(adminState, 'backgrounds', []);
+    document.getElementById('backgroundCrud').innerHTML = backgrounds.map((background, index) => renderBackgroundCard(background, index)).join('');
+
+    document.querySelectorAll('[data-background-key]').forEach((input) => {
+        input.oninput = () => {
+            const value = input.value.trim();
+            setByPath(adminState, input.dataset.backgroundKey, {
+                source_type: /^https?:\/\//i.test(value) ? 'url' : (value ? 'upload' : 'url'),
+                value,
+            });
+            const card = input.closest('article');
+            const preview = card?.querySelector('img');
+            if (preview) {
+                preview.src = value || 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="600" height="360"><rect width="100%" height="100%" fill="#0f172a"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#94a3b8" font-family="sans-serif" font-size="24">Sin imagen</text></svg>');
+            }
+        };
+    });
+
+    document.querySelectorAll('[data-remove-background]').forEach((button) => {
+        button.onclick = async () => {
+            getByPath(adminState, 'backgrounds', []).splice(Number(button.dataset.removeBackground), 1);
+            renderBackgrounds();
+            try {
+                await saveContentState('Fondo eliminado.');
+            } catch (error) {
+                showAlert(error.message, 'error');
+            }
+        };
+    });
+
+    document.querySelectorAll('[data-open-background-library]').forEach((button) => {
+        button.onclick = () => openBackgroundLibraryModal(Number(button.dataset.openBackgroundLibrary));
+    });
+}
+
+function renderBackgroundLibrary(images = [], selectedUrl = '') {
+    const grid = document.getElementById('backgroundLibraryGrid');
+    const normalizedSelectedUrl = normalizeImageUrl(selectedUrl);
+    selectedBackgroundUrl = '';
+    grid.innerHTML = '';
+
+    images.forEach((image) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.dataset.url = image.url;
+        button.className = 'border border-white/20 rounded-lg overflow-hidden bg-white/5 transition hover:border-cyan-300';
+
+        const thumb = document.createElement('img');
+        thumb.src = image.url;
+        thumb.alt = image.name || 'Imagen subida';
+        thumb.className = 'w-full h-24 object-cover block';
+
+        const name = document.createElement('span');
+        name.className = 'block text-[10px] p-2 truncate text-left';
+        name.textContent = image.name || image.url;
+
+        button.appendChild(thumb);
+        button.appendChild(name);
+        button.addEventListener('click', () => {
+            selectedBackgroundUrl = image.url;
+            grid.querySelectorAll('[data-url]').forEach((candidate) => candidate.classList.remove('ring-2', 'ring-cyan-300'));
+            button.classList.add('ring-2', 'ring-cyan-300');
+        });
+
+        if (normalizeImageUrl(image.url) === normalizedSelectedUrl) {
+            selectedBackgroundUrl = image.url;
+            button.classList.add('ring-2', 'ring-cyan-300');
+        }
+
+        grid.appendChild(button);
+    });
+}
+
+async function loadBackgroundLibrary(currentSrc = '') {
+    if (backgroundLibraryLoading) return;
+    backgroundLibraryLoading = true;
+
+    const status = document.getElementById('backgroundLibraryStatus');
+    status.textContent = 'Cargando imágenes...';
+    status.className = 'text-xs text-slate-300';
+
+    try {
+        const response = await fetch(endpoints.listImages, { method: 'GET' });
+        const result = await response.json();
+
+        if (!response.ok || !result.ok || !Array.isArray(result.images)) {
+            throw new Error(result.error || 'No se pudo cargar la biblioteca.');
+        }
+
+        renderBackgroundLibrary(result.images, currentSrc);
+        status.textContent = result.images.length === 0 ? 'No hay imágenes subidas todavía.' : 'Selecciona una imagen para este fondo.';
+        status.className = result.images.length === 0 ? 'text-xs text-yellow-300' : 'text-xs text-slate-300';
+    } catch (error) {
+        status.textContent = error.message || 'Error al cargar la biblioteca.';
+        status.className = 'text-xs text-red-300';
+        document.getElementById('backgroundLibraryGrid').innerHTML = '';
+    } finally {
+        backgroundLibraryLoading = false;
+    }
+}
+
+function openBackgroundLibraryModal(index) {
+    backgroundModalIndex = index;
+    const currentValue = getByPath(adminState, `backgrounds[${index}].image.value`, '');
+    document.getElementById('backgroundLibraryModal').classList.remove('hidden');
+    document.getElementById('backgroundLibraryModal').classList.add('flex');
+    loadBackgroundLibrary(currentValue);
+}
+
+function closeBackgroundLibraryModal() {
+    backgroundModalIndex = -1;
+    selectedBackgroundUrl = '';
+    document.getElementById('backgroundLibraryModal').classList.add('hidden');
+    document.getElementById('backgroundLibraryModal').classList.remove('flex');
 }
 
 function bindCrudInputs() {
@@ -341,6 +533,51 @@ document.getElementById('saveMarketBtn').addEventListener('click', async () => {
 
 hydrateGeneralFields();
 renderCrudSections();
+renderBackgrounds();
+
+document.getElementById('addBackgroundBtn').addEventListener('click', async () => {
+    getByPath(adminState, 'backgrounds', []).push(emptyBackground());
+    renderBackgrounds();
+    try {
+        await saveContentState('Fondo agregado.');
+    } catch (error) {
+        showAlert(error.message, 'error');
+    }
+});
+
+document.getElementById('saveBackgroundsBtn').addEventListener('click', async () => {
+    try {
+        await saveContentState('Fondos guardados.');
+    } catch (error) {
+        showAlert(error.message, 'error');
+    }
+});
+
+document.getElementById('closeBackgroundLibraryBtn').addEventListener('click', closeBackgroundLibraryModal);
+document.getElementById('cancelBackgroundLibraryBtn').addEventListener('click', closeBackgroundLibraryModal);
+document.getElementById('confirmBackgroundLibraryBtn').addEventListener('click', async () => {
+    if (backgroundModalIndex < 0 || !selectedBackgroundUrl) {
+        showAlert('Selecciona una imagen de la biblioteca.', 'error');
+        return;
+    }
+
+    setByPath(adminState, `backgrounds[${backgroundModalIndex}].image`, {
+        source_type: 'upload',
+        value: selectedBackgroundUrl,
+    });
+    renderBackgrounds();
+    closeBackgroundLibraryModal();
+
+    try {
+        await saveContentState('Fondo actualizado.');
+    } catch (error) {
+        showAlert(error.message, 'error');
+    }
+});
+
+document.getElementById('backgroundLibraryModal').addEventListener('click', (event) => {
+    if (event.target.id === 'backgroundLibraryModal') closeBackgroundLibraryModal();
+});
 </script>
 </body>
 </html>
