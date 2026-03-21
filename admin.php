@@ -276,20 +276,67 @@ $content = read_content_file();
         .window-dots span:nth-child(1) { background: #fb7185; }
         .window-dots span:nth-child(2) { background: #fbbf24; }
         .window-dots span:nth-child(3) { background: #4ade80; }
-        .input-shell, .textarea-shell {
+        .input-shell, .textarea-shell, .select-shell {
             width: 100%;
             border-radius: 1rem;
             border: 1px solid rgba(255,255,255,0.08);
-            background: rgba(0, 0, 0, 0.22);
-            padding: .85rem 1rem;
-            color: white;
+            background: rgba(0, 0, 0, 0.2);
+            color: #f8fafc;
             outline: none;
             transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
         }
-        .input-shell:focus, .textarea-shell:focus {
+        .input-shell, .select-shell {
+            padding: .85rem 1rem;
+        }
+        .textarea-shell {
+            padding: .85rem 1rem;
+            resize: vertical;
+        }
+        .input-shell::placeholder, .textarea-shell::placeholder, .select-shell:invalid {
+            color: rgba(255,255,255,0.3);
+        }
+        .input-shell:focus, .textarea-shell:focus, .select-shell:focus {
             border-color: rgba(34, 211, 238, 0.5);
             box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
-            background: rgba(0, 0, 0, 0.38);
+            background: rgba(0, 0, 0, 0.4);
+        }
+        .control-shell-btn {
+            border-radius: 1rem;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(0, 0, 0, 0.2);
+            color: #f8fafc;
+            padding: .85rem 1rem;
+            font-weight: 500;
+            transition: border-color .2s ease, box-shadow .2s ease, background .2s ease, transform .15s ease;
+        }
+        .control-shell-btn:hover {
+            background: rgba(0, 0, 0, 0.4);
+            border-color: rgba(255,255,255,0.14);
+            transform: translateY(-1px);
+        }
+        .control-shell-btn:focus {
+            outline: none;
+            border-color: rgba(34, 211, 238, 0.5);
+            box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+        .control-shell-btn--accent {
+            background: rgba(34, 211, 238, 0.9);
+            border-color: rgba(103, 232, 249, 0.6);
+            color: rgb(15 23 42);
+            font-weight: 700;
+        }
+        .control-shell-btn--accent:hover {
+            background: rgba(165, 243, 252, 0.96);
+            border-color: rgba(165, 243, 252, 0.88);
+        }
+        .control-shell-btn--danger {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(248, 113, 113, 0.28);
+            color: rgb(254 226 226);
+        }
+        .control-shell-btn--danger:hover {
+            background: rgba(239, 68, 68, 0.28);
+            border-color: rgba(252, 165, 165, 0.4);
         }
         .pill-btn {
             border-radius: 1rem;
@@ -803,8 +850,8 @@ $content = read_content_file();
                             </label>
                             <input id="mediaUploadInput" type="file" accept="image/png,image/jpeg,image/webp" class="hidden">
                             <div class="flex flex-wrap gap-3">
-                                <button type="button" id="openMediaFileBtn" class="pill-btn rounded-2xl bg-cyan-300 text-slate-950">Seleccionar imagen</button>
-                                <button type="button" id="refreshMediaLibraryBtn" class="pill-btn rounded-2xl bg-white/10 border border-white/20 text-slate-100">Actualizar biblioteca</button>
+                                <button type="button" id="openMediaFileBtn" class="control-shell-btn control-shell-btn--accent">Seleccionar imagen</button>
+                                <button type="button" id="refreshMediaLibraryBtn" class="control-shell-btn">Actualizar biblioteca</button>
                             </div>
                             <div id="mediaUploadStatus" class="rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3 text-sm text-slate-300">Esperando subida.</div>
                             <label class="block space-y-2">
@@ -812,8 +859,8 @@ $content = read_content_file();
                                 <input id="mediaLatestUrl" type="text" readonly class="input-shell text-slate-100">
                             </label>
                             <div class="flex flex-wrap gap-3">
-                                <button type="button" id="copyLatestMediaBtn" class="pill-btn rounded-2xl bg-white/10 border border-white/20 text-slate-100">Copiar último enlace</button>
-                                <button type="button" id="useLatestMediaForTargetBtn" class="pill-btn rounded-2xl bg-white/10 border border-white/20 text-slate-100">Usar en campo seleccionado</button>
+                                <button type="button" id="copyLatestMediaBtn" class="control-shell-btn">Copiar último enlace</button>
+                                <button type="button" id="useLatestMediaForTargetBtn" class="control-shell-btn">Usar en campo seleccionado</button>
                             </div>
                         </div>
                         <div class="flex-1 space-y-4">
@@ -839,7 +886,7 @@ $content = read_content_file();
                 <h3 class="text-2xl font-semibold">Seleccionar imagen para el campo</h3>
                 <p id="fieldMediaTargetLabel" class="text-sm text-slate-300 mt-1">Sin selección.</p>
             </div>
-            <button type="button" id="closeFieldMediaModalBtn" class="rounded-xl bg-white/10 border border-white/20 px-4 py-2 hover:bg-white/20">Cerrar</button>
+            <button type="button" id="closeFieldMediaModalBtn" class="control-shell-btn text-sm">Cerrar</button>
         </div>
         <div class="grid xl:grid-cols-[320px,minmax(0,1fr)] gap-5">
             <div class="space-y-4">
@@ -855,24 +902,24 @@ $content = read_content_file();
                 <input id="fieldMediaFileInput" type="file" accept="image/png,image/jpeg,image/webp" class="hidden">
                 <label class="block space-y-2">
                     <span class="text-sm text-slate-300">URL manual</span>
-                    <input id="fieldMediaManualUrl" type="text" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3 text-slate-100 outline-none" placeholder="https://... o /public/uploads/...">
+                    <input id="fieldMediaManualUrl" type="text" class="input-shell" placeholder="https://... o /public/uploads/...">
                 </label>
                 <div class="flex flex-wrap gap-3">
-                    <button type="button" id="applyFieldManualUrlBtn" class="rounded-xl bg-cyan-300 text-slate-900 font-semibold px-4 py-3 hover:bg-cyan-200">Usar URL manual</button>
-                    <button type="button" id="copyFieldManualUrlBtn" class="rounded-xl bg-white/10 border border-white/20 px-4 py-3 hover:bg-white/20">Copiar enlace</button>
+                    <button type="button" id="applyFieldManualUrlBtn" class="control-shell-btn control-shell-btn--accent">Usar URL manual</button>
+                    <button type="button" id="copyFieldManualUrlBtn" class="control-shell-btn">Copiar enlace</button>
                 </div>
                 <div id="fieldMediaStatus" class="rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3 text-sm text-slate-300">Listo para asignar.</div>
             </div>
             <div class="space-y-4">
                 <div class="flex items-center justify-between gap-4 flex-wrap">
                     <p id="fieldMediaLibraryStatus" class="text-sm text-slate-300">Cargando imágenes...</p>
-                    <button type="button" id="refreshFieldMediaLibraryBtn" class="rounded-xl bg-white/10 border border-white/20 px-4 py-2 hover:bg-white/20">Actualizar biblioteca</button>
+                    <button type="button" id="refreshFieldMediaLibraryBtn" class="control-shell-btn text-sm">Actualizar biblioteca</button>
                 </div>
                 <div id="fieldMediaLibraryGrid" class="grid md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto pr-1"></div>
             </div>
         </div>
         <div class="flex justify-end gap-3">
-            <button type="button" id="cancelFieldMediaModalBtn" class="rounded-xl bg-white/10 border border-white/20 px-4 py-3 hover:bg-white/20">Cancelar</button>
+            <button type="button" id="cancelFieldMediaModalBtn" class="control-shell-btn">Cancelar</button>
         </div>
     </div>
 </div>
@@ -1029,9 +1076,9 @@ function renderMediaCard(image, actions = {}) {
                     <p class="text-xs text-slate-400 truncate">${resolvedUrl}</p>
                 </div>
                 <div class="flex flex-wrap gap-2">
-                    ${actions.copy !== false ? `<button type="button" class="rounded-xl bg-white/10 border border-white/20 px-3 py-2 text-sm hover:bg-white/20" data-copy-url="${resolvedUrl}">Copiar enlace</button>` : ''}
-                    ${actions.assign ? `<button type="button" class="rounded-xl bg-cyan-300 text-slate-900 font-semibold px-3 py-2 text-sm hover:bg-cyan-200" data-assign-url="${resolvedUrl}">Usar imagen</button>` : ''}
-                    ${actions.select ? `<button type="button" class="rounded-xl bg-white/10 border border-white/20 px-3 py-2 text-sm hover:bg-white/20" data-select-url="${resolvedUrl}">Previsualizar</button>` : ''}
+                    ${actions.copy !== false ? `<button type="button" class="control-shell-btn text-sm" data-copy-url="${resolvedUrl}">Copiar enlace</button>` : ''}
+                    ${actions.assign ? `<button type="button" class="control-shell-btn control-shell-btn--accent text-sm" data-assign-url="${resolvedUrl}">Usar imagen</button>` : ''}
+                    ${actions.select ? `<button type="button" class="control-shell-btn text-sm" data-select-url="${resolvedUrl}">Previsualizar</button>` : ''}
                 </div>
             </div>
         </article>
@@ -1052,19 +1099,19 @@ function renderCrudCard(item, index, collectionKey) {
         <article class="rounded-3xl border border-white/10 bg-slate-950/40 p-5 space-y-4">
             <div class="flex items-center justify-between gap-4">
                 <h3 class="font-semibold text-lg">${isMarket ? 'Item market' : 'Obra'} #${index + 1}</h3>
-                <button type="button" class="rounded-xl bg-red-500/80 px-3 py-2 text-sm" data-remove-item="${collectionKey}" data-index="${index}">Eliminar</button>
+                <button type="button" class="control-shell-btn control-shell-btn--danger text-sm" data-remove-item="${collectionKey}" data-index="${index}">Eliminar</button>
             </div>
             <img src="${preview}" alt="Vista previa ${isMarket ? 'market' : 'obra'} ${index + 1}" class="w-full h-48 rounded-2xl object-cover border border-white/10 bg-slate-900/50">
-            <label class="block space-y-2"><span class="text-sm text-slate-300">Título</span><input type="text" value="${item.title || ''}" data-input-key="${collectionKey}[${index}].title" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3"></label>
-            <label class="block space-y-2"><span class="text-sm text-slate-300">Subtítulo</span><input type="text" value="${item.subtitle || ''}" data-input-key="${collectionKey}[${index}].subtitle" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3"></label>
-            <label class="block space-y-2"><span class="text-sm text-slate-300">Descripción</span><textarea rows="3" data-input-key="${collectionKey}[${index}].description" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3">${item.description || ''}</textarea></label>
-            <label class="block space-y-2"><span class="text-sm text-slate-300">Imagen (URL o ruta subida)</span><input type="text" value="${imageValue}" data-image-value-key="${imageKey}" id="image-input-${collectionKey.replace(/[^a-z0-9]+/gi, '-')}-${index}" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3"></label>
+            <label class="block space-y-2"><span class="text-sm text-slate-300">Título</span><input type="text" value="${item.title || ''}" data-input-key="${collectionKey}[${index}].title" class="input-shell"></label>
+            <label class="block space-y-2"><span class="text-sm text-slate-300">Subtítulo</span><input type="text" value="${item.subtitle || ''}" data-input-key="${collectionKey}[${index}].subtitle" class="input-shell"></label>
+            <label class="block space-y-2"><span class="text-sm text-slate-300">Descripción</span><textarea rows="3" data-input-key="${collectionKey}[${index}].description" class="textarea-shell">${item.description || ''}</textarea></label>
+            <label class="block space-y-2"><span class="text-sm text-slate-300">Imagen (URL o ruta subida)</span><input type="text" value="${imageValue}" data-image-value-key="${imageKey}" id="image-input-${collectionKey.replace(/[^a-z0-9]+/gi, '-')}-${index}" class="input-shell"></label>
             <div class="flex flex-wrap gap-3">
-                <button type="button" class="media-target-btn rounded-xl bg-white/10 border border-white/20 px-4 py-3 hover:bg-white/20" data-media-target-key="${imageKey}" data-media-target-type="image-object" data-media-target-input="image-input-${collectionKey.replace(/[^a-z0-9]+/gi, '-')}-${index}">Abrir media manager</button>
-                <button type="button" class="rounded-xl bg-white/10 border border-white/20 px-4 py-3 hover:bg-white/20" data-copy-from-input="image-input-${collectionKey.replace(/[^a-z0-9]+/gi, '-')}-${index}">Copiar enlace</button>
+                <button type="button" class="media-target-btn control-shell-btn" data-media-target-key="${imageKey}" data-media-target-type="image-object" data-media-target-input="image-input-${collectionKey.replace(/[^a-z0-9]+/gi, '-')}-${index}">Abrir media manager</button>
+                <button type="button" class="control-shell-btn" data-copy-from-input="image-input-${collectionKey.replace(/[^a-z0-9]+/gi, '-')}-${index}">Copiar enlace</button>
             </div>
-            <label class="block space-y-2"><span class="text-sm text-slate-300">Etiqueta del enlace</span><input type="text" value="${item.link_label || linkLabelPlaceholder}" data-input-key="${collectionKey}[${index}].link_label" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3"></label>
-            <label class="block space-y-2"><span class="text-sm text-slate-300">URL del enlace</span><input type="url" value="${item.link_url || ''}" data-input-key="${collectionKey}[${index}].link_url" placeholder="${isMarket ? 'Opcional: si queda vacío usa WhatsApp' : 'https://...'}" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3"></label>
+            <label class="block space-y-2"><span class="text-sm text-slate-300">Etiqueta del enlace</span><input type="text" value="${item.link_label || linkLabelPlaceholder}" data-input-key="${collectionKey}[${index}].link_label" class="input-shell"></label>
+            <label class="block space-y-2"><span class="text-sm text-slate-300">URL del enlace</span><input type="url" value="${item.link_url || ''}" data-input-key="${collectionKey}[${index}].link_url" placeholder="${isMarket ? 'Opcional: si queda vacío usa WhatsApp' : 'https://...'}" class="input-shell"></label>
             <p class="text-xs text-slate-400">${linkHelpText}</p>
         </article>
     `;
@@ -1079,16 +1126,16 @@ function renderBackgroundCard(background, index) {
         <article class="rounded-3xl border border-white/10 bg-slate-950/40 p-5 space-y-4">
             <div class="flex items-center justify-between gap-4">
                 <h3 class="font-semibold text-lg">Fondo #${index + 1}</h3>
-                <button type="button" class="rounded-xl bg-red-500/80 px-3 py-2 text-sm" data-remove-background="${index}">Eliminar</button>
+                <button type="button" class="control-shell-btn control-shell-btn--danger text-sm" data-remove-background="${index}">Eliminar</button>
             </div>
             <img src="${preview}" alt="Vista previa del fondo ${index + 1}" class="w-full h-40 rounded-2xl object-cover border border-white/10 bg-slate-900/50">
             <label class="block space-y-2">
                 <span class="text-sm text-slate-300">Imagen de fondo (URL o ruta subida)</span>
-                <input type="text" value="${imageValue}" id="${inputId}" data-background-key="backgrounds[${index}].image" class="w-full rounded-xl border border-white/20 bg-slate-900/60 px-4 py-3">
+                <input type="text" value="${imageValue}" id="${inputId}" data-background-key="backgrounds[${index}].image" class="input-shell">
             </label>
             <div class="flex gap-3 flex-wrap">
-                <button type="button" class="media-target-btn rounded-xl bg-white/10 border border-white/20 px-4 py-3 hover:bg-white/20" data-media-target-key="backgrounds[${index}].image" data-media-target-type="image-object" data-media-target-input="${inputId}">Abrir media manager</button>
-                <button type="button" class="rounded-xl bg-white/10 border border-white/20 px-4 py-3 hover:bg-white/20" data-copy-from-input="${inputId}">Copiar enlace</button>
+                <button type="button" class="media-target-btn control-shell-btn" data-media-target-key="backgrounds[${index}].image" data-media-target-type="image-object" data-media-target-input="${inputId}">Abrir media manager</button>
+                <button type="button" class="control-shell-btn" data-copy-from-input="${inputId}">Copiar enlace</button>
             </div>
         </article>
     `;
@@ -1265,8 +1312,8 @@ function renderFieldMediaLibraryGrid(selectedUrl = '') {
                         <p class="text-xs text-slate-400 truncate">${image.url}</p>
                     </div>
                     <div class="flex flex-wrap gap-2">
-                        <button type="button" class="rounded-xl bg-cyan-300 text-slate-900 font-semibold px-3 py-2 text-sm hover:bg-cyan-200" data-assign-url="${image.url}">Usar imagen</button>
-                        <button type="button" class="rounded-xl bg-white/10 border border-white/20 px-3 py-2 text-sm hover:bg-white/20" data-copy-url="${image.url}">Copiar enlace</button>
+                        <button type="button" class="control-shell-btn control-shell-btn--accent text-sm" data-assign-url="${image.url}">Usar imagen</button>
+                        <button type="button" class="control-shell-btn text-sm" data-copy-url="${image.url}">Copiar enlace</button>
                     </div>
                 </div>
             </article>
