@@ -1,0 +1,8 @@
+[
+    {
+        "id": 1,
+        "username": "admin@claudia.com",
+        "name": "Administrador",
+        "password_hash": "$2y$10$Sx8F0sI3t3Rt7pddUH2iPulMLYsUVCOYCunBWHu5LsyKzJrEMkl2W"
+    }
+]
