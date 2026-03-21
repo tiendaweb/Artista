@@ -405,13 +405,7 @@ $content = read_content_file();
                         </div>
                         <button type="button" id="closeSidebarBtn" class="lg:hidden rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-200">✕</button>
                     </div>
-                    <div class="glass-card rounded-[1.4rem] p-4 space-y-3">
-                        <span class="os-chip"><span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>sesión activa</span>
-                        <div>
-                            <p class="text-sm text-slate-400">Editando contenido visual y multimedia</p>
-                            <p class="mt-1 text-base font-semibold text-white"><?= htmlspecialchars((string) ($user['name'] ?? $user['username'] ?? ''), ENT_QUOTES, 'UTF-8') ?></p>
-                        </div>
-                    </div>
+                    
                 </div>
 
                 <nav id="adminTabNav" class="flex-1 overflow-y-auto pb-4">
@@ -421,17 +415,8 @@ $content = read_content_file();
                             <span class="tab-icon"><i class="ph ph-squares-four text-lg"></i></span>
                             <span class="min-w-0 flex-1 font-medium text-sm">General</span>
                         </button>
-                        <button type="button" class="admin-tab" data-admin-tab-control="hero">
-                            <span class="tab-icon"><i class="ph ph-image-square text-lg"></i></span>
-                            <span class="min-w-0 flex-1 font-medium text-sm">Hero</span>
-                        </button>
-                        <button type="button" class="admin-tab" data-admin-tab-control="academia">
-                            <span class="tab-icon"><i class="ph ph-student text-lg"></i></span>
-                            <span class="min-w-0 flex-1 font-medium text-sm">Academia</span>
-                        </button>
-                        <button type="button" class="admin-tab" data-admin-tab-control="contacto">
-                            <span class="tab-icon"><i class="ph ph-chat-circle-dots text-lg"></i></span>
-                            <span class="min-w-0 flex-1 font-medium text-sm">Contacto</span>
+
+
                         </button>
                         <button type="button" class="admin-tab" data-admin-tab-control="fondos">
                             <span class="tab-icon"><i class="ph ph-stack text-lg"></i></span>
@@ -445,6 +430,15 @@ $content = read_content_file();
                             <span class="tab-icon"><i class="ph ph-shopping-bag-open text-lg"></i></span>
                             <span class="min-w-0 flex-1 font-medium text-sm">Market</span>
                         </button>
+                        
+                                                <button type="button" class="admin-tab" data-admin-tab-control="academia">
+                            <span class="tab-icon"><i class="ph ph-student text-lg"></i></span>
+                            <span class="min-w-0 flex-1 font-medium text-sm">Academia</span>
+                        </button>
+                        <button type="button" class="admin-tab" data-admin-tab-control="contacto">
+                            <span class="tab-icon"><i class="ph ph-chat-circle-dots text-lg"></i></span>
+                            <span class="min-w-0 flex-1 font-medium text-sm">Contacto</span>
+                            </button>
                     </div>
                     <div class="nav-group-title">Sistema</div>
                     <div class="space-y-1.5">
@@ -490,18 +484,7 @@ $content = read_content_file();
                 </header>
 
                 <div class="dashboard-content">
-                    <div id="adminTabPills" class="flex flex-wrap gap-2">
-                        <button type="button" class="pill-btn rounded-2xl bg-white/10 border border-white/10 text-slate-100 active" data-admin-tab-control="general">General</button>
-                        <button type="button" class="pill-btn rounded-2xl bg-white/5 border border-white/10 text-slate-300" data-admin-tab-control="hero">Hero</button>
-                        <button type="button" class="pill-btn rounded-2xl bg-white/5 border border-white/10 text-slate-300" data-admin-tab-control="academia">Academia</button>
-                        <button type="button" class="pill-btn rounded-2xl bg-white/5 border border-white/10 text-slate-300" data-admin-tab-control="contacto">Contacto</button>
-                        <button type="button" class="pill-btn rounded-2xl bg-white/5 border border-white/10 text-slate-300" data-admin-tab-control="fondos">Fondos</button>
-                        <button type="button" class="pill-btn rounded-2xl bg-white/5 border border-white/10 text-slate-300" data-admin-tab-control="galeria">Galería</button>
-                        <button type="button" class="pill-btn rounded-2xl bg-white/5 border border-white/10 text-slate-300" data-admin-tab-control="market">Market</button>
-                        <button type="button" class="pill-btn rounded-2xl bg-white/5 border border-white/10 text-slate-300" data-admin-tab-control="media">Media</button>
-                        <button type="button" class="pill-btn rounded-2xl bg-white/5 border border-white/10 text-slate-300" data-admin-tab-control="seo">SEO</button>
-                        <button type="button" class="pill-btn rounded-2xl bg-white/5 border border-white/10 text-slate-300" data-admin-tab-control="seguridad">Seguridad</button>
-                    </div>
+                    
                     <div id="adminAlert" class="hidden rounded-xl p-4 text-sm"></div>
 
             <section id="panel-general" class="admin-panel active glass rounded-[2rem] p-5 md:p-8 space-y-6">
