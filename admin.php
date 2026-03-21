@@ -315,9 +315,22 @@ $content = read_content_file();
             border-radius: 1rem;
             padding: .85rem 1.15rem;
             font-weight: 600;
-            transition: transform .15s ease, filter .2s ease;
+            transition: transform .15s ease, filter .2s ease, background .2s ease, border-color .2s ease, color .2s ease;
         }
         .pill-btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
+        #adminTabPills {
+            overflow-x: auto;
+            padding-bottom: .35rem;
+        }
+        #adminTabPills .pill-btn {
+            flex-shrink: 0;
+        }
+        #adminTabPills .pill-btn.active {
+            background: rgba(255,255,255,0.14);
+            border-color: rgba(103, 232, 249, 0.35);
+            color: white;
+            box-shadow: inset 0 0 0 1px rgba(103, 232, 249, 0.12);
+        }
         .nav-group-title {
             margin: 1.25rem 0 .65rem;
             padding: 0 .75rem;
@@ -408,6 +421,22 @@ $content = read_content_file();
                             <span class="tab-icon"><i class="ph ph-squares-four text-lg"></i></span>
                             <span class="min-w-0 flex-1 font-medium text-sm">General</span>
                         </button>
+                        <button type="button" class="admin-tab" data-admin-tab-control="hero">
+                            <span class="tab-icon"><i class="ph ph-image-square text-lg"></i></span>
+                            <span class="min-w-0 flex-1 font-medium text-sm">Hero</span>
+                        </button>
+                        <button type="button" class="admin-tab" data-admin-tab-control="academia">
+                            <span class="tab-icon"><i class="ph ph-student text-lg"></i></span>
+                            <span class="min-w-0 flex-1 font-medium text-sm">Academia</span>
+                        </button>
+                        <button type="button" class="admin-tab" data-admin-tab-control="contacto">
+                            <span class="tab-icon"><i class="ph ph-chat-circle-dots text-lg"></i></span>
+                            <span class="min-w-0 flex-1 font-medium text-sm">Contacto</span>
+                        </button>
+                        <button type="button" class="admin-tab" data-admin-tab-control="fondos">
+                            <span class="tab-icon"><i class="ph ph-stack text-lg"></i></span>
+                            <span class="min-w-0 flex-1 font-medium text-sm">Fondos</span>
+                        </button>
                         <button type="button" class="admin-tab" data-admin-tab-control="galeria">
                             <span class="tab-icon"><i class="ph ph-images text-lg"></i></span>
                             <span class="min-w-0 flex-1 font-medium text-sm">Galería</span>
@@ -426,6 +455,10 @@ $content = read_content_file();
                         <button type="button" class="admin-tab" data-admin-tab-control="seo">
                             <span class="tab-icon"><i class="ph ph-magnifying-glass text-lg"></i></span>
                             <span class="min-w-0 flex-1 font-medium text-sm">SEO</span>
+                        </button>
+                        <button type="button" class="admin-tab" data-admin-tab-control="seguridad">
+                            <span class="tab-icon"><i class="ph ph-shield-check text-lg"></i></span>
+                            <span class="min-w-0 flex-1 font-medium text-sm">Seguridad</span>
                         </button>
                     </div>
                 </nav>
@@ -457,15 +490,27 @@ $content = read_content_file();
                 </header>
 
                 <div class="dashboard-content">
+                    <div id="adminTabPills" class="flex flex-wrap gap-2">
+                        <button type="button" class="pill-btn rounded-2xl bg-white/10 border border-white/10 text-slate-100 active" data-admin-tab-control="general">General</button>
+                        <button type="button" class="pill-btn rounded-2xl bg-white/5 border border-white/10 text-slate-300" data-admin-tab-control="hero">Hero</button>
+                        <button type="button" class="pill-btn rounded-2xl bg-white/5 border border-white/10 text-slate-300" data-admin-tab-control="academia">Academia</button>
+                        <button type="button" class="pill-btn rounded-2xl bg-white/5 border border-white/10 text-slate-300" data-admin-tab-control="contacto">Contacto</button>
+                        <button type="button" class="pill-btn rounded-2xl bg-white/5 border border-white/10 text-slate-300" data-admin-tab-control="fondos">Fondos</button>
+                        <button type="button" class="pill-btn rounded-2xl bg-white/5 border border-white/10 text-slate-300" data-admin-tab-control="galeria">Galería</button>
+                        <button type="button" class="pill-btn rounded-2xl bg-white/5 border border-white/10 text-slate-300" data-admin-tab-control="market">Market</button>
+                        <button type="button" class="pill-btn rounded-2xl bg-white/5 border border-white/10 text-slate-300" data-admin-tab-control="media">Media</button>
+                        <button type="button" class="pill-btn rounded-2xl bg-white/5 border border-white/10 text-slate-300" data-admin-tab-control="seo">SEO</button>
+                        <button type="button" class="pill-btn rounded-2xl bg-white/5 border border-white/10 text-slate-300" data-admin-tab-control="seguridad">Seguridad</button>
+                    </div>
                     <div id="adminAlert" class="hidden rounded-xl p-4 text-sm"></div>
 
             <section id="panel-general" class="admin-panel active glass rounded-[2rem] p-5 md:p-8 space-y-6">
-                <div class="grid xl:grid-cols-[1.2fr,0.8fr] gap-6">
+                <div class="grid xl:grid-cols-[1.1fr,0.9fr] gap-6">
                     <article class="section-card space-y-5">
                         <div class="section-heading">
                             <div>
                                 <h2 class="text-2xl font-semibold">Ajustes generales</h2>
-                                
+                                <p class="mt-2 text-sm text-slate-400">Define la identidad base del sitio sin mezclarla con el resto del contenido editorial.</p>
                             </div>
                         </div>
                         <div class="grid md:grid-cols-2 gap-4">
@@ -489,8 +534,67 @@ $content = read_content_file();
 
                     <article class="section-card space-y-5">
                         <div>
+                            <h2 class="text-2xl font-semibold">Resumen del panel</h2>
+                            <p class="mt-2 text-sm text-slate-400">Accede rápido a cada bloque nuevo para editar contenidos específicos.</p>
+                        </div>
+                        <div class="grid sm:grid-cols-2 gap-3">
+                            <button type="button" class="glass-card rounded-[1.3rem] p-4 text-left hover:border-cyan-300/40 transition" data-admin-tab-control="hero">
+                                <p class="text-sm font-semibold text-white">Hero</p>
+                                <p class="mt-1 text-sm text-slate-400">Imagen destacada y assets globales.</p>
+                            </button>
+                            <button type="button" class="glass-card rounded-[1.3rem] p-4 text-left hover:border-fuchsia-300/40 transition" data-admin-tab-control="academia">
+                                <p class="text-sm font-semibold text-white">Academia</p>
+                                <p class="mt-1 text-sm text-slate-400">Contenido y pieza visual de la sección.</p>
+                            </button>
+                            <button type="button" class="glass-card rounded-[1.3rem] p-4 text-left hover:border-white/20 transition" data-admin-tab-control="contacto">
+                                <p class="text-sm font-semibold text-white">Contacto</p>
+                                <p class="mt-1 text-sm text-slate-400">Canales, redes y texto del bloque.</p>
+                            </button>
+                            <button type="button" class="glass-card rounded-[1.3rem] p-4 text-left hover:border-emerald-300/40 transition" data-admin-tab-control="fondos">
+                                <p class="text-sm font-semibold text-white">Fondos</p>
+                                <p class="mt-1 text-sm text-slate-400">Capas visuales y backgrounds del sitio.</p>
+                            </button>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section id="panel-hero" class="admin-panel glass rounded-[2rem] p-5 md:p-8 space-y-6">
+                <article class="section-card space-y-5">
+                    <div class="section-heading">
+                        <div>
+                            <h2 class="text-2xl font-semibold">Hero y assets globales</h2>
+                            <p class="mt-2 text-sm text-slate-400">Administra la imagen principal visible en el inicio.</p>
+                        </div>
+                    </div>
+                    <div class="grid xl:grid-cols-3 gap-5">
+                        <article class="glass-card rounded-[1.6rem] p-5 space-y-4 xl:col-span-1">
+                            <div>
+                                <h3 class="font-semibold text-lg">Imagen destacada del hero</h3>
+                            </div>
+                            <img id="heroFeaturedPreview" src="" alt="Vista previa hero" class="w-full h-44 rounded-2xl object-cover border border-white/10 bg-slate-900/50">
+                            <label class="block space-y-2">
+                                <span class="text-sm text-slate-300">URL o ruta</span>
+                                <input type="text" id="heroFeaturedInput" data-image-input-key="hero.featured_image" class="input-shell">
+                            </label>
+                            <div class="flex flex-wrap gap-3">
+                                <button type="button" class="media-target-btn pill-btn rounded-2xl bg-white/10 border border-white/20 text-slate-100" data-media-target-key="hero.featured_image" data-media-target-type="image-object" data-media-target-input="heroFeaturedInput">Abrir media manager</button>
+                                <button type="button" class="pill-btn rounded-2xl bg-white/10 border border-white/20 text-slate-100" data-copy-from-input="heroFeaturedInput">Copiar enlace</button>
+                            </div>
+                        </article>
+                    </div>
+                    <div>
+                        <button type="button" id="saveSiteImagesBtn" class="pill-btn rounded-2xl bg-cyan-300 text-slate-950">Guardar imágenes globales</button>
+                    </div>
+                </article>
+            </section>
+
+            <section id="panel-academia" class="admin-panel glass rounded-[2rem] p-5 md:p-8 space-y-6">
+                <div class="grid xl:grid-cols-[1.1fr,0.9fr] gap-6">
+                    <article class="section-card space-y-5">
+                        <div>
                             <h2 class="text-2xl font-semibold">Academia</h2>
-                            
+                            <p class="mt-2 text-sm text-slate-400">Edita los textos, CTA y enlace del módulo academia.</p>
                         </div>
                         <div class="grid gap-4">
                             <label class="block space-y-2">
@@ -520,13 +624,33 @@ $content = read_content_file();
                             <button type="button" id="saveAcademiaBtn" class="pill-btn rounded-2xl bg-fuchsia-300 text-slate-950">Guardar academia</button>
                         </div>
                     </article>
-                </div>
 
+                    <article class="section-card space-y-5">
+                        <div>
+                            <h2 class="text-2xl font-semibold">Imagen de Academia</h2>
+                            <p class="mt-2 text-sm text-slate-400">Conserva el mismo input para no afectar el flujo actual del media manager.</p>
+                        </div>
+                        <article class="glass-card rounded-[1.6rem] p-5 space-y-4">
+                            <img id="academiaImagePreview" src="" alt="Vista previa academia" class="w-full h-44 rounded-2xl object-cover border border-white/10 bg-slate-900/50">
+                            <label class="block space-y-2">
+                                <span class="text-sm text-slate-300">URL o ruta</span>
+                                <input type="text" id="academiaImageInput" data-image-input-key="tabs.academia.image" class="input-shell">
+                            </label>
+                            <div class="flex flex-wrap gap-3">
+                                <button type="button" class="media-target-btn pill-btn rounded-2xl bg-white/10 border border-white/20 text-slate-100" data-media-target-key="tabs.academia.image" data-media-target-type="image-object" data-media-target-input="academiaImageInput">Abrir media manager</button>
+                                <button type="button" class="pill-btn rounded-2xl bg-white/10 border border-white/20 text-slate-100" data-copy-from-input="academiaImageInput">Copiar enlace</button>
+                            </div>
+                        </article>
+                    </article>
+                </div>
+            </section>
+
+            <section id="panel-contacto" class="admin-panel glass rounded-[2rem] p-5 md:p-8 space-y-6">
                 <article class="section-card space-y-5">
                     <div class="section-heading">
                         <div>
                             <h2 class="text-2xl font-semibold">Datos de contacto y redes</h2>
-                            
+                            <p class="mt-2 text-sm text-slate-400">Centraliza la información pública de contacto sin mezclarla con otros ajustes.</p>
                         </div>
                     </div>
                     <div class="grid md:grid-cols-2 gap-4">
@@ -567,56 +691,14 @@ $content = read_content_file();
                         <button type="button" id="saveContactBtn" class="pill-btn rounded-2xl bg-white text-slate-950">Guardar contacto y redes</button>
                     </div>
                 </article>
+            </section>
 
-                <article class="section-card space-y-5">
-                    <div class="section-heading">
-                        <div>
-                            <h2 class="text-2xl font-semibold">Imágenes clave del sitio</h2>
-                            
-                        </div>
-                    </div>
-                    <div class="grid xl:grid-cols-3 gap-5">
-                        <article class="glass-card rounded-[1.6rem] p-5 space-y-4">
-                            <div>
-                                <h3 class="font-semibold text-lg">Imagen destacada del hero</h3>
-                                
-                            </div>
-                            <img id="heroFeaturedPreview" src="" alt="Vista previa hero" class="w-full h-44 rounded-2xl object-cover border border-white/10 bg-slate-900/50">
-                            <label class="block space-y-2">
-                                <span class="text-sm text-slate-300">URL o ruta</span>
-                                <input type="text" id="heroFeaturedInput" data-image-input-key="hero.featured_image" class="input-shell">
-                            </label>
-                            <div class="flex flex-wrap gap-3">
-                                <button type="button" class="media-target-btn pill-btn rounded-2xl bg-white/10 border border-white/20 text-slate-100" data-media-target-key="hero.featured_image" data-media-target-type="image-object" data-media-target-input="heroFeaturedInput">Abrir media manager</button>
-                                <button type="button" class="pill-btn rounded-2xl bg-white/10 border border-white/20 text-slate-100" data-copy-from-input="heroFeaturedInput">Copiar enlace</button>
-                            </div>
-                        </article>
-                        <article class="glass-card rounded-[1.6rem] p-5 space-y-4">
-                            <div>
-                                <h3 class="font-semibold text-lg">Imagen de Academia</h3>
-                                
-                            </div>
-                            <img id="academiaImagePreview" src="" alt="Vista previa academia" class="w-full h-44 rounded-2xl object-cover border border-white/10 bg-slate-900/50">
-                            <label class="block space-y-2">
-                                <span class="text-sm text-slate-300">URL o ruta</span>
-                                <input type="text" id="academiaImageInput" data-image-input-key="tabs.academia.image" class="input-shell">
-                            </label>
-                            <div class="flex flex-wrap gap-3">
-                                <button type="button" class="media-target-btn pill-btn rounded-2xl bg-white/10 border border-white/20 text-slate-100" data-media-target-key="tabs.academia.image" data-media-target-type="image-object" data-media-target-input="academiaImageInput">Abrir media manager</button>
-                                <button type="button" class="pill-btn rounded-2xl bg-white/10 border border-white/20 text-slate-100" data-copy-from-input="academiaImageInput">Copiar enlace</button>
-                            </div>
-                        </article>
-                    </div>
-                    <div>
-                        <button type="button" id="saveSiteImagesBtn" class="pill-btn rounded-2xl bg-cyan-300 text-slate-950">Guardar imágenes globales</button>
-                    </div>
-                </article>
-
+            <section id="panel-fondos" class="admin-panel glass rounded-[2rem] p-5 md:p-8 space-y-6">
                 <article class="section-card space-y-5">
                     <div class="section-heading">
                         <div>
                             <h2 class="text-2xl font-semibold">Fondos del sitio</h2>
-                            
+                            <p class="mt-2 text-sm text-slate-400">Gestiona cada entrada de <code>backgrounds[*]</code> con el CRUD existente.</p>
                         </div>
                         <button type="button" id="addBackgroundBtn" class="pill-btn rounded-2xl bg-white text-slate-950">+ Agregar fondo</button>
                     </div>
@@ -625,10 +707,13 @@ $content = read_content_file();
                         <button type="button" id="saveBackgroundsBtn" class="pill-btn rounded-2xl bg-cyan-300 text-slate-950">Guardar fondos</button>
                     </div>
                 </article>
+            </section>
 
+            <section id="panel-seguridad" class="admin-panel glass rounded-[2rem] p-5 md:p-8 space-y-6">
                 <article class="section-card space-y-5">
                     <div>
-                        <h2 class="text-2xl font-semibold">Cambiar contraseña</h2>
+                        <h2 class="text-2xl font-semibold">Seguridad</h2>
+                        <p class="mt-2 text-sm text-slate-400">Actualiza la contraseña de acceso desde un bloque dedicado.</p>
                     </div>
                     <form id="passwordForm" class="grid md:grid-cols-3 gap-4">
                         <input type="password" name="current_password" required placeholder="Contraseña actual" class="input-shell">
@@ -1445,7 +1530,19 @@ function openSidebar() {
 
 const adminTabMeta = {
     general: {
-        title: 'General',
+        title: 'Ajustes generales',
+    },
+    hero: {
+        title: 'Hero',
+    },
+    academia: {
+        title: 'Academia',
+    },
+    contacto: {
+        title: 'Contacto',
+    },
+    fondos: {
+        title: 'Fondos',
     },
     galeria: {
         title: 'Galería',
@@ -1459,20 +1556,26 @@ const adminTabMeta = {
     seo: {
         title: 'SEO',
     },
+    seguridad: {
+        title: 'Seguridad',
+    },
 };
 
 function activateAdminTab(tabName, options = {}) {
     const { pushHash = true } = options;
-    if (!adminTabMeta[tabName]) return;
+    const meta = adminTabMeta[tabName];
+    const targetPanel = document.getElementById(`panel-${tabName}`);
+    if (!meta || !targetPanel) return;
 
     document.querySelectorAll('[data-admin-tab-control]').forEach((control) => {
-        control.classList.toggle('active', control.dataset.adminTabControl === tabName);
+        const isActive = control.dataset.adminTabControl === tabName;
+        control.classList.toggle('active', isActive);
+        control.setAttribute('aria-pressed', isActive ? 'true' : 'false');
     });
     document.querySelectorAll('.admin-panel').forEach((panel) => {
-        panel.classList.toggle('active', panel.id === `panel-${tabName}`);
+        panel.classList.toggle('active', panel === targetPanel);
     });
 
-    const meta = adminTabMeta[tabName];
     document.getElementById('activeTabTitle').textContent = meta.title;
 
     if (pushHash) {
