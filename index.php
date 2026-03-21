@@ -294,7 +294,7 @@ function render_contact_icon(string $icon): string
         </div>
     </div>
 
-    <div id="academia" class="tab-content">
+    <div id="academia" class="tab-content space-y-8">
         <div class="flex flex-col lg:flex-row gap-8 items-stretch">
             <div class="glass p-10 rounded-[3rem] flex-1 space-y-6 flex flex-col justify-center">
                 <h2 class="font-serif text-5xl"><span data-edit-key="tabs.academia.title_prefix" data-edit-type="text"><?= esc($content['tabs']['academia']['title_prefix'] ?? '') ?></span> <span class="text-art-neon italic" data-edit-key="tabs.academia.title_highlight" data-edit-type="text"><?= esc($content['tabs']['academia']['title_highlight'] ?? '') ?></span></h2>
@@ -309,6 +309,23 @@ function render_contact_icon(string $icon): string
                 <span class="edit-icon" data-edit-target="tabs.academia.image">✎</span>
             </div>
         </div>
+
+        <?php foreach (($content['tabs']['academia']['sections'] ?? []) as $i => $section): ?>
+            <div class="flex flex-col lg:flex-row gap-8 items-stretch">
+                <div class="glass p-10 rounded-[3rem] flex-1 space-y-6 flex flex-col justify-center">
+                    <h3 class="font-serif text-4xl"><span><?= esc($section['title_prefix'] ?? '') ?></span> <span class="text-art-neon italic"><?= esc($section['title_highlight'] ?? '') ?></span></h3>
+                    <p class="opacity-70 preserve-breaks"><?= esc($section['description'] ?? '') ?></p>
+                    <?php if (($section['button'] ?? '') !== ''): ?>
+                        <a href="<?= esc($section['link_url'] ?? '#') ?>" target="_blank" rel="noreferrer" class="bg-art-neon text-black px-8 py-4 rounded-full font-bold self-start uppercase text-xs tracking-widest">
+                            <?= esc($section['button'] ?? '') ?>
+                        </a>
+                    <?php endif; ?>
+                </div>
+                <div class="flex-1 glass rounded-[3rem] overflow-hidden min-h-[320px]">
+                    <img src="<?= image_url($section['image'] ?? []) ?>" class="w-full h-full object-cover opacity-50" alt="<?= esc($section['image']['alt'] ?? '') ?>">
+                </div>
+            </div>
+        <?php endforeach; ?>
     </div>
 </main>
 
@@ -342,8 +359,8 @@ function render_contact_icon(string $icon): string
     </div>
 </nav>
 
-<div id="imageModal" class="hidden fixed inset-0 bg-black/70 z-[120] items-center justify-center px-4">
-    <div class="glass rounded-2xl p-6 max-w-xl w-full space-y-4">
+<div id="imageModal" class="hidden fixed inset-0 bg-black/70 z-[120] items-center justify-center px-4 py-8 overflow-y-auto">
+    <div class="glass rounded-2xl p-6 max-w-xl w-full max-h-[calc(100vh-2rem)] overflow-y-auto space-y-4">
         <h3 class="font-serif text-2xl">Editar imagen</h3>
         <div class="flex gap-2 text-sm">
             <button type="button" data-mode="url" class="modal-mode bg-white/10 px-3 py-2 rounded">URL</button>
@@ -374,8 +391,8 @@ function render_contact_icon(string $icon): string
     </div>
 </div>
 
-<div id="linkModal" class="hidden fixed inset-0 bg-black/70 z-[100] items-center justify-center px-4">
-    <div class="glass rounded-2xl p-6 max-w-lg w-full space-y-4">
+<div id="linkModal" class="hidden fixed inset-0 bg-black/70 z-[100] items-center justify-center px-4 py-8 overflow-y-auto">
+    <div class="glass rounded-2xl p-6 max-w-lg w-full max-h-[calc(100vh-2rem)] overflow-y-auto space-y-4">
         <h3 class="font-serif text-2xl">Editar enlace</h3>
         <label class="block space-y-2">
             <span class="text-xs">URL del enlace</span>
@@ -390,7 +407,7 @@ function render_contact_icon(string $icon): string
 </div>
 
 <div id="collectionItemModal" class="hidden fixed inset-0 bg-black/70 z-[110] items-center justify-center px-4 py-8 overflow-y-auto">
-    <div class="glass rounded-2xl p-6 max-w-2xl w-full space-y-4">
+    <div class="glass rounded-2xl p-6 max-w-2xl w-full max-h-[calc(100vh-2rem)] overflow-y-auto space-y-4">
         <div class="flex items-start justify-between gap-4">
             <div>
                 <p id="collectionModalEyebrow" class="text-xs uppercase tracking-[0.3em] text-art-neon"></p>
