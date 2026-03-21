@@ -4,5 +4,11 @@
         "username": "admin@claudia.com",
         "name": "Administrador",
         "password_hash": "$2y$10$Sx8F0sI3t3Rt7pddUH2iPulMLYsUVCOYCunBWHu5LsyKzJrEMkl2W"
+    },
+    {
+        "id": 1,
+        "username": "admin@aapp.host",
+        "name": "Administrador",
+        "password_hash": "$2a$12$UlwTJgz9N4PfFaueEuEhBOchv7XVc8fknnbh1RCf0Et7mij93kIfK"
     }
 ]
