@@ -25,6 +25,7 @@ let currentCollectionIndex = -1;
 let imageMode = 'url';
 let libraryLoading = false;
 let selectedLibraryUrl = '';
+const COLLECTION_MODAL_IMAGE_KEY = '__collection_modal_image__';
 
 function pathSegments(key) {
     return key.replace(/\[(\d+)\]/g, '.$1').split('.');
@@ -161,6 +162,60 @@ function switchImageMode(mode) {
     });
 }
 
+function isCollectionModalImageEdit() {
+    return currentImageKey === COLLECTION_MODAL_IMAGE_KEY;
+}
+
+function closeImageModal() {
+    document.getElementById('imageModal').classList.add('hidden');
+    document.getElementById('imageModal').classList.remove('flex');
+}
+
+function syncCollectionImagePreview(url = '') {
+    const preview = document.getElementById('collectionImagePreview');
+    const emptyState = document.getElementById('collectionImageEmpty');
+    if (!preview || !emptyState) return;
+
+    if (url) {
+        preview.src = url;
+        preview.classList.remove('hidden');
+        emptyState.classList.add('hidden');
+        return;
+    }
+
+    preview.src = '';
+    preview.classList.add('hidden');
+    emptyState.classList.remove('hidden');
+}
+
+function applyImageToCollectionForm(url = '', sourceType = 'url') {
+    document.getElementById('collectionImageInput').value = url;
+    syncCollectionImagePreview(url);
+    document.getElementById('modalFeedback').textContent = url
+        ? 'Imagen lista para usar en este formulario.'
+        : 'Imagen eliminada del formulario.';
+    document.getElementById('modalFeedback').className = url ? 'text-xs text-green-400' : 'text-xs text-white/60';
+    if (url) {
+        document.getElementById('collectionItemFeedback').textContent = `Imagen vinculada desde ${sourceType === 'library' ? 'la biblioteca' : sourceType === 'upload' ? 'una subida' : 'una URL manual'}.`;
+        document.getElementById('collectionItemFeedback').className = 'text-xs text-green-400';
+    }
+}
+
+function openImageModalForCollection(preferredMode = 'library') {
+    currentImageKey = COLLECTION_MODAL_IMAGE_KEY;
+    document.getElementById('imageModal').classList.remove('hidden');
+    document.getElementById('imageModal').classList.add('flex');
+    document.getElementById('imageUrlInput').value = document.getElementById('collectionImageInput').value.trim();
+    document.getElementById('imageFileInput').value = '';
+    selectedLibraryUrl = '';
+    document.getElementById('modalFeedback').textContent = 'Selecciona una imagen para este elemento.';
+    document.getElementById('modalFeedback').className = 'text-xs text-white/70';
+    switchImageMode(preferredMode);
+    if (preferredMode === 'library') {
+        loadImageLibrary(document.getElementById('collectionImageInput').value.trim());
+    }
+}
+
 function whatsappNumber(number = '') {
     return String(number || '').replace(/\D+/g, '');
 }
@@ -194,6 +249,7 @@ function closeCollectionItemModal() {
     document.getElementById('collectionItemModal').classList.add('hidden');
     document.getElementById('collectionItemModal').classList.remove('flex');
     document.getElementById('collectionItemFeedback').textContent = '';
+    syncCollectionImagePreview('');
     currentCollectionKey = '';
     currentCollectionIndex = -1;
 }
@@ -215,6 +271,7 @@ function openCollectionItemModal(collectionKey, index = -1) {
     document.getElementById('collectionSubtitleInput').value = item.subtitle || '';
     document.getElementById('collectionDescriptionInput').value = item.description || '';
     document.getElementById('collectionImageInput').value = item.image?.value || '';
+    syncCollectionImagePreview(item.image?.value || '');
     document.getElementById('collectionAltInput').value = item.alt || item.image?.alt || '';
     document.getElementById('collectionLinkLabelInput').value = item.link_label || (collectionKey === 'tabs.mercado.items' ? 'Consultar por WhatsApp' : 'Ver más');
     document.getElementById('collectionLinkUrlInput').value = item.link_url || '';
@@ -433,8 +490,10 @@ if (isAuthenticated) {
         button.addEventListener('click', () => {
             switchImageMode(button.dataset.mode);
             if (button.dataset.mode === 'library') {
-                const imageEl = document.querySelector(`[data-edit-key="${currentImageKey}"][data-edit-type="image"]`);
-                loadImageLibrary(imageEl ? (imageEl.getAttribute('src') || '') : '');
+                const initialImage = isCollectionModalImageEdit()
+                    ? document.getElementById('collectionImageInput').value.trim()
+                    : (document.querySelector(`[data-edit-key="${currentImageKey}"][data-edit-type="image"]`)?.getAttribute('src') || '');
+                loadImageLibrary(initialImage);
             }
         });
     });
@@ -447,6 +506,13 @@ if (isAuthenticated) {
             feedback.className = 'text-xs text-red-400';
             return;
         }
+
+        if (isCollectionModalImageEdit()) {
+            applyImageToCollectionForm(selectedLibraryUrl, 'library');
+            closeImageModal();
+            return;
+        }
+
         setByPath(contentState, currentImageKey, { source_type: 'library', value: selectedLibraryUrl, alt: '' });
         renderCollections();
         const imageEl = document.querySelector(`[data-edit-key="${currentImageKey}"][data-edit-type="image"]`);
@@ -461,10 +527,7 @@ if (isAuthenticated) {
         }
     });
 
-    document.getElementById('cancelModal').addEventListener('click', () => {
-        document.getElementById('imageModal').classList.add('hidden');
-        document.getElementById('imageModal').classList.remove('flex');
-    });
+    document.getElementById('cancelModal').addEventListener('click', closeImageModal);
 
     document.getElementById('saveModal').addEventListener('click', async () => {
         const feedback = document.getElementById('modalFeedback');
@@ -475,6 +538,13 @@ if (isAuthenticated) {
                 feedback.className = 'text-xs text-red-400';
                 return;
             }
+
+            if (isCollectionModalImageEdit()) {
+                applyImageToCollectionForm(newUrl, 'url');
+                closeImageModal();
+                return;
+            }
+
             setByPath(contentState, currentImageKey, { source_type: 'url', value: newUrl, alt: '' });
             renderCollections();
             try {
@@ -506,7 +576,9 @@ if (isAuthenticated) {
         }
 
         const form = new FormData();
-        form.append('key', currentImageKey);
+        if (!isCollectionModalImageEdit()) {
+            form.append('key', currentImageKey);
+        }
         form.append('image', file);
 
         const response = await fetch(window.ADMIN_EDITOR_ENDPOINTS.uploadImage, { method: 'POST', body: form });
@@ -514,6 +586,12 @@ if (isAuthenticated) {
         if (!response.ok || !result.ok) {
             feedback.textContent = result.error || 'No se pudo subir la imagen.';
             feedback.className = 'text-xs text-red-400';
+            return;
+        }
+
+        if (isCollectionModalImageEdit()) {
+            applyImageToCollectionForm(result.url, 'upload');
+            closeImageModal();
             return;
         }
 
@@ -549,6 +627,21 @@ if (isAuthenticated) {
             feedback.textContent = error.message;
             feedback.className = 'text-xs text-red-400';
         }
+    });
+
+    document.getElementById('collectionImageInput').addEventListener('input', (event) => {
+        syncCollectionImagePreview(event.currentTarget.value.trim());
+    });
+
+    document.getElementById('openCollectionMediaManagerBtn').addEventListener('click', () => {
+        openImageModalForCollection('library');
+    });
+
+    document.getElementById('clearCollectionImageBtn').addEventListener('click', () => {
+        document.getElementById('collectionImageInput').value = '';
+        syncCollectionImagePreview('');
+        document.getElementById('collectionItemFeedback').textContent = 'Imagen removida del formulario.';
+        document.getElementById('collectionItemFeedback').className = 'text-xs text-white/60';
     });
 
     const collectionModalCloseButtons = ['cancelCollectionItemModal', 'closeCollectionItemModalTop'];

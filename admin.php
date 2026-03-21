@@ -16,73 +16,113 @@ $content = read_content_file();
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Admin Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
             color-scheme: dark;
-            --page-bg: radial-gradient(circle at 12% 18%, rgba(56, 189, 248, 0.22), transparent 0 24%), radial-gradient(circle at 88% 14%, rgba(168, 85, 247, 0.18), transparent 0 22%), radial-gradient(circle at 50% 82%, rgba(14, 165, 233, 0.12), transparent 0 28%), linear-gradient(160deg, #030712 0%, #07111f 38%, #02040a 100%);
-            --panel-bg: linear-gradient(160deg, rgba(8, 15, 32, 0.78), rgba(15, 23, 42, 0.38));
-            --panel-border: rgba(255, 255, 255, 0.14);
-            --panel-highlight: rgba(125, 211, 252, 0.22);
+            --page-bg: #050505;
+            --panel-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+            --panel-border: rgba(255, 255, 255, 0.1);
+            --panel-highlight: rgba(255, 255, 255, 0.15);
             --text-soft: rgba(226, 232, 240, 0.68);
         }
         * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
         body {
             min-height: 100vh;
             margin: 0;
+            font-family: 'Inter', sans-serif;
             color: rgb(241 245 249);
             background: var(--page-bg);
-            background-attachment: fixed;
+            overflow-x: hidden;
         }
-        body::before {
-            content: '';
+        .bg-blobs {
             position: fixed;
             inset: 0;
-            background: linear-gradient(180deg, rgba(255,255,255,0.06), transparent 16%, transparent 84%, rgba(255,255,255,0.03));
+            z-index: 0;
+            overflow: hidden;
             pointer-events: none;
         }
-        body::after {
-            content: '';
-            position: fixed;
-            inset: 24px;
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 32px;
-            pointer-events: none;
+        .blob {
+            position: absolute;
+            filter: blur(110px);
             opacity: .55;
-            mask: linear-gradient(black, transparent 88%);
+            border-radius: 999px;
+        }
+        .blob-1 {
+            top: -8%;
+            left: -12%;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, rgba(14, 165, 233, 0.38) 0%, rgba(0, 0, 0, 0) 70%);
+        }
+        .blob-2 {
+            right: -12%;
+            bottom: -24%;
+            width: 58vw;
+            height: 58vw;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.32) 0%, rgba(0, 0, 0, 0) 72%);
+        }
+        .blob-3 {
+            top: 38%;
+            left: 40%;
+            width: 34vw;
+            height: 34vw;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.18) 0%, rgba(0, 0, 0, 0) 72%);
+        }
+        .glass-panel {
+            position: relative;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid var(--panel-border);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 var(--panel-highlight);
         }
         .glass {
             position: relative;
-            background: var(--panel-bg);
+            background: linear-gradient(140deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
             backdrop-filter: blur(28px) saturate(160%);
             -webkit-backdrop-filter: blur(28px) saturate(160%);
-            border: 1px solid var(--panel-border);
-            box-shadow: 0 20px 60px rgba(2, 6, 23, 0.42), inset 0 1px 0 rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 20px 60px rgba(2, 6, 23, 0.32), inset 0 1px 0 rgba(255,255,255,0.07);
         }
         .glass::before {
             content: '';
             position: absolute;
             inset: 1px;
             border-radius: inherit;
-            background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.01) 24%, transparent 60%);
+            background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.01) 24%, transparent 60%);
             pointer-events: none;
-            opacity: .55;
+            opacity: .6;
         }
         .glass-card {
             position: relative;
-            background: linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03));
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(18px);
+            border: 1px solid rgba(255,255,255,0.07);
+            box-shadow: 0 4px 24px -1px rgba(0,0,0,0.2);
+        }
+        .glass-card:hover {
+            background: rgba(255,255,255,0.045);
+            border-color: rgba(255,255,255,0.1);
         }
         .admin-layout {
             position: relative;
             z-index: 1;
-            max-width: 1600px;
-            margin: 0 auto;
-            padding: 1rem;
-            display: grid;
-            gap: 1rem;
-            grid-template-columns: 1fr;
+            width: 100%;
+            min-height: 100vh;
+            padding: 0;
+        }
+        .admin-shell {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
         .sidebar-shell {
             position: fixed;
@@ -97,13 +137,14 @@ $content = read_content_file();
             transition: transform .35s ease, opacity .35s ease;
             opacity: 0;
             z-index: 50;
+            overflow-y: auto;
         }
         .sidebar-shell.open { transform: translateX(0); opacity: 1; }
         .sidebar-backdrop {
             position: fixed;
             inset: 0;
-            background: rgba(2, 6, 23, 0.58);
-            backdrop-filter: blur(6px);
+            background: rgba(2, 6, 23, 0.62);
+            backdrop-filter: blur(8px);
             z-index: 40;
         }
         .admin-main {
@@ -111,40 +152,22 @@ $content = read_content_file();
             display: flex;
             flex-direction: column;
             gap: 1rem;
-        }
-        .hero-banner {
             position: relative;
-            overflow: hidden;
-            min-height: 220px;
+            z-index: 1;
         }
-        .hero-banner::after {
-            content: '';
-            position: absolute;
-            inset: auto -20% -35% 20%;
-            height: 180px;
-            background: radial-gradient(circle, rgba(34, 211, 238, 0.22), transparent 68%);
-            pointer-events: none;
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            background: rgba(0,0,0,0.22);
+            backdrop-filter: blur(22px);
         }
-        .hero-orb {
-            position: absolute;
-            border-radius: 999px;
-            filter: blur(8px);
-            opacity: .9;
-            pointer-events: none;
-        }
-        .hero-orb.one {
-            width: 180px;
-            height: 180px;
-            top: -48px;
-            right: 8%;
-            background: radial-gradient(circle, rgba(125,211,252,.3), rgba(125,211,252,0));
-        }
-        .hero-orb.two {
-            width: 220px;
-            height: 220px;
-            bottom: -110px;
-            right: 22%;
-            background: radial-gradient(circle, rgba(192,132,252,.22), rgba(192,132,252,0));
+        .dashboard-content {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
         }
         .metric-tile {
             position: relative;
@@ -154,39 +177,77 @@ $content = read_content_file();
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, rgba(125, 211, 252, 0.08), transparent 60%);
+            background: linear-gradient(135deg, rgba(34, 211, 238, 0.08), transparent 62%);
             pointer-events: none;
         }
         .admin-tab {
             width: 100%;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: .75rem;
-            padding: .95rem 1rem;
-            border-radius: 1.1rem;
-            border: 1px solid rgba(255,255,255,0.1);
-            background: rgba(255,255,255,0.03);
-            color: rgba(226, 232, 240, 0.9);
+            gap: .85rem;
+            padding: .9rem 1rem;
+            border-radius: 1rem;
+            border: 1px solid transparent;
+            background: transparent;
+            color: rgba(148, 163, 184, 0.95);
             text-align: left;
-            transition: all .2s ease;
+            transition: all .25s ease;
         }
-        .admin-tab:hover { border-color: rgba(125, 211, 252, 0.32); background: rgba(255,255,255,0.06); }
-        .admin-tab.active {
-            background: linear-gradient(135deg, rgba(34, 211, 238, 0.2), rgba(129, 140, 248, 0.16));
-            border-color: rgba(125, 211, 252, 0.4);
-            box-shadow: 0 12px 30px rgba(34, 211, 238, 0.12), inset 0 1px 0 rgba(255,255,255,0.08);
+        .admin-tab:hover {
             color: white;
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.06);
+        }
+        .admin-tab.active {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.05);
+            color: white;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+        }
+        .admin-tab.active .tab-icon { color: #22d3ee; }
+        .tab-icon {
+            width: 2.35rem;
+            height: 2.35rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: .85rem;
+            background: rgba(255,255,255,0.05);
+            color: rgba(226, 232, 240, 0.78);
+            flex-shrink: 0;
+        }
+        .tab-pill {
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.04);
+            color: rgba(226,232,240,0.78);
+            border-radius: 999px;
+            padding: .65rem 1rem;
+            font-size: .78rem;
+            font-weight: 600;
+            transition: all .2s ease;
+            white-space: nowrap;
+        }
+        .tab-pill.active {
+            background: rgba(255,255,255,0.12);
+            color: #fff;
+            border-color: rgba(34, 211, 238, 0.32);
+            box-shadow: inset 0 0 18px rgba(0,0,0,0.18);
         }
         .admin-panel { display:none; }
-        .admin-panel.active { display:block; }
+        .admin-panel.active { display:block; animation: fadeIn .35s ease; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         .section-card {
             border-radius: 1.75rem;
             padding: 1.25rem;
-            border: 1px solid rgba(255,255,255,0.1);
-            background: linear-gradient(180deg, rgba(2,6,23,.28), rgba(15,23,42,.44));
+            border: 1px solid rgba(255,255,255,0.08);
+            background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
             box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
         }
+        .section-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1rem; }
+        .section-heading p { color: var(--text-soft); }
         .os-chip {
             display: inline-flex;
             align-items: center;
@@ -215,22 +276,20 @@ $content = read_content_file();
         .window-dots span:nth-child(1) { background: #fb7185; }
         .window-dots span:nth-child(2) { background: #fbbf24; }
         .window-dots span:nth-child(3) { background: #4ade80; }
-        .section-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1rem; }
-        .section-heading p { color: var(--text-soft); }
         .input-shell, .textarea-shell {
             width: 100%;
             border-radius: 1rem;
-            border: 1px solid rgba(255,255,255,0.12);
-            background: rgba(15, 23, 42, 0.62);
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(0, 0, 0, 0.22);
             padding: .85rem 1rem;
             color: white;
             outline: none;
             transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
         }
         .input-shell:focus, .textarea-shell:focus {
-            border-color: rgba(103, 232, 249, .7);
-            box-shadow: 0 0 0 4px rgba(34, 211, 238, .14);
-            background: rgba(15, 23, 42, 0.82);
+            border-color: rgba(34, 211, 238, 0.5);
+            box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
+            background: rgba(0, 0, 0, 0.38);
         }
         .pill-btn {
             border-radius: 1rem;
@@ -239,62 +298,196 @@ $content = read_content_file();
             transition: transform .15s ease, filter .2s ease;
         }
         .pill-btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
+        .nav-group-title {
+            margin: 1.25rem 0 .65rem;
+            padding: 0 .75rem;
+            font-size: .68rem;
+            font-weight: 700;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            color: rgba(148, 163, 184, .72);
+        }
+        .sidebar-user {
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding-top: 1rem;
+        }
         .media-dropzone.dragover { border-color: rgba(103, 232, 249, .95); background: rgba(34, 211, 238, .15); }
         .media-target-btn.active { border-color: rgba(103, 232, 249, .95); background: rgba(34, 211, 238, .18); color: white; }
         @media (min-width: 1024px) {
-            .admin-layout { grid-template-columns: 320px minmax(0, 1fr); padding: 1.5rem; }
+            .admin-layout {
+                padding: 1.5rem;
+                height: 100vh;
+            }
+            .admin-shell {
+                min-height: calc(100vh - 3rem);
+                flex-direction: row;
+            }
             .sidebar-shell {
-                position: sticky;
-                top: 1.5rem;
+                position: relative;
                 inset: auto;
-                width: 100%;
+                width: 18rem;
                 max-width: none;
                 transform: none;
                 opacity: 1;
                 z-index: 1;
-                max-height: calc(100vh - 3rem);
-                overflow: auto;
+                height: auto;
+                max-height: none;
+                flex-shrink: 0;
+            }
+            .admin-main {
+                flex: 1;
+                overflow: hidden;
+            }
+            .dashboard-content {
+                overflow-y: auto;
+                height: 100%;
+                padding: 2rem;
             }
         }
     </style>
 </head>
 <body class="min-h-screen text-slate-100">
+    <div class="bg-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
     <div id="adminSidebarBackdrop" class="sidebar-backdrop hidden lg:hidden"></div>
     <div class="admin-layout">
-        <aside id="adminSidebar" class="sidebar-shell glass rounded-[2rem]">
-            <div class="space-y-6">
-                <div class="flex items-start justify-between gap-4">
-                    <div class="space-y-4">
-                        <div class="window-dots"><span></span><span></span><span></span></div>
+        <div class="glass-panel admin-shell rounded-none lg:rounded-[2rem]">
+            <aside id="adminSidebar" class="sidebar-shell border-r border-white/10 bg-black/20 lg:rounded-[2rem]">
+                <div class="space-y-6">
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="space-y-4">
+                            <div class="window-dots"><span></span><span></span><span></span></div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center shadow-[0_0_20px_rgba(34,211,238,0.35)]">
+                                    <i class="ph ph-gear-six text-xl text-white"></i>
+                                </div>
+                                <div>
+                                    <p class="text-cyan-200 text-[11px] uppercase tracking-[0.32em]">Claudia Fasce</p>
+                                    <h1 class="mt-2 text-2xl font-semibold leading-tight">Panel de control</h1>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" id="closeSidebarBtn" class="lg:hidden rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-200">✕</button>
+                    </div>
+                    <div class="glass-card rounded-[1.4rem] p-4 space-y-3">
+                        <span class="os-chip"><span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>sesión activa</span>
                         <div>
-                            <p class="text-cyan-200 text-[11px] uppercase tracking-[0.32em]">CLAUDIA NUÑEZ</p>
-                            <h1 class="mt-3 text-2xl font-semibold leading-tight">PANEL DE CONTROL</h1>
+                            <p class="text-sm text-slate-400">Editando contenido visual y multimedia</p>
+                            <p class="mt-1 text-base font-semibold text-white"><?= htmlspecialchars((string) ($user['name'] ?? $user['username'] ?? ''), ENT_QUOTES, 'UTF-8') ?></p>
                         </div>
-                        </div>
-                    <button type="button" id="closeSidebarBtn" class="lg:hidden rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-200">✕</button>
+                    </div>
                 </div>
-               
-            </div>
 
-            <nav class="space-y-3">
-                <button type="button" class="admin-tab active" data-admin-tab="general"><span> General</span></button>
-                <button type="button" class="admin-tab" data-admin-tab="galeria"><span> Galería</span></button>
-                <button type="button" class="admin-tab" data-admin-tab="market"><span> Tienda</span></button>
-                
-                <button type="button" class="admin-tab" data-admin-tab="media"><span> Archivos</span></button>
-                <button type="button" class="admin-tab" data-admin-tab="seo"><span> SEO</span></button>
-                
-            </nav>
+                <nav id="adminTabNav" class="flex-1 overflow-y-auto pb-4">
+                    <div class="nav-group-title">Contenido</div>
+                    <div class="space-y-1.5">
+                        <button type="button" class="admin-tab active" data-admin-tab-control="general">
+                            <span class="tab-icon"><i class="ph ph-squares-four text-lg"></i></span>
+                            <span class="min-w-0 flex-1">
+                                <span class="block font-medium text-sm">General</span>
+                                <span class="block text-xs text-slate-400">Sitio, academia, contacto y fondos</span>
+                            </span>
+                        </button>
+                        <button type="button" class="admin-tab" data-admin-tab-control="galeria">
+                            <span class="tab-icon"><i class="ph ph-images text-lg"></i></span>
+                            <span class="min-w-0 flex-1">
+                                <span class="block font-medium text-sm">Galería</span>
+                                <span class="block text-xs text-slate-400">Cabecera y CRUD de obras</span>
+                            </span>
+                        </button>
+                        <button type="button" class="admin-tab" data-admin-tab-control="market">
+                            <span class="tab-icon"><i class="ph ph-shopping-bag-open text-lg"></i></span>
+                            <span class="min-w-0 flex-1">
+                                <span class="block font-medium text-sm">Market</span>
+                                <span class="block text-xs text-slate-400">Tienda y artistas destacados</span>
+                            </span>
+                        </button>
+                    </div>
+                    <div class="nav-group-title">Sistema</div>
+                    <div class="space-y-1.5">
+                        <button type="button" class="admin-tab" data-admin-tab-control="media">
+                            <span class="tab-icon"><i class="ph ph-images-square text-lg"></i></span>
+                            <span class="min-w-0 flex-1">
+                                <span class="block font-medium text-sm">Media manager</span>
+                                <span class="block text-xs text-slate-400">Subidas, biblioteca y asignación</span>
+                            </span>
+                        </button>
+                        <button type="button" class="admin-tab" data-admin-tab-control="seo">
+                            <span class="tab-icon"><i class="ph ph-magnifying-glass text-lg"></i></span>
+                            <span class="min-w-0 flex-1">
+                                <span class="block font-medium text-sm">SEO</span>
+                                <span class="block text-xs text-slate-400">Meta tags e imagen social</span>
+                            </span>
+                        </button>
+                    </div>
+                </nav>
 
-            
-        </aside>
+                <div class="sidebar-user space-y-3">
+                    <a href="<?= htmlspecialchars(url_for('/'), ENT_QUOTES, 'UTF-8') ?>" class="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold border border-white/10 transition-all text-sm">
+                        <i class="ph ph-browser text-lg"></i> Ver sitio
+                    </a>
+                    <a href="<?= htmlspecialchars(url_for('/logout.php'), ENT_QUOTES, 'UTF-8') ?>" class="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-rose-300 hover:text-rose-200 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all text-sm font-medium">
+                        <i class="ph ph-sign-out text-lg"></i> Cerrar sesión
+                    </a>
+                </div>
+            </aside>
 
-        <main class="admin-main">
-           <a href="<?= htmlspecialchars(url_for('/'), ENT_QUOTES, 'UTF-8') ?>" class="pill-btn rounded-2xl bg-cyan-300 text-slate-950">Ver sitio</a>
-                        <a href="<?= htmlspecialchars(url_for('/logout.php'), ENT_QUOTES, 'UTF-8') ?>" class="pill-btn rounded-2xl border border-white/15 bg-white/5 text-slate-100">Cerrar sesión</a>
-                    
+            <main class="admin-main">
+                <header class="topbar px-5 py-5 md:px-8 md:py-6">
+                    <div class="flex flex-col gap-5">
+                        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                            <div class="flex items-start gap-3">
+                                <button type="button" id="openSidebarBtn" class="lg:hidden w-11 h-11 rounded-2xl border border-white/10 bg-white/5 text-slate-200 inline-flex items-center justify-center">
+                                    <i class="ph ph-list text-xl"></i>
+                                </button>
+                                <div>
+                                    <h2 id="activeTabTitle" class="text-2xl md:text-3xl font-bold tracking-tight text-white">General</h2>
+                                    <p id="activeTabDescription" class="text-sm text-slate-400 mt-1">Gestiona el sitio, academia, contacto, fondos e imágenes globales.</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-3">
+                                <span class="os-chip"><span class="inline-block w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>Sistema online</span>
+                                <span class="os-chip"><i class="ph ph-sparkle text-cyan-300"></i>Template visual aplicado</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2 overflow-x-auto pb-1" id="adminTabPills">
+                            <button type="button" class="tab-pill active" data-admin-tab-control="general">General</button>
+                            <button type="button" class="tab-pill" data-admin-tab-control="galeria">Galería</button>
+                            <button type="button" class="tab-pill" data-admin-tab-control="market">Market</button>
+                            <button type="button" class="tab-pill" data-admin-tab-control="media">Media manager</button>
+                            <button type="button" class="tab-pill" data-admin-tab-control="seo">SEO</button>
+                        </div>
+                    </div>
+                </header>
 
-            <div id="adminAlert" class="hidden rounded-xl p-4 text-sm"></div>
+                <div class="dashboard-content">
+                    <section class="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
+                        <article class="glass-card metric-tile rounded-[1.5rem] p-5">
+                            <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.28em]">Sitio</p>
+                            <p class="mt-3 text-xl font-semibold text-white">Contenido en vivo</p>
+                            <p class="mt-2 text-sm text-slate-400">Todos los cambios se guardan sobre la misma estructura actual.</p>
+                        </article>
+                        <article class="glass-card metric-tile rounded-[1.5rem] p-5">
+                            <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.28em]">Galería</p>
+                            <p class="mt-3 text-xl font-semibold text-white"><?= count($content['tabs']['obras']['items'] ?? []) ?> obras</p>
+                            <p class="mt-2 text-sm text-slate-400">Administra piezas, imágenes y enlaces desde un solo lugar.</p>
+                        </article>
+                        <article class="glass-card metric-tile rounded-[1.5rem] p-5">
+                            <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.28em]">Market</p>
+                            <p class="mt-3 text-xl font-semibold text-white"><?= count($content['tabs']['mercado']['items'] ?? []) ?> items</p>
+                            <p class="mt-2 text-sm text-slate-400">Mantén sincronizada la tienda sin tocar funciones existentes.</p>
+                        </article>
+                        <article class="glass-card metric-tile rounded-[1.5rem] p-5">
+                            <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.28em]">Media</p>
+                            <p class="mt-3 text-xl font-semibold text-white">Biblioteca central</p>
+                            <p class="mt-2 text-sm text-slate-400">Sube, reutiliza y asigna imágenes a cada módulo.</p>
+                        </article>
+                    </section>
+
+                    <div id="adminAlert" class="hidden rounded-xl p-4 text-sm"></div>
 
             <section id="panel-general" class="admin-panel active glass rounded-[2rem] p-5 md:p-8 space-y-6">
                 <div class="grid xl:grid-cols-[1.2fr,0.8fr] gap-6">
@@ -1280,22 +1473,65 @@ function openSidebar() {
     document.getElementById('adminSidebarBackdrop')?.classList.remove('hidden');
 }
 
+const adminTabMeta = {
+    general: {
+        title: 'General',
+        description: 'Gestiona el sitio, academia, contacto, fondos e imágenes globales.',
+    },
+    galeria: {
+        title: 'Galería',
+        description: 'Ordena la cabecera y el CRUD de obras sin cambiar la lógica actual.',
+    },
+    market: {
+        title: 'Market',
+        description: 'Edita títulos, descripción e items destacados para venta asistida.',
+    },
+    media: {
+        title: 'Media manager',
+        description: 'Sube archivos, reutiliza imágenes y asígnalas a cualquier campo.',
+    },
+    seo: {
+        title: 'SEO',
+        description: 'Configura metadata, keywords e imagen social del sitio.',
+    },
+};
+
+function activateAdminTab(tabName, options = {}) {
+    const { pushHash = true } = options;
+    if (!adminTabMeta[tabName]) return;
+
+    document.querySelectorAll('[data-admin-tab-control]').forEach((control) => {
+        control.classList.toggle('active', control.dataset.adminTabControl === tabName);
+    });
+    document.querySelectorAll('.admin-panel').forEach((panel) => {
+        panel.classList.toggle('active', panel.id === `panel-${tabName}`);
+    });
+
+    const meta = adminTabMeta[tabName];
+    document.getElementById('activeTabTitle').textContent = meta.title;
+    document.getElementById('activeTabDescription').textContent = meta.description;
+
+    if (pushHash) {
+        history.replaceState(null, '', `#${tabName}`);
+    }
+
+    closeSidebar();
+
+    if (tabName === 'media') {
+        loadMediaLibrary({ statusIds: ['mediaLibraryStatus'], renderGlobal: true, renderField: false });
+    }
+}
+
 document.getElementById('openSidebarBtn')?.addEventListener('click', openSidebar);
 document.getElementById('closeSidebarBtn')?.addEventListener('click', closeSidebar);
 document.getElementById('adminSidebarBackdrop')?.addEventListener('click', closeSidebar);
 
-document.querySelectorAll('[data-admin-tab]').forEach((button) => {
-    button.addEventListener('click', () => {
-        document.querySelectorAll('[data-admin-tab]').forEach((tab) => tab.classList.remove('active'));
-        document.querySelectorAll('.admin-panel').forEach((panel) => panel.classList.remove('active'));
-        button.classList.add('active');
-        document.getElementById(`panel-${button.dataset.adminTab}`)?.classList.add('active');
-        closeSidebar();
-        if (button.dataset.adminTab === 'media') {
-            loadMediaLibrary({ statusIds: ['mediaLibraryStatus'], renderGlobal: true, renderField: false });
-        }
-    });
+document.querySelectorAll('[data-admin-tab-control]').forEach((button) => {
+    button.addEventListener('click', () => activateAdminTab(button.dataset.adminTabControl));
 });
+
+const initialAdminTab = window.location.hash.replace('#', '');
+activateAdminTab(adminTabMeta[initialAdminTab] ? initialAdminTab : 'general', { pushHash: false });
 
 document.getElementById('saveGeneralBtn').addEventListener('click', async () => {
     setByPath(adminState, 'site.name', document.getElementById('siteNameInput').value.trim());
@@ -1514,5 +1750,9 @@ bindMediaTargetButtons();
 bindCopyButtons();
 loadMediaLibrary({ statusIds: ['mediaLibraryStatus'], renderGlobal: true, renderField: false });
 </script>
+                </div>
+            </main>
+        </div>
+    </div>
 </body>
 </html>
