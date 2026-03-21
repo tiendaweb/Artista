@@ -267,81 +267,32 @@ $content = read_content_file();
                     <div class="space-y-4">
                         <div class="window-dots"><span></span><span></span><span></span></div>
                         <div>
-                            <p class="text-cyan-200 text-[11px] uppercase tracking-[0.32em]">Artista CMS</p>
-                            <h1 class="mt-3 text-2xl font-semibold leading-tight">Admin OS<br>liquid glass</h1>
+                            <p class="text-cyan-200 text-[11px] uppercase tracking-[0.32em]">CLAUDIA NUÑEZ</p>
+                            <h1 class="mt-3 text-2xl font-semibold leading-tight">PANEL DE CONTROL</h1>
                         </div>
-                        <div class="os-chip">Online · <?= htmlspecialchars((string) ($user['name'] ?? $user['username'] ?? ''), ENT_QUOTES, 'UTF-8') ?></div>
-                    </div>
+                        </div>
                     <button type="button" id="closeSidebarBtn" class="lg:hidden rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-200">✕</button>
                 </div>
-                <div class="glass-card rounded-[1.6rem] p-4">
-                    <div class="flex flex-wrap gap-3">
-                        <a href="<?= htmlspecialchars(url_for('/'), ENT_QUOTES, 'UTF-8') ?>" class="pill-btn rounded-2xl bg-cyan-300 text-slate-950">Ver sitio</a>
-                        <a href="<?= htmlspecialchars(url_for('/logout.php'), ENT_QUOTES, 'UTF-8') ?>" class="pill-btn rounded-2xl border border-white/15 bg-white/5 text-slate-100">Cerrar sesión</a>
-                    </div>
-                </div>
+               
             </div>
 
             <nav class="space-y-3">
-                <button type="button" class="admin-tab active" data-admin-tab="general"><span>✨ General</span><span class="text-xs text-slate-400">Brand</span></button>
-                <button type="button" class="admin-tab" data-admin-tab="seo"><span>🚀 SEO</span><span class="text-xs text-slate-400">Meta</span></button>
-                <button type="button" class="admin-tab" data-admin-tab="galeria"><span>🖼️ Galería</span><span class="text-xs text-slate-400">Colección</span></button>
-                <button type="button" class="admin-tab" data-admin-tab="market"><span>🛍️ Market</span><span class="text-xs text-slate-400">Venta</span></button>
-                <button type="button" class="admin-tab" data-admin-tab="media"><span>📁 Media Manager</span><span class="text-xs text-slate-400">Assets</span></button>
+                <button type="button" class="admin-tab active" data-admin-tab="general"><span> General</span></button>
+                <button type="button" class="admin-tab" data-admin-tab="galeria"><span> Galería</span></button>
+                <button type="button" class="admin-tab" data-admin-tab="market"><span> Tienda</span></button>
+                
+                <button type="button" class="admin-tab" data-admin-tab="media"><span> Archivos</span></button>
+                <button type="button" class="admin-tab" data-admin-tab="seo"><span> SEO</span></button>
+                
             </nav>
 
-            <div class="grid grid-cols-2 gap-3">
-                <article class="metric-tile glass-card rounded-[1.4rem] p-4">
-                    <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Obras</p>
-                    <p class="mt-3 text-3xl font-semibold"><?= count($content['tabs']['obras']['items'] ?? []) ?></p>
-                    <p class="mt-1 text-xs text-slate-400">En galería</p>
-                </article>
-                <article class="metric-tile glass-card rounded-[1.4rem] p-4">
-                    <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Market</p>
-                    <p class="mt-3 text-3xl font-semibold"><?= count($content['tabs']['mercado']['items'] ?? []) ?></p>
-                    <p class="mt-1 text-xs text-slate-400">Items activos</p>
-                </article>
-                <article class="metric-tile glass-card rounded-[1.4rem] p-4 col-span-2">
-                    <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Fondos rotativos</p>
-                    <div class="mt-3 flex items-end justify-between gap-3">
-                        <p class="text-3xl font-semibold"><?= count($content['backgrounds'] ?? []) ?></p>
-                        <p class="text-xs text-slate-400">Listos para portada</p>
-                    </div>
-                </article>
-            </div>
+            
         </aside>
 
         <main class="admin-main">
-            <header class="hero-banner glass rounded-[2rem] p-5 md:p-7">
-                <span class="hero-orb one"></span>
-                <span class="hero-orb two"></span>
-                <div class="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-                    <div class="space-y-5 max-w-3xl">
-                        <div class="flex items-center gap-3">
-                            <button type="button" id="openSidebarBtn" class="lg:hidden rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-slate-100">☰ Tabs</button>
-                            <span class="os-chip">Premium SaaS</span>
-                        </div>
-                        <div>
-                            <h2 class="text-3xl md:text-5xl font-semibold tracking-tight text-balance">Dashboard minimalista. Rápido. Claro.</h2>
-                            <p class="mt-3 max-w-2xl text-sm md:text-base text-slate-300">Sin ruido. Solo edición, media y SEO.</p>
-                        </div>
-                    </div>
-                    <div class="grid sm:grid-cols-3 gap-3 min-w-0 xl:min-w-[420px]">
-                        <article class="glass-card rounded-[1.5rem] p-4">
-                            <p class="text-xs uppercase tracking-[0.26em] text-slate-400">Sitio</p>
-                            <p class="mt-3 text-lg font-semibold"><?= htmlspecialchars((string) ($content['site']['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></p>
-                        </article>
-                        <article class="glass-card rounded-[1.5rem] p-4">
-                            <p class="text-xs uppercase tracking-[0.26em] text-slate-400">Estado</p>
-                            <p class="mt-3 text-lg font-semibold"><?= htmlspecialchars((string) ($content['site']['availability'] ?? 'No definido'), ENT_QUOTES, 'UTF-8') ?></p>
-                        </article>
-                        <article class="glass-card rounded-[1.5rem] p-4">
-                            <p class="text-xs uppercase tracking-[0.26em] text-slate-400">Biblioteca</p>
-                            <p class="mt-3 text-lg font-semibold">Media centralizada</p>
-                        </article>
-                    </div>
-                </div>
-            </header>
+           <a href="<?= htmlspecialchars(url_for('/'), ENT_QUOTES, 'UTF-8') ?>" class="pill-btn rounded-2xl bg-cyan-300 text-slate-950">Ver sitio</a>
+                        <a href="<?= htmlspecialchars(url_for('/logout.php'), ENT_QUOTES, 'UTF-8') ?>" class="pill-btn rounded-2xl border border-white/15 bg-white/5 text-slate-100">Cerrar sesión</a>
+                    
 
             <div id="adminAlert" class="hidden rounded-xl p-4 text-sm"></div>
 
@@ -350,7 +301,6 @@ $content = read_content_file();
                     <article class="section-card space-y-5">
                         <div class="section-heading">
                             <div>
-                                <p class="text-xs uppercase tracking-[0.28em] text-cyan-200">Brand core</p>
                                 <h2 class="text-2xl font-semibold">Ajustes generales</h2>
                                 
                             </div>
@@ -376,7 +326,6 @@ $content = read_content_file();
 
                     <article class="section-card space-y-5">
                         <div>
-                            <p class="text-xs uppercase tracking-[0.28em] text-fuchsia-200">Experience blocks</p>
                             <h2 class="text-2xl font-semibold">Academia</h2>
                             
                         </div>
@@ -413,7 +362,6 @@ $content = read_content_file();
                 <article class="section-card space-y-5">
                     <div class="section-heading">
                         <div>
-                            <p class="text-xs uppercase tracking-[0.28em] text-cyan-200">Communication</p>
                             <h2 class="text-2xl font-semibold">Datos de contacto y redes</h2>
                             
                         </div>
@@ -460,7 +408,6 @@ $content = read_content_file();
                 <article class="section-card space-y-5">
                     <div class="section-heading">
                         <div>
-                            <p class="text-xs uppercase tracking-[0.28em] text-cyan-200">Asset shortcuts</p>
                             <h2 class="text-2xl font-semibold">Imágenes clave del sitio</h2>
                             
                         </div>
@@ -505,7 +452,6 @@ $content = read_content_file();
                 <article class="section-card space-y-5">
                     <div class="section-heading">
                         <div>
-                            <p class="text-xs uppercase tracking-[0.28em] text-cyan-200">Ambient</p>
                             <h2 class="text-2xl font-semibold">Fondos del sitio</h2>
                             
                         </div>
@@ -519,7 +465,6 @@ $content = read_content_file();
 
                 <article class="section-card space-y-5">
                     <div>
-                        <p class="text-xs uppercase tracking-[0.28em] text-cyan-200">Security</p>
                         <h2 class="text-2xl font-semibold">Cambiar contraseña</h2>
                     </div>
                     <form id="passwordForm" class="grid md:grid-cols-3 gap-4">
@@ -537,7 +482,6 @@ $content = read_content_file();
                 <article class="section-card space-y-5">
                     <div class="section-heading">
                         <div>
-                            <p class="text-xs uppercase tracking-[0.28em] text-fuchsia-200">Visibility</p>
                             <h2 class="text-2xl font-semibold">Datos SEO</h2>
                             
                         </div>
@@ -582,7 +526,6 @@ $content = read_content_file();
                     <div class="grid xl:grid-cols-[0.9fr,1.1fr] gap-5">
                         <div class="space-y-4">
                             <div>
-                                <p class="text-xs uppercase tracking-[0.28em] text-cyan-200">Section content</p>
                                 <h2 class="text-2xl font-semibold">Cabecera de Galería</h2>
                                 
                             </div>
@@ -616,7 +559,6 @@ $content = read_content_file();
                     <div class="grid xl:grid-cols-[0.9fr,1.1fr] gap-5">
                         <div class="space-y-4">
                             <div>
-                                <p class="text-xs uppercase tracking-[0.28em] text-cyan-200">Section content</p>
                                 <h2 class="text-2xl font-semibold">Cabecera de Market</h2>
                                 
                             </div>
@@ -654,7 +596,6 @@ $content = read_content_file();
                     <div class="flex flex-col xl:flex-row gap-6">
                         <div class="xl:w-[360px] space-y-4">
                             <div>
-                                <p class="text-xs uppercase tracking-[0.28em] text-cyan-200">Asset hub</p>
                                 <h2 class="text-2xl font-semibold">Administrador de imágenes</h2>
                                 
                             </div>
@@ -702,7 +643,6 @@ $content = read_content_file();
     <div class="glass rounded-2xl p-6 max-w-5xl w-full space-y-5">
         <div class="flex items-start justify-between gap-4">
             <div>
-                <p class="text-cyan-200 text-xs uppercase tracking-[0.2em]">Media Manager</p>
                 <h3 class="text-2xl font-semibold">Seleccionar imagen para el campo</h3>
                 <p id="fieldMediaTargetLabel" class="text-sm text-slate-300 mt-1">Sin selección.</p>
             </div>
