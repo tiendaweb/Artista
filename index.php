@@ -60,6 +60,7 @@ if (!empty($contact['whatsapp'])) {
         'label' => 'WhatsApp',
         'value' => $contact['whatsapp'],
         'url' => whatsapp_link((string) $contact['whatsapp'], 'Hola, quiero consultar sobre una obra de ' . ($content['site']['name'] ?? 'la galería') . '.'),
+        'icon' => 'whatsapp',
     ];
 }
 
@@ -69,20 +70,40 @@ if (!empty($contact['email'])) {
         'label' => 'Email',
         'value' => $email,
         'url' => 'mailto:' . $email,
+        'icon' => 'email',
     ];
 }
 
-foreach (['instagram' => 'Instagram', 'facebook' => 'Facebook', 'tiktok' => 'TikTok', 'youtube' => 'YouTube'] as $field => $label) {
+foreach ([
+    'instagram' => ['label' => 'Instagram', 'icon' => 'instagram'],
+    'facebook' => ['label' => 'Facebook', 'icon' => 'facebook'],
+    'tiktok' => ['label' => 'TikTok', 'icon' => 'tiktok'],
+    'youtube' => ['label' => 'YouTube', 'icon' => 'youtube'],
+] as $field => $meta) {
     $value = trim((string) ($contact[$field] ?? ''));
     if ($value === '') {
         continue;
     }
 
     $contactLinks[] = [
-        'label' => $label,
+        'label' => $meta['label'],
         'value' => $value,
         'url' => normalize_external_link($value),
+        'icon' => $meta['icon'],
     ];
+}
+
+function render_contact_icon(string $icon): string
+{
+    return match ($icon) {
+        'whatsapp' => '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.04a9.92 9.92 0 0 0-8.58 14.9L2 22l5.2-1.36A9.96 9.96 0 1 0 12 2.04Zm0 18.14a8.1 8.1 0 0 1-4.12-1.13l-.3-.18-3.08.81.82-3-.2-.31A8.12 8.12 0 1 1 12 20.18Zm4.46-6.04c-.24-.12-1.43-.7-1.66-.78-.22-.08-.38-.12-.54.12-.16.23-.62.78-.76.94-.14.15-.28.17-.52.06-.24-.12-1-.37-1.9-1.16-.7-.62-1.17-1.38-1.3-1.61-.14-.23-.02-.35.1-.47.1-.1.23-.28.34-.42.12-.13.16-.23.24-.38.08-.16.04-.29-.02-.4-.06-.12-.54-1.3-.74-1.78-.2-.46-.4-.4-.54-.4h-.46c-.16 0-.4.06-.61.3-.22.23-.84.82-.84 2s.86 2.32.98 2.48c.12.15 1.68 2.56 4.08 3.59.57.25 1.02.4 1.37.5.58.18 1.1.16 1.52.1.46-.07 1.43-.58 1.63-1.14.2-.56.2-1.03.14-1.14-.05-.12-.21-.18-.45-.3Z"/></svg>',
+        'email' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg>',
+        'instagram' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="3.75"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>',
+        'facebook' => '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.42 21v-7.56h2.54l.38-2.95h-2.92V8.6c0-.85.24-1.43 1.46-1.43H16V4.53c-.19-.03-.84-.08-1.6-.08-1.58 0-2.66.96-2.66 2.74v1.53H9.5v2.95h2.24V21h1.68Z"/></svg>',
+        'tiktok' => '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14.5 3c.32 1.71 1.35 3.14 2.9 4.02.83.47 1.72.72 2.6.76v2.52a8.3 8.3 0 0 1-3.42-.74v5.14a5.7 5.7 0 1 1-5.7-5.7c.24 0 .48.02.72.05v2.56a3.04 3.04 0 1 0 2.9 3.03V3h2Z"/></svg>',
+        'youtube' => '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.8 8.52a2.9 2.9 0 0 0-2.04-2.05C17.96 6 12 6 12 6s-5.96 0-7.76.47A2.9 2.9 0 0 0 2.2 8.52 30.7 30.7 0 0 0 2 12a30.7 30.7 0 0 0 .2 3.48 2.9 2.9 0 0 0 2.04 2.05C6.04 18 12 18 12 18s5.96 0 7.76-.47a2.9 2.9 0 0 0 2.04-2.05c.14-1.15.2-2.31.2-3.48s-.06-2.33-.2-3.48ZM10 14.73V9.27L15 12l-5 2.73Z"/></svg>',
+        default => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg>',
+    };
 }
 ?>
 <!DOCTYPE html>
@@ -119,6 +140,7 @@ foreach (['instagram' => 'Instagram', 'facebook' => 'Facebook', 'tiktok' => 'Tik
         .overlay { position: fixed; inset: 0; background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.85) 100%); z-index: -1; }
         .glass { background: rgba(255,255,255,.03); backdrop-filter: blur(var(--blur)); border: 1px solid rgba(255,255,255,.08); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
         .glass-hover:hover { background: rgba(255,255,255,.07); border-color: rgba(0,242,255,.3); transform: translateY(-5px); transition: all .4s cubic-bezier(.175,.885,.32,1.275); }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: slideUp .8s ease forwards; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
@@ -292,22 +314,21 @@ foreach (['instagram' => 'Instagram', 'facebook' => 'Facebook', 'tiktok' => 'Tik
 
 
 <?php if ($contactLinks !== []): ?>
-    <section class="max-w-7xl mx-auto px-6 pb-24">
-        <div class="glass rounded-[2.5rem] p-8 md:p-10 space-y-6">
-            <div class="max-w-2xl space-y-2">
-                <p class="text-art-neon uppercase tracking-[0.3em] text-xs"><?= esc($contact['title'] ?? 'Contacto') ?></p>
-                <?php if (!empty($contact['description'])): ?>
-                    <p class="text-sm md:text-base text-gray-300 preserve-breaks"><?= esc($contact['description']) ?></p>
-                <?php endif; ?>
-            </div>
-            <div class="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                <?php foreach ($contactLinks as $contactLink): ?>
-                    <a href="<?= esc($contactLink['url']) ?>" target="_blank" rel="noreferrer" class="glass glass-hover rounded-3xl px-5 py-4 flex flex-col gap-2">
-                        <span class="text-[11px] uppercase tracking-[0.25em] text-art-neon"><?= esc($contactLink['label']) ?></span>
-                        <span class="text-sm md:text-base break-all"><?= esc($contactLink['value']) ?></span>
-                    </a>
-                <?php endforeach; ?>
-            </div>
+    <section class="max-w-7xl mx-auto px-6 pb-24" aria-label="<?= esc($contact['title'] ?? 'Contacto') ?>">
+        <div class="flex flex-wrap items-center justify-center gap-3 md:gap-4">
+            <?php foreach ($contactLinks as $contactLink): ?>
+                <a
+                    href="<?= esc($contactLink['url']) ?>"
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="<?= esc($contactLink['label'] . ': ' . $contactLink['value']) ?>"
+                    title="<?= esc($contactLink['label']) ?>"
+                    class="glass glass-hover w-11 h-11 md:w-12 md:h-12 rounded-full flex items-center justify-center text-white/80 hover:text-art-neon transition-colors duration-300"
+                >
+                    <span class="w-5 h-5 md:w-6 md:h-6"><?= render_contact_icon((string) ($contactLink['icon'] ?? '')) ?></span>
+                    <span class="sr-only"><?= esc($contactLink['label']) ?></span>
+                </a>
+            <?php endforeach; ?>
         </div>
     </section>
 <?php endif; ?>
