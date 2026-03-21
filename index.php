@@ -136,6 +136,7 @@ foreach (['instagram' => 'Instagram', 'facebook' => 'Facebook', 'tiktok' => 'Tik
         .field-message { display:none; font-size:.7rem; margin-top:.3rem; }
         .field-message.ok { color: #34d399; display:block; }
         .field-message.error { color: #f87171; display:block; }
+        .preserve-breaks { white-space: pre-line; }
     </style>
 </head>
 <body class="text-white selection:bg-art-neon selection:text-black" data-auth="<?= $isLoggedIn ? '1' : '0' ?>">
@@ -177,7 +178,7 @@ foreach (['instagram' => 'Instagram', 'facebook' => 'Facebook', 'tiktok' => 'Tik
                     <span class="italic text-art-gold" data-edit-key="hero.headline_highlight" data-edit-type="text"><?= esc($content['hero']['headline_highlight'] ?? '') ?></span>
                     <span data-edit-key="hero.headline_suffix" data-edit-type="text"><?= esc($content['hero']['headline_suffix'] ?? '') ?></span>
                 </h2>
-                <p class="text-lg text-gray-300 leading-relaxed font-light" data-edit-key="hero.description" data-edit-type="text"><?= esc($content['hero']['description'] ?? '') ?></p>
+                <p class="text-lg text-gray-300 leading-relaxed font-light preserve-breaks" data-edit-key="hero.description" data-edit-type="text"><?= esc($content['hero']['description'] ?? '') ?></p>
                 <div class="flex gap-4">
                     <?php foreach ($stats as $i => $stat): ?>
                         <div class="glass p-6 rounded-2xl flex-1">
@@ -191,7 +192,7 @@ foreach (['instagram' => 'Instagram', 'facebook' => 'Facebook', 'tiktok' => 'Tik
                 <img src="<?= image_url($content['hero']['featured_image'] ?? []) ?>" data-edit-key="hero.featured_image" data-edit-type="image" data-source-type="<?= esc($content['hero']['featured_image']['source_type'] ?? 'url') ?>" class="rounded-3xl border border-white/10 shadow-2xl transition-transform duration-700 group-hover:scale-[1.02]" alt="<?= esc($content['hero']['featured_image']['alt'] ?? '') ?>">
                 <span class="edit-icon" data-edit-target="hero.featured_image">✎</span>
                 <div class="absolute bottom-6 left-6 glass p-4 rounded-xl max-w-xs">
-                    <p class="text-xs italic" data-edit-key="hero.quote" data-edit-type="text">&ldquo;<?= esc($content['hero']['quote'] ?? '') ?>&rdquo;</p>
+                    <p class="text-xs italic preserve-breaks" data-edit-key="hero.quote" data-edit-type="text">&ldquo;<?= esc($content['hero']['quote'] ?? '') ?>&rdquo;</p>
                 </div>
             </div>
         </div>
@@ -215,7 +216,7 @@ foreach (['instagram' => 'Instagram', 'facebook' => 'Facebook', 'tiktok' => 'Tik
                     <span class="edit-icon" data-edit-target="tabs.obras.items[<?= $i ?>].image">✎</span>
                     <h3 class="font-serif text-xl" data-edit-key="tabs.obras.items[<?= $i ?>].title" data-edit-type="text"><?= esc($item['title'] ?? '') ?></h3>
                     <p class="text-xs text-art-neon mb-2" data-edit-key="tabs.obras.items[<?= $i ?>].subtitle" data-edit-type="text"><?= esc($item['subtitle'] ?? '') ?></p>
-                    <p class="text-sm opacity-60 mb-4" data-edit-key="tabs.obras.items[<?= $i ?>].description" data-edit-type="text"><?= esc($item['description'] ?? '') ?></p>
+                    <p class="text-sm opacity-60 mb-4 preserve-breaks" data-edit-key="tabs.obras.items[<?= $i ?>].description" data-edit-type="text"><?= esc($item['description'] ?? '') ?></p>
                     <a href="<?= esc($item['link_url'] ?? '#') ?>" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 text-sm text-art-neon" data-edit-link-key="tabs.obras.items[<?= $i ?>].link_url">
                         <span data-edit-key="tabs.obras.items[<?= $i ?>].link_label" data-edit-type="text"><?= esc($item['link_label'] ?? 'Ver más') ?></span>
                     </a>
@@ -229,7 +230,7 @@ foreach (['instagram' => 'Instagram', 'facebook' => 'Facebook', 'tiktok' => 'Tik
     <div id="mercado" class="tab-content space-y-8">
         <div class="glass p-12 rounded-[3rem] text-center space-y-6">
             <h2 class="font-serif text-5xl"><span data-edit-key="tabs.mercado.title_prefix" data-edit-type="text"><?= esc($content['tabs']['mercado']['title_prefix'] ?? '') ?></span> <span class="italic" data-edit-key="tabs.mercado.title_highlight" data-edit-type="text"><?= esc($content['tabs']['mercado']['title_highlight'] ?? '') ?></span></h2>
-            <p class="max-w-2xl mx-auto opacity-70" data-edit-key="tabs.mercado.description" data-edit-type="text"><?= esc($content['tabs']['mercado']['description'] ?? '') ?></p>
+            <p class="max-w-2xl mx-auto opacity-70 preserve-breaks" data-edit-key="tabs.mercado.description" data-edit-type="text"><?= esc($content['tabs']['mercado']['description'] ?? '') ?></p>
             <?php if ($isLoggedIn): ?>
                 <div class="collection-toolbar justify-center gap-2" data-collection-toolbar="tabs.mercado.items">
                     <button type="button" class="px-4 py-2 rounded-full bg-art-neon text-black text-xs font-bold" data-add-collection="tabs.mercado.items">+ Agregar item market</button>
@@ -260,7 +261,7 @@ foreach (['instagram' => 'Instagram', 'facebook' => 'Facebook', 'tiktok' => 'Tik
                         <span class="edit-icon" data-edit-target="tabs.mercado.items[<?= $i ?>].image">✎</span>
                         <p class="text-sm font-bold" data-edit-key="tabs.mercado.items[<?= $i ?>].title" data-edit-type="text"><?= esc($item['title'] ?? '') ?></p>
                         <p class="text-[10px] text-art-neon uppercase tracking-[0.2em] mb-3" data-edit-key="tabs.mercado.items[<?= $i ?>].subtitle" data-edit-type="text"><?= esc($item['subtitle'] ?? '') ?></p>
-                        <p class="text-sm opacity-60 mb-4" data-edit-key="tabs.mercado.items[<?= $i ?>].description" data-edit-type="text"><?= esc($item['description'] ?? '') ?></p>
+                        <p class="text-sm opacity-60 mb-4 preserve-breaks" data-edit-key="tabs.mercado.items[<?= $i ?>].description" data-edit-type="text"><?= esc($item['description'] ?? '') ?></p>
                         <a href="<?= esc($marketLinkUrl ?: '#') ?>" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 text-sm text-art-neon" data-edit-link-key="tabs.mercado.items[<?= $i ?>].link_url">
                             <span data-edit-key="tabs.mercado.items[<?= $i ?>].link_label" data-edit-type="text"><?= esc($marketLinkLabel) ?></span>
                         </a>
@@ -275,7 +276,7 @@ foreach (['instagram' => 'Instagram', 'facebook' => 'Facebook', 'tiktok' => 'Tik
         <div class="flex flex-col lg:flex-row gap-8 items-stretch">
             <div class="glass p-10 rounded-[3rem] flex-1 space-y-6 flex flex-col justify-center">
                 <h2 class="font-serif text-5xl"><span data-edit-key="tabs.academia.title_prefix" data-edit-type="text"><?= esc($content['tabs']['academia']['title_prefix'] ?? '') ?></span> <span class="text-art-neon italic" data-edit-key="tabs.academia.title_highlight" data-edit-type="text"><?= esc($content['tabs']['academia']['title_highlight'] ?? '') ?></span></h2>
-                <p class="opacity-70" data-edit-key="tabs.academia.description" data-edit-type="text"><?= esc($content['tabs']['academia']['description'] ?? '') ?></p>
+                <p class="opacity-70 preserve-breaks" data-edit-key="tabs.academia.description" data-edit-type="text"><?= esc($content['tabs']['academia']['description'] ?? '') ?></p>
                 <a href="<?= esc($content['tabs']['academia']['link_url'] ?? '#') ?>" target="_blank" rel="noreferrer" class="bg-art-neon text-black px-8 py-4 rounded-full font-bold self-start uppercase text-xs tracking-widest" data-edit-link-key="tabs.academia.link_url">
                     <span data-edit-key="tabs.academia.button" data-edit-type="text"><?= esc($content['tabs']['academia']['button'] ?? '') ?></span>
                 </a>
@@ -296,7 +297,7 @@ foreach (['instagram' => 'Instagram', 'facebook' => 'Facebook', 'tiktok' => 'Tik
             <div class="max-w-2xl space-y-2">
                 <p class="text-art-neon uppercase tracking-[0.3em] text-xs"><?= esc($contact['title'] ?? 'Contacto') ?></p>
                 <?php if (!empty($contact['description'])): ?>
-                    <p class="text-sm md:text-base text-gray-300"><?= esc($contact['description']) ?></p>
+                    <p class="text-sm md:text-base text-gray-300 preserve-breaks"><?= esc($contact['description']) ?></p>
                 <?php endif; ?>
             </div>
             <div class="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">

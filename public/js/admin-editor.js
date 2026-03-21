@@ -61,6 +61,14 @@ function fieldMessage(key, msg, ok) {
     target.className = `field-message ${ok ? 'ok' : 'error'}`;
 }
 
+function normalizeEditableText(element) {
+    return String(element?.innerText || '')
+        .replace(/\r\n?/g, '\n')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim();
+}
+
+
 async function persistContent(changedKeys = []) {
     const response = await fetch(window.ADMIN_EDITOR_ENDPOINTS.saveContent, {
         method: 'POST',
@@ -269,7 +277,7 @@ function renderCollectionItem(item, index, collectionKey) {
                 <span class="edit-icon" data-edit-target="${imageKey}">✎</span>
                 <p class="text-sm font-bold" data-edit-key="${titleKey}" data-edit-type="text">${item.title || ''}</p>
                 <p class="text-[10px] text-art-neon uppercase tracking-[0.2em] mb-3" data-edit-key="${subtitleKey}" data-edit-type="text">${item.subtitle || ''}</p>
-                <p class="text-sm opacity-60 mb-4" data-edit-key="${descriptionKey}" data-edit-type="text">${item.description || ''}</p>
+                <p class="text-sm opacity-60 mb-4 preserve-breaks" data-edit-key="${descriptionKey}" data-edit-type="text">${item.description || ''}</p>
                 <a href="${actionUrl}" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 text-sm text-art-neon" data-edit-link-key="${linkUrlKey}">
                     <span data-edit-key="${linkLabelKey}" data-edit-type="text">${actionLabel}</span>
                 </a>
@@ -286,7 +294,7 @@ function renderCollectionItem(item, index, collectionKey) {
             <span class="edit-icon" data-edit-target="${imageKey}">✎</span>
             <h3 class="font-serif text-xl" data-edit-key="${titleKey}" data-edit-type="text">${item.title || ''}</h3>
             <p class="text-xs text-art-neon mb-2" data-edit-key="${subtitleKey}" data-edit-type="text">${item.subtitle || ''}</p>
-            <p class="text-sm opacity-60 mb-4" data-edit-key="${descriptionKey}" data-edit-type="text">${item.description || ''}</p>
+            <p class="text-sm opacity-60 mb-4 preserve-breaks" data-edit-key="${descriptionKey}" data-edit-type="text">${item.description || ''}</p>
             <a href="${actionUrl}" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 text-sm text-art-neon" data-edit-link-key="${linkUrlKey}">
                 <span data-edit-key="${linkLabelKey}" data-edit-type="text">${actionLabel}</span>
             </a>
@@ -404,7 +412,7 @@ if (isAuthenticated) {
         let hasError = false;
         document.querySelectorAll('[data-edit-type="text"]').forEach((el) => {
             const key = el.dataset.editKey;
-            const value = (el.textContent || '').trim();
+            const value = normalizeEditableText(el);
             if (!value) {
                 fieldMessage(key, 'Este campo no puede quedar vacío.', false);
                 hasError = true;
