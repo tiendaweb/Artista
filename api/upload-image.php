@@ -16,11 +16,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $key = trim((string) ($_POST['key'] ?? ''));
-if ($key === '') {
-    http_response_code(400);
-    echo json_encode(['ok' => false, 'error' => 'Falta la clave del campo']);
-    exit;
-}
 
 if (!isset($_FILES['image']) || !is_array($_FILES['image'])) {
     http_response_code(400);
@@ -43,30 +38,37 @@ if ((int) ($file['size'] ?? 0) > 5 * 1024 * 1024) {
 
 $tmpPath = (string) ($file['tmp_name'] ?? '');
 $originalName = (string) ($file['name'] ?? '');
-$extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
 
-$allowed = [
-    'jpg' => 'image/jpeg',
-    'jpeg' => 'image/jpeg',
-    'png' => 'image/png',
-    'webp' => 'image/webp',
+$allowedByImageType = [
+    IMAGETYPE_JPEG => ['extension' => 'jpg', 'mime' => 'image/jpeg'],
+    IMAGETYPE_PNG => ['extension' => 'png', 'mime' => 'image/png'],
+    IMAGETYPE_WEBP => ['extension' => 'webp', 'mime' => 'image/webp'],
 ];
 
-if (!isset($allowed[$extension])) {
-    http_response_code(400);
-    echo json_encode(['ok' => false, 'error' => 'Extensión de imagen no permitida']);
-    exit;
+$detectedType = function_exists('exif_imagetype') ? @exif_imagetype($tmpPath) : false;
+$detected = $detectedType !== false && isset($allowedByImageType[$detectedType])
+    ? $allowedByImageType[$detectedType]
+    : null;
+
+if ($detected === null) {
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mime = is_resource($finfo) ? (string) finfo_file($finfo, $tmpPath) : '';
+    if (is_resource($finfo)) {
+        finfo_close($finfo);
+    }
+
+    $allowedByMime = [
+        'image/jpeg' => ['extension' => 'jpg', 'mime' => 'image/jpeg'],
+        'image/png' => ['extension' => 'png', 'mime' => 'image/png'],
+        'image/webp' => ['extension' => 'webp', 'mime' => 'image/webp'],
+    ];
+
+    $detected = $allowedByMime[$mime] ?? null;
 }
 
-$finfo = finfo_open(FILEINFO_MIME_TYPE);
-$mime = is_resource($finfo) ? (string) finfo_file($finfo, $tmpPath) : '';
-if (is_resource($finfo)) {
-    finfo_close($finfo);
-}
-
-if ($mime !== $allowed[$extension]) {
+if ($detected === null) {
     http_response_code(400);
-    echo json_encode(['ok' => false, 'error' => 'El MIME no coincide con la extensión']);
+    echo json_encode(['ok' => false, 'error' => 'El archivo no es una imagen válida. Solo se aceptan JPG, PNG o WEBP.']);
     exit;
 }
 
@@ -79,8 +81,7 @@ if (!is_dir($uploadsDir) && !mkdir($uploadsDir, 0775, true) && !is_dir($uploadsD
 
 $timestamp = (new DateTimeImmutable())->format('YmdHis');
 $random = bin2hex(random_bytes(6));
-$normalizedExt = $extension === 'jpeg' ? 'jpg' : $extension;
-$filename = sprintf('img_%s_%s.%s', $timestamp, $random, $normalizedExt);
+$filename = sprintf('img_%s_%s.%s', $timestamp, $random, $detected['extension']);
 $destination = $uploadsDir . '/' . $filename;
 
 if (!move_uploaded_file($tmpPath, $destination)) {
@@ -90,16 +91,25 @@ if (!move_uploaded_file($tmpPath, $destination)) {
 }
 
 $publicUrl = '/public/uploads/' . $filename;
-$currentContent = read_content_file();
-set_value_by_path($currentContent, $key, [
-    'source_type' => 'upload',
-    'value' => $publicUrl,
-]);
 
-if (!save_content_file($currentContent)) {
-    http_response_code(500);
-    echo json_encode(['ok' => false, 'error' => 'No se pudo persistir el contenido']);
-    exit;
+if ($key !== '') {
+    $currentContent = read_content_file();
+    set_value_by_path($currentContent, $key, [
+        'source_type' => 'upload',
+        'value' => $publicUrl,
+    ]);
+
+    if (!save_content_file($currentContent)) {
+        http_response_code(500);
+        echo json_encode(['ok' => false, 'error' => 'No se pudo persistir el contenido']);
+        exit;
+    }
 }
 
-echo json_encode(['ok' => true, 'key' => $key, 'url' => $publicUrl]);
+echo json_encode([
+    'ok' => true,
+    'key' => $key,
+    'url' => $publicUrl,
+    'name' => $filename,
+    'mime' => $detected['mime'],
+]);
