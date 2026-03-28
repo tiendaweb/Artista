@@ -258,7 +258,7 @@ function render_contact_icon(string $icon): string
                     <button type="button" class="px-4 py-2 rounded-full bg-art-neon text-black text-xs font-bold" data-add-collection="tabs.mercado.items">+ Agregar item market</button>
                 </div>
             <?php endif; ?>
-            <div id="marketCollection" class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 pt-8">
+            <div id="marketCollection" class="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6 pt-8">
                 <?php foreach ($marketItems as $i => $item): ?>
                     <?php
                         $marketTitle = trim((string) ($item['title'] ?? 'esta obra'));
@@ -274,12 +274,10 @@ function render_contact_icon(string $icon): string
                             $marketLinkLabel = 'Ver más';
                         }
                     ?>
-                    <article class="glass p-4 rounded-2xl editable-wrapper" data-collection-item="tabs.mercado.items" data-index="<?= $i ?>">
+                    <article class="glass glass-hover p-4 rounded-3xl break-inside-avoid editable-wrapper" data-collection-item="tabs.mercado.items" data-index="<?= $i ?>">
                         <?php if ($isLoggedIn): ?><button type="button" class="delete-icon" data-delete-collection="tabs.mercado.items" data-index="<?= $i ?>">✕</button><?php endif; ?>
                         <?php if ($isLoggedIn): ?><button type="button" class="item-edit-btn" data-edit-collection="tabs.mercado.items" data-index="<?= $i ?>">Editar</button><?php endif; ?>
-                        <div class="aspect-square bg-gray-800 rounded-xl mb-4 overflow-hidden">
-                            <img src="<?= image_url($item['image'] ?? []) ?>" data-edit-key="tabs.mercado.items[<?= $i ?>].image" data-edit-type="image" data-source-type="<?= esc($item['image']['source_type'] ?? 'url') ?>" class="w-full h-full object-cover" alt="<?= esc($item['alt'] ?? '') ?>">
-                        </div>
+                        <img src="<?= image_url($item['image'] ?? []) ?>" data-edit-key="tabs.mercado.items[<?= $i ?>].image" data-edit-type="image" data-source-type="<?= esc($item['image']['source_type'] ?? 'url') ?>" class="rounded-2xl h-full w-auto max-w-full mb-4 mx-auto" alt="<?= esc($item['alt'] ?? '') ?>">
                         <span class="edit-icon" data-edit-target="tabs.mercado.items[<?= $i ?>].image">✎</span>
                         <p class="text-sm font-bold" data-edit-key="tabs.mercado.items[<?= $i ?>].title" data-edit-type="text"><?= esc($item['title'] ?? '') ?></p>
                         <p class="text-[10px] text-art-neon uppercase tracking-[0.2em] mb-3" data-edit-key="tabs.mercado.items[<?= $i ?>].subtitle" data-edit-type="text"><?= esc($item['subtitle'] ?? '') ?></p>
