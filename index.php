@@ -280,7 +280,7 @@ function render_contact_icon(string $icon): string
                         <?php if ($isLoggedIn): ?><button type="button" class="item-edit-btn" data-edit-collection="tabs.mercado.items" data-index="<?= $i ?>">Editar</button><?php endif; ?>
                         <div class="rounded-2xl overflow-hidden bg-black/20 mb-4 aspect-[4/5]">
                             <?php if ($marketImageUrl !== ''): ?>
-                                <img src="<?= image_url($item['image'] ?? []) ?>" data-edit-key="tabs.mercado.items[<?= $i ?>].image" data-edit-type="image" data-source-type="<?= esc($item['image']['source_type'] ?? 'url') ?>" class="w-full h-full object-cover" alt="<?= esc($item['alt'] ?? '') ?>">
+                                <img src="<?= image_url($item['image'] ?? []) ?>" data-edit-key="tabs.mercado.items[<?= $i ?>].image" data-edit-type="image" data-source-type="<?= esc($item['image']['source_type'] ?? 'url') ?>" class="h-full w-auto max-w-full object-contain mx-auto" alt="<?= esc($item['alt'] ?? '') ?>">
                             <?php else: ?>
                                 <div class="w-full h-full flex items-center justify-center text-[11px] uppercase tracking-[0.2em] text-white/45">Sin imagen</div>
                             <?php endif; ?>
