@@ -325,12 +325,10 @@ function renderCollectionItem(item, index, collectionKey) {
 
     if (isMarket) {
         return `
-            <article class="glass p-4 rounded-2xl editable-wrapper" data-collection-item="${collectionKey}" data-index="${index}">
+            <article class="glass glass-hover p-4 rounded-3xl break-inside-avoid editable-wrapper" data-collection-item="${collectionKey}" data-index="${index}">
                 ${deleteButton}
                 ${editButton}
-                <div class="aspect-square bg-gray-800 rounded-xl mb-4 overflow-hidden">
-                    <img src="${imageSrc}" data-edit-key="${imageKey}" data-edit-type="image" data-source-type="${sourceType}" class="w-full h-full object-cover" alt="${item.alt || ''}">
-                </div>
+                <img src="${imageSrc}" data-edit-key="${imageKey}" data-edit-type="image" data-source-type="${sourceType}" class="rounded-2xl h-full w-auto max-w-full mb-4 mx-auto" alt="${item.alt || ''}">
                 <span class="edit-icon" data-edit-target="${imageKey}">✎</span>
                 <p class="text-sm font-bold" data-edit-key="${titleKey}" data-edit-type="text">${item.title || ''}</p>
                 <p class="text-[10px] text-art-neon uppercase tracking-[0.2em] mb-3" data-edit-key="${subtitleKey}" data-edit-type="text">${item.subtitle || ''}</p>
