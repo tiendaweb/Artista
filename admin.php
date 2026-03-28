@@ -20,7 +20,9 @@ $content = read_content_file();
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intro.js@7.2.0/minified/introjs.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/intro.js@7.2.0/minified/intro.min.js"></script>
     <style>
         :root {
             color-scheme: dark;
@@ -206,8 +208,11 @@ $content = read_content_file();
             color: rgba(226, 232, 240, 0.78);
             flex-shrink: 0;
         }
-        .admin-panel { display:none; }
-        .admin-panel.active { display:block; animation: fadeIn .35s ease; }
+        .admin-panel { display:block; animation: fadeIn .35s ease; }
+        .admin-panel:target {
+            border-color: rgba(34, 211, 238, 0.45);
+            box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.25), 0 20px 60px rgba(2, 6, 23, 0.32), inset 0 1px 0 rgba(255,255,255,0.07);
+        }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -221,6 +226,25 @@ $content = read_content_file();
         }
         .section-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1rem; }
         .section-heading p { color: var(--text-soft); }
+        .section-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: .75rem;
+            padding: .95rem 1rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.04);
+            color: #f8fafc;
+            transition: all .2s ease;
+        }
+        .section-link:hover {
+            border-color: rgba(34, 211, 238, 0.55);
+            background: rgba(34, 211, 238, 0.08);
+        }
+        .single-column-layout .admin-panel .grid {
+            grid-template-columns: minmax(0, 1fr) !important;
+        }
         .os-chip {
             display: inline-flex;
             align-items: center;
@@ -411,49 +435,49 @@ $content = read_content_file();
                 <nav id="adminTabNav" class="flex-1 overflow-y-auto pb-4">
                     <div class="nav-group-title">Contenido</div>
                     <div class="space-y-1.5">
-                        <button type="button" class="admin-tab active" data-admin-tab-control="general">
+                        <a href="#panel-general" class="admin-tab active" data-admin-tab-control="general">
                             <span class="tab-icon"><i class="ph ph-squares-four text-lg"></i></span>
                             <span class="min-w-0 flex-1 font-medium text-sm">General</span>
-                        </button>
-
-
-                        </button>
-                        <button type="button" class="admin-tab" data-admin-tab-control="fondos">
+                        </a>
+                        <a href="#panel-hero" class="admin-tab" data-admin-tab-control="hero">
+                            <span class="tab-icon"><i class="ph ph-image-square text-lg"></i></span>
+                            <span class="min-w-0 flex-1 font-medium text-sm">Hero</span>
+                        </a>
+                        <a href="#panel-fondos" class="admin-tab" data-admin-tab-control="fondos">
                             <span class="tab-icon"><i class="ph ph-stack text-lg"></i></span>
                             <span class="min-w-0 flex-1 font-medium text-sm">Fondos</span>
-                        </button>
-                        <button type="button" class="admin-tab" data-admin-tab-control="galeria">
+                        </a>
+                        <a href="#panel-galeria" class="admin-tab" data-admin-tab-control="galeria">
                             <span class="tab-icon"><i class="ph ph-images text-lg"></i></span>
                             <span class="min-w-0 flex-1 font-medium text-sm">Galería</span>
-                        </button>
-                        <button type="button" class="admin-tab" data-admin-tab-control="market">
+                        </a>
+                        <a href="#panel-market" class="admin-tab" data-admin-tab-control="market">
                             <span class="tab-icon"><i class="ph ph-shopping-bag-open text-lg"></i></span>
                             <span class="min-w-0 flex-1 font-medium text-sm">Market</span>
-                        </button>
-                        
-                                                <button type="button" class="admin-tab" data-admin-tab-control="academia">
+                        </a>
+                        <a href="#panel-academia" class="admin-tab" data-admin-tab-control="academia">
                             <span class="tab-icon"><i class="ph ph-student text-lg"></i></span>
                             <span class="min-w-0 flex-1 font-medium text-sm">Academia</span>
-                        </button>
-                        <button type="button" class="admin-tab" data-admin-tab-control="contacto">
+                        </a>
+                        <a href="#panel-contacto" class="admin-tab" data-admin-tab-control="contacto">
                             <span class="tab-icon"><i class="ph ph-chat-circle-dots text-lg"></i></span>
                             <span class="min-w-0 flex-1 font-medium text-sm">Contacto</span>
-                            </button>
+                        </a>
                     </div>
                     <div class="nav-group-title">Sistema</div>
                     <div class="space-y-1.5">
-                        <button type="button" class="admin-tab" data-admin-tab-control="media">
+                        <a href="#panel-media" class="admin-tab" data-admin-tab-control="media">
                             <span class="tab-icon"><i class="ph ph-images-square text-lg"></i></span>
                             <span class="min-w-0 flex-1 font-medium text-sm">Media manager</span>
-                        </button>
-                        <button type="button" class="admin-tab" data-admin-tab-control="seo">
+                        </a>
+                        <a href="#panel-seo" class="admin-tab" data-admin-tab-control="seo">
                             <span class="tab-icon"><i class="ph ph-magnifying-glass text-lg"></i></span>
                             <span class="min-w-0 flex-1 font-medium text-sm">SEO</span>
-                        </button>
-                        <button type="button" class="admin-tab" data-admin-tab-control="seguridad">
+                        </a>
+                        <a href="#panel-seguridad" class="admin-tab" data-admin-tab-control="seguridad">
                             <span class="tab-icon"><i class="ph ph-shield-check text-lg"></i></span>
                             <span class="min-w-0 flex-1 font-medium text-sm">Seguridad</span>
-                        </button>
+                        </a>
                     </div>
                 </nav>
 
@@ -476,18 +500,21 @@ $content = read_content_file();
                                     <i class="ph ph-list text-xl"></i>
                                 </button>
                                 <div>
-                                    <h2 id="activeTabTitle" class="text-2xl md:text-3xl font-bold tracking-tight text-white">General</h2>
+                                    <h2 id="activeTabTitle" class="text-2xl md:text-3xl font-bold tracking-tight text-white">Editor integral (una sola columna)</h2>
                                 </div>
                             </div>
+                            <button type="button" id="startHelpTourBtn" class="pill-btn rounded-2xl bg-white/10 border border-white/20 text-slate-100">
+                                <i class="ph ph-question mr-2"></i> Ayuda guiada
+                            </button>
                         </div>
                     </div>
                 </header>
 
-                <div class="dashboard-content">
+                <div class="dashboard-content single-column-layout">
                     
                     <div id="adminAlert" class="hidden rounded-xl p-4 text-sm"></div>
 
-            <section id="panel-general" class="admin-panel active glass rounded-[2rem] p-5 md:p-8 space-y-6">
+            <section id="panel-general" class="admin-panel active glass rounded-[2rem] p-5 md:p-8 space-y-6" data-tour-step="general">
                 <div class="grid xl:grid-cols-[1.1fr,0.9fr] gap-6">
                     <article class="section-card space-y-5">
                         <div class="section-heading">
@@ -509,6 +536,22 @@ $content = read_content_file();
                                 <span class="text-sm text-slate-300">Disponibilidad</span>
                                 <input type="text" id="availabilityInput" class="input-shell">
                             </label>
+                            <label class="block space-y-2">
+                                <span class="text-sm text-slate-300">Nav: Inicio</span>
+                                <input type="text" id="navInicioInput" class="input-shell">
+                            </label>
+                            <label class="block space-y-2">
+                                <span class="text-sm text-slate-300">Nav: Obras</span>
+                                <input type="text" id="navObrasInput" class="input-shell">
+                            </label>
+                            <label class="block space-y-2">
+                                <span class="text-sm text-slate-300">Nav: Market</span>
+                                <input type="text" id="navMercadoInput" class="input-shell">
+                            </label>
+                            <label class="block space-y-2">
+                                <span class="text-sm text-slate-300">Nav: Academia</span>
+                                <input type="text" id="navAcademiaInput" class="input-shell">
+                            </label>
                         </div>
                         <div>
                             <button type="button" id="saveGeneralBtn" class="pill-btn rounded-2xl bg-cyan-300 text-slate-950">Guardar ajustes</button>
@@ -518,31 +561,31 @@ $content = read_content_file();
                     <article class="section-card space-y-5">
                         <div>
                             <h2 class="text-2xl font-semibold">Resumen del panel</h2>
-                            <p class="mt-2 text-sm text-slate-400">Accede rápido a cada bloque nuevo para editar contenidos específicos.</p>
+                            <p class="mt-2 text-sm text-slate-400">Todo se edita en esta misma vista, en una sola columna. Usa estos accesos para ir a cada sección.</p>
                         </div>
-                        <div class="grid sm:grid-cols-2 gap-3">
-                            <button type="button" class="glass-card rounded-[1.3rem] p-4 text-left hover:border-cyan-300/40 transition" data-admin-tab-control="hero">
+                        <div class="space-y-3">
+                            <a href="#panel-hero" class="section-link">
                                 <p class="text-sm font-semibold text-white">Hero</p>
-                                <p class="mt-1 text-sm text-slate-400">Imagen destacada y assets globales.</p>
-                            </button>
-                            <button type="button" class="glass-card rounded-[1.3rem] p-4 text-left hover:border-fuchsia-300/40 transition" data-admin-tab-control="academia">
+                                <p class="text-sm text-slate-400">Imagen destacada y assets globales.</p>
+                            </a>
+                            <a href="#panel-academia" class="section-link">
                                 <p class="text-sm font-semibold text-white">Academia</p>
-                                <p class="mt-1 text-sm text-slate-400">Contenido y pieza visual de la sección.</p>
-                            </button>
-                            <button type="button" class="glass-card rounded-[1.3rem] p-4 text-left hover:border-white/20 transition" data-admin-tab-control="contacto">
+                                <p class="text-sm text-slate-400">Contenido y pieza visual de la sección.</p>
+                            </a>
+                            <a href="#panel-contacto" class="section-link">
                                 <p class="text-sm font-semibold text-white">Contacto</p>
-                                <p class="mt-1 text-sm text-slate-400">Canales, redes y texto del bloque.</p>
-                            </button>
-                            <button type="button" class="glass-card rounded-[1.3rem] p-4 text-left hover:border-emerald-300/40 transition" data-admin-tab-control="fondos">
+                                <p class="text-sm text-slate-400">Canales, redes y texto del bloque.</p>
+                            </a>
+                            <a href="#panel-fondos" class="section-link">
                                 <p class="text-sm font-semibold text-white">Fondos</p>
-                                <p class="mt-1 text-sm text-slate-400">Capas visuales y backgrounds del sitio.</p>
-                            </button>
+                                <p class="text-sm text-slate-400">Capas visuales y backgrounds del sitio.</p>
+                            </a>
                         </div>
                     </article>
                 </div>
             </section>
 
-            <section id="panel-hero" class="admin-panel glass rounded-[2rem] p-5 md:p-8 space-y-6">
+            <section id="panel-hero" class="admin-panel glass rounded-[2rem] p-5 md:p-8 space-y-6" data-tour-step="hero">
                 <article class="section-card space-y-5">
                     <div class="section-heading">
                         <div>
@@ -551,6 +594,51 @@ $content = read_content_file();
                         </div>
                     </div>
                     <div class="grid xl:grid-cols-3 gap-5">
+                        <article class="glass-card rounded-[1.6rem] p-5 space-y-4 xl:col-span-2">
+                            <h3 class="font-semibold text-lg">Textos del Hero</h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <label class="block space-y-2">
+                                    <span class="text-sm text-slate-300">Headline (inicio)</span>
+                                    <input type="text" id="heroHeadlinePrefixInput" class="input-shell">
+                                </label>
+                                <label class="block space-y-2">
+                                    <span class="text-sm text-slate-300">Headline (destacado)</span>
+                                    <input type="text" id="heroHeadlineHighlightInput" class="input-shell">
+                                </label>
+                                <label class="block space-y-2 md:col-span-2">
+                                    <span class="text-sm text-slate-300">Headline (cierre)</span>
+                                    <input type="text" id="heroHeadlineSuffixInput" class="input-shell">
+                                </label>
+                                <label class="block space-y-2 md:col-span-2">
+                                    <span class="text-sm text-slate-300">Descripción</span>
+                                    <textarea id="heroDescriptionInput" rows="4" class="textarea-shell"></textarea>
+                                </label>
+                                <label class="block space-y-2">
+                                    <span class="text-sm text-slate-300">Texto destacado en descripción</span>
+                                    <input type="text" id="heroDescriptionEmphasisInput" class="input-shell">
+                                </label>
+                                <label class="block space-y-2">
+                                    <span class="text-sm text-slate-300">Cita</span>
+                                    <input type="text" id="heroQuoteInput" class="input-shell">
+                                </label>
+                                <label class="block space-y-2">
+                                    <span class="text-sm text-slate-300">Stat #1 valor</span>
+                                    <input type="text" id="heroStat1ValueInput" class="input-shell">
+                                </label>
+                                <label class="block space-y-2">
+                                    <span class="text-sm text-slate-300">Stat #1 etiqueta</span>
+                                    <input type="text" id="heroStat1LabelInput" class="input-shell">
+                                </label>
+                                <label class="block space-y-2">
+                                    <span class="text-sm text-slate-300">Stat #2 valor</span>
+                                    <input type="text" id="heroStat2ValueInput" class="input-shell">
+                                </label>
+                                <label class="block space-y-2">
+                                    <span class="text-sm text-slate-300">Stat #2 etiqueta</span>
+                                    <input type="text" id="heroStat2LabelInput" class="input-shell">
+                                </label>
+                            </div>
+                        </article>
                         <article class="glass-card rounded-[1.6rem] p-5 space-y-4 xl:col-span-1">
                             <div>
                                 <h3 class="font-semibold text-lg">Imagen destacada del hero</h3>
@@ -572,7 +660,7 @@ $content = read_content_file();
                 </article>
             </section>
 
-            <section id="panel-academia" class="admin-panel glass rounded-[2rem] p-5 md:p-8 space-y-6">
+            <section id="panel-academia" class="admin-panel glass rounded-[2rem] p-5 md:p-8 space-y-6" data-tour-step="academia">
                 <div class="grid xl:grid-cols-[1.1fr,0.9fr] gap-6">
                     <article class="section-card space-y-5">
                         <div>
@@ -642,7 +730,7 @@ $content = read_content_file();
                 </article>
             </section>
 
-            <section id="panel-contacto" class="admin-panel glass rounded-[2rem] p-5 md:p-8 space-y-6">
+            <section id="panel-contacto" class="admin-panel glass rounded-[2rem] p-5 md:p-8 space-y-6" data-tour-step="contacto">
                 <article class="section-card space-y-5">
                     <div class="section-heading">
                         <div>
@@ -690,7 +778,7 @@ $content = read_content_file();
                 </article>
             </section>
 
-            <section id="panel-fondos" class="admin-panel glass rounded-[2rem] p-5 md:p-8 space-y-6">
+            <section id="panel-fondos" class="admin-panel glass rounded-[2rem] p-5 md:p-8 space-y-6" data-tour-step="fondos">
                 <article class="section-card space-y-5">
                     <div class="section-heading">
                         <div>
@@ -723,7 +811,7 @@ $content = read_content_file();
                 </article>
             </section>
 
-            <section id="panel-seo" class="admin-panel glass rounded-[2rem] p-5 md:p-8 space-y-6">
+            <section id="panel-seo" class="admin-panel glass rounded-[2rem] p-5 md:p-8 space-y-6" data-tour-step="seo">
                 <article class="section-card space-y-5">
                     <div class="section-heading">
                         <div>
@@ -766,7 +854,7 @@ $content = read_content_file();
                 </article>
             </section>
 
-            <section id="panel-galeria" class="admin-panel glass rounded-[2rem] p-5 md:p-8 space-y-6">
+            <section id="panel-galeria" class="admin-panel glass rounded-[2rem] p-5 md:p-8 space-y-6" data-tour-step="galeria">
                 <article class="section-card space-y-5">
                     <div class="grid xl:grid-cols-[0.9fr,1.1fr] gap-5">
                         <div class="space-y-4">
@@ -799,7 +887,7 @@ $content = read_content_file();
                 </article>
             </section>
 
-            <section id="panel-market" class="admin-panel glass rounded-[2rem] p-5 md:p-8 space-y-6">
+            <section id="panel-market" class="admin-panel glass rounded-[2rem] p-5 md:p-8 space-y-6" data-tour-step="market">
                 <article class="section-card space-y-5">
                     <div class="grid xl:grid-cols-[0.9fr,1.1fr] gap-5">
                         <div class="space-y-4">
@@ -819,6 +907,16 @@ $content = read_content_file();
                                 <span class="text-sm text-slate-300">Descripción</span>
                                 <textarea id="marketDescriptionInput" rows="4" class="textarea-shell"></textarea>
                             </label>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <label class="block space-y-2">
+                                    <span class="text-sm text-slate-300">CTA símbolo</span>
+                                    <input type="text" id="marketCtaSymbolInput" class="input-shell" placeholder="+">
+                                </label>
+                                <label class="block space-y-2">
+                                    <span class="text-sm text-slate-300">CTA etiqueta</span>
+                                    <input type="text" id="marketCtaLabelInput" class="input-shell" placeholder="Postular obra">
+                                </label>
+                            </div>
                         </div>
                         <div class="glass-card rounded-[1.6rem] p-5 flex flex-col justify-between gap-4">
                             <div>
@@ -836,7 +934,7 @@ $content = read_content_file();
                 </article>
             </section>
 
-            <section id="panel-media" class="admin-panel glass rounded-[2rem] p-5 md:p-8 space-y-6">
+            <section id="panel-media" class="admin-panel glass rounded-[2rem] p-5 md:p-8 space-y-6" data-tour-step="media">
                 <article class="section-card">
                     <div class="flex flex-col xl:flex-row gap-6">
                         <div class="xl:w-[360px] space-y-4">
@@ -1288,6 +1386,20 @@ function hydrateGeneralFields() {
     document.getElementById('siteNameInput').value = getByPath(adminState, 'site.name', '');
     document.getElementById('siteTaglineInput').value = getByPath(adminState, 'site.tagline', '');
     document.getElementById('availabilityInput').value = getByPath(adminState, 'site.availability', '');
+    document.getElementById('navInicioInput').value = getByPath(adminState, 'site.nav.inicio', '');
+    document.getElementById('navObrasInput').value = getByPath(adminState, 'site.nav.obras', '');
+    document.getElementById('navMercadoInput').value = getByPath(adminState, 'site.nav.mercado', '');
+    document.getElementById('navAcademiaInput').value = getByPath(adminState, 'site.nav.academia', '');
+    document.getElementById('heroHeadlinePrefixInput').value = getByPath(adminState, 'hero.headline_prefix', '');
+    document.getElementById('heroHeadlineHighlightInput').value = getByPath(adminState, 'hero.headline_highlight', '');
+    document.getElementById('heroHeadlineSuffixInput').value = getByPath(adminState, 'hero.headline_suffix', '');
+    document.getElementById('heroDescriptionInput').value = getByPath(adminState, 'hero.description', '');
+    document.getElementById('heroDescriptionEmphasisInput').value = getByPath(adminState, 'hero.description_emphasis', '');
+    document.getElementById('heroQuoteInput').value = getByPath(adminState, 'hero.quote', '');
+    document.getElementById('heroStat1ValueInput').value = getByPath(adminState, 'stats[0].value', '');
+    document.getElementById('heroStat1LabelInput').value = getByPath(adminState, 'stats[0].label', '');
+    document.getElementById('heroStat2ValueInput').value = getByPath(adminState, 'stats[1].value', '');
+    document.getElementById('heroStat2LabelInput').value = getByPath(adminState, 'stats[1].label', '');
     document.getElementById('contactTitleInput').value = getByPath(adminState, 'site.contact.title', 'Contacto');
     document.getElementById('contactDescriptionInput').value = getByPath(adminState, 'site.contact.description', '');
     document.getElementById('contactWhatsappInput').value = getByPath(adminState, 'site.contact.whatsapp', '5492233011023');
@@ -1306,6 +1418,8 @@ function hydrateGeneralFields() {
     document.getElementById('marketTitlePrefixInput').value = getByPath(adminState, 'tabs.mercado.title_prefix', '');
     document.getElementById('marketTitleHighlightInput').value = getByPath(adminState, 'tabs.mercado.title_highlight', '');
     document.getElementById('marketDescriptionInput').value = getByPath(adminState, 'tabs.mercado.description', '');
+    document.getElementById('marketCtaSymbolInput').value = getByPath(adminState, 'tabs.mercado.cta_symbol', '');
+    document.getElementById('marketCtaLabelInput').value = getByPath(adminState, 'tabs.mercado.cta_label', '');
     document.getElementById('seoTitleInput').value = getByPath(adminState, 'site.title', '');
     document.getElementById('seoDescriptionInput').value = getByPath(adminState, 'site.seo.description', '');
     document.getElementById('seoKeywordsInput').value = getByPath(adminState, 'site.seo.keywords', '');
@@ -1636,7 +1750,7 @@ const adminTabMeta = {
 };
 
 function activateAdminTab(tabName, options = {}) {
-    const { pushHash = true } = options;
+    const { pushHash = true, scrollIntoView = true } = options;
     const meta = adminTabMeta[tabName];
     const targetPanel = document.getElementById(`panel-${tabName}`);
     if (!meta || !targetPanel) return;
@@ -1646,14 +1760,14 @@ function activateAdminTab(tabName, options = {}) {
         control.classList.toggle('active', isActive);
         control.setAttribute('aria-pressed', isActive ? 'true' : 'false');
     });
-    document.querySelectorAll('.admin-panel').forEach((panel) => {
-        panel.classList.toggle('active', panel === targetPanel);
-    });
-
     document.getElementById('activeTabTitle').textContent = meta.title;
 
     if (pushHash && window.location.hash !== `#${tabName}`) {
         history.replaceState(null, '', `#${tabName}`);
+    }
+
+    if (scrollIntoView) {
+        targetPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     closeSidebar();
@@ -1676,9 +1790,23 @@ function saveGeneralPanelState() {
     setByPath(adminState, 'site.name', document.getElementById('siteNameInput').value.trim());
     setByPath(adminState, 'site.tagline', document.getElementById('siteTaglineInput').value.trim());
     setByPath(adminState, 'site.availability', document.getElementById('availabilityInput').value.trim());
+    setByPath(adminState, 'site.nav.inicio', document.getElementById('navInicioInput').value.trim());
+    setByPath(adminState, 'site.nav.obras', document.getElementById('navObrasInput').value.trim());
+    setByPath(adminState, 'site.nav.mercado', document.getElementById('navMercadoInput').value.trim());
+    setByPath(adminState, 'site.nav.academia', document.getElementById('navAcademiaInput').value.trim());
 }
 
 function saveHeroPanelState() {
+    setByPath(adminState, 'hero.headline_prefix', document.getElementById('heroHeadlinePrefixInput').value.trim());
+    setByPath(adminState, 'hero.headline_highlight', document.getElementById('heroHeadlineHighlightInput').value.trim());
+    setByPath(adminState, 'hero.headline_suffix', document.getElementById('heroHeadlineSuffixInput').value.trim());
+    setByPath(adminState, 'hero.description', document.getElementById('heroDescriptionInput').value.trim());
+    setByPath(adminState, 'hero.description_emphasis', document.getElementById('heroDescriptionEmphasisInput').value.trim());
+    setByPath(adminState, 'hero.quote', document.getElementById('heroQuoteInput').value.trim());
+    setByPath(adminState, 'stats[0].value', document.getElementById('heroStat1ValueInput').value.trim());
+    setByPath(adminState, 'stats[0].label', document.getElementById('heroStat1LabelInput').value.trim());
+    setByPath(adminState, 'stats[1].value', document.getElementById('heroStat2ValueInput').value.trim());
+    setByPath(adminState, 'stats[1].label', document.getElementById('heroStat2LabelInput').value.trim());
     setImageValueByKey('hero.featured_image', document.getElementById('heroFeaturedInput').value.trim(), 'image-object');
     updateStandalonePreviews();
 }
@@ -1717,7 +1845,10 @@ document.getElementById('closeSidebarBtn')?.addEventListener('click', closeSideb
 document.getElementById('adminSidebarBackdrop')?.addEventListener('click', closeSidebar);
 
 document.querySelectorAll('[data-admin-tab-control]').forEach((button) => {
-    button.addEventListener('click', () => activateAdminTab(button.dataset.adminTabControl));
+    button.addEventListener('click', (event) => {
+        event.preventDefault();
+        activateAdminTab(button.dataset.adminTabControl, { scrollIntoView: true });
+    });
 });
 
 window.addEventListener('hashchange', () => {
@@ -1726,7 +1857,7 @@ window.addEventListener('hashchange', () => {
 });
 
 const initialAdminTab = window.location.hash.replace('#', '');
-activateAdminTab(adminTabMeta[initialAdminTab] ? initialAdminTab : 'general', { pushHash: false });
+activateAdminTab(adminTabMeta[initialAdminTab] ? initialAdminTab : 'general', { pushHash: false, scrollIntoView: false });
 
 document.getElementById('saveGeneralBtn').addEventListener('click', async () => {
     await saveAdminPanel(saveGeneralPanelState, 'Ajustes guardados.');
@@ -1819,6 +1950,8 @@ document.getElementById('saveMarketBtn').addEventListener('click', async () => {
         setByPath(adminState, 'tabs.mercado.title_prefix', document.getElementById('marketTitlePrefixInput').value.trim());
         setByPath(adminState, 'tabs.mercado.title_highlight', document.getElementById('marketTitleHighlightInput').value.trim());
         setByPath(adminState, 'tabs.mercado.description', document.getElementById('marketDescriptionInput').value.trim());
+        setByPath(adminState, 'tabs.mercado.cta_symbol', document.getElementById('marketCtaSymbolInput').value.trim());
+        setByPath(adminState, 'tabs.mercado.cta_label', document.getElementById('marketCtaLabelInput').value.trim());
     }, 'Market guardado.');
 });
 
@@ -1896,6 +2029,44 @@ setupDropzone('fieldMediaDropzone', 'fieldMediaFileInput', async (file) => {
         updateMediaStatus('fieldMediaStatus', error.message, 'error');
     }
 });
+
+function startAdminHelpTour() {
+    if (typeof introJs !== 'function') {
+        showAlert('No se pudo iniciar la ayuda guiada (Intro.js no disponible).', 'error');
+        return;
+    }
+
+    const tourBlueprint = [
+        { selector: '[data-tour-step="general"]', title: 'General', intro: 'Edita identidad base y etiquetas del menú principal del frontend.' },
+        { selector: '[data-tour-step="hero"]', title: 'Hero', intro: 'Configura textos, estadísticas e imagen principal de portada.' },
+        { selector: '[data-tour-step="academia"]', title: 'Academia', intro: 'Gestiona texto, imagen y secciones repetibles de Academia.' },
+        { selector: '[data-tour-step="contacto"]', title: 'Contacto', intro: 'Actualiza WhatsApp, email y redes sociales.' },
+        { selector: '[data-tour-step="fondos"]', title: 'Fondos', intro: 'Administra los backgrounds visibles del sitio.' },
+        { selector: '[data-tour-step="galeria"]', title: 'Galería', intro: 'Configura cabecera y CRUD de obras.' },
+        { selector: '[data-tour-step="market"]', title: 'Market', intro: 'Ajusta cabecera, CTA y catálogo del market.' },
+        { selector: '[data-tour-step="seo"]', title: 'SEO', intro: 'Edita metadatos SEO y OpenGraph.' },
+        { selector: '[data-tour-step="media"]', title: 'Media manager', intro: 'Sube imágenes y asígnalas directamente a campos editables.' },
+    ];
+
+    const steps = tourBlueprint
+        .map((item) => {
+            const element = document.querySelector(item.selector);
+            if (!element) return null;
+            return { element, title: item.title, intro: item.intro };
+        })
+        .filter(Boolean);
+
+    introJs().setOptions({
+        steps,
+        nextLabel: 'Siguiente',
+        prevLabel: 'Anterior',
+        doneLabel: 'Finalizar',
+        skipLabel: 'Salir',
+        showProgress: true,
+    }).start();
+}
+
+document.getElementById('startHelpTourBtn')?.addEventListener('click', startAdminHelpTour);
 
 hydrateGeneralFields();
 renderCrudSections();
