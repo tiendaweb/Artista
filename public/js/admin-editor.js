@@ -324,18 +324,25 @@ function renderCollectionItem(item, index, collectionKey) {
         : '';
 
     if (isMarket) {
+        const imageHiddenClass = imageSrc ? '' : ' hidden';
+        const placeholderHiddenClass = imageSrc ? ' hidden' : '';
         return `
-            <article class="glass glass-hover p-4 rounded-3xl break-inside-avoid editable-wrapper" data-collection-item="${collectionKey}" data-index="${index}">
+            <article class="glass glass-hover p-4 rounded-3xl editable-wrapper overflow-visible flex flex-col h-full text-left" data-collection-item="${collectionKey}" data-index="${index}">
                 ${deleteButton}
                 ${editButton}
-                <img src="${imageSrc}" data-edit-key="${imageKey}" data-edit-type="image" data-source-type="${sourceType}" class="rounded-2xl h-full w-auto max-w-full mb-4 mx-auto" alt="${item.alt || ''}">
+                <div class="rounded-2xl overflow-hidden bg-black/20 mb-4 aspect-[4/5]">
+                    <img src="${imageSrc}" data-edit-key="${imageKey}" data-edit-type="image" data-source-type="${sourceType}" class="h-full w-auto max-w-full object-contain mx-auto${imageHiddenClass}" alt="${item.alt || ''}">
+                    <div class="w-full h-full flex items-center justify-center text-[11px] uppercase tracking-[0.2em] text-white/45${placeholderHiddenClass}">Sin imagen</div>
+                </div>
                 <span class="edit-icon" data-edit-target="${imageKey}">✎</span>
-                <p class="text-sm font-bold" data-edit-key="${titleKey}" data-edit-type="text">${item.title || ''}</p>
-                <p class="text-[10px] text-art-neon uppercase tracking-[0.2em] mb-3" data-edit-key="${subtitleKey}" data-edit-type="text">${item.subtitle || ''}</p>
-                <p class="text-sm opacity-60 mb-4 preserve-breaks" data-edit-key="${descriptionKey}" data-edit-type="text">${item.description || ''}</p>
-                <a href="${actionUrl}" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 text-sm text-art-neon" data-edit-link-key="${linkUrlKey}">
-                    <span data-edit-key="${linkLabelKey}" data-edit-type="text">${actionLabel}</span>
-                </a>
+                <div class="flex flex-col flex-1">
+                    <p class="text-sm font-bold break-words" data-edit-key="${titleKey}" data-edit-type="text">${item.title || ''}</p>
+                    <p class="text-[10px] text-art-neon uppercase tracking-[0.18em] mb-3 whitespace-normal break-words" data-edit-key="${subtitleKey}" data-edit-type="text">${item.subtitle || ''}</p>
+                    <p class="text-sm opacity-60 mb-4 preserve-breaks whitespace-normal break-words" data-edit-key="${descriptionKey}" data-edit-type="text">${item.description || ''}</p>
+                    <a href="${actionUrl}" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 text-sm text-art-neon mt-auto pt-2" data-edit-link-key="${linkUrlKey}">
+                        <span data-edit-key="${linkLabelKey}" data-edit-type="text">${actionLabel}</span>
+                    </a>
+                </div>
                 <span class="edit-icon" data-edit-link-target="${linkUrlKey}">🔗</span>
             </article>
         `;
