@@ -319,17 +319,20 @@ function render_contact_icon(string $icon): string
 
         <?php foreach (($content['tabs']['academia']['sections'] ?? []) as $i => $section): ?>
             <div class="flex flex-col lg:flex-row gap-8 items-stretch">
-                <div class="glass p-10 rounded-[3rem] flex-1 space-y-6 flex flex-col justify-center">
-                    <h3 class="font-serif text-4xl"><span><?= esc($section['title_prefix'] ?? '') ?></span> <span class="text-art-neon italic"><?= esc($section['title_highlight'] ?? '') ?></span></h3>
-                    <p class="opacity-70 preserve-breaks"><?= esc($section['description'] ?? '') ?></p>
-                    <?php if (($section['button'] ?? '') !== ''): ?>
-                        <a href="<?= esc($section['link_url'] ?? '#') ?>" target="_blank" rel="noreferrer" class="bg-art-neon text-black px-8 py-4 rounded-full font-bold self-start uppercase text-xs tracking-widest">
-                            <?= esc($section['button'] ?? '') ?>
-                        </a>
-                    <?php endif; ?>
+                <div class="glass p-10 rounded-[3rem] flex-1 space-y-6 flex flex-col justify-center editable-wrapper">
+                    <h3 class="font-serif text-4xl">
+                        <span data-edit-key="tabs.academia.sections[<?= $i ?>].title_prefix" data-edit-type="text"><?= esc($section['title_prefix'] ?? '') ?></span>
+                        <span class="text-art-neon italic" data-edit-key="tabs.academia.sections[<?= $i ?>].title_highlight" data-edit-type="text"><?= esc($section['title_highlight'] ?? '') ?></span>
+                    </h3>
+                    <p class="opacity-70 preserve-breaks" data-edit-key="tabs.academia.sections[<?= $i ?>].description" data-edit-type="text"><?= esc($section['description'] ?? '') ?></p>
+                    <a href="<?= esc($section['link_url'] ?? '#') ?>" target="_blank" rel="noreferrer" class="bg-art-neon text-black px-8 py-4 rounded-full font-bold self-start uppercase text-xs tracking-widest" data-edit-link-key="tabs.academia.sections[<?= $i ?>].link_url">
+                        <span data-edit-key="tabs.academia.sections[<?= $i ?>].button" data-edit-type="text"><?= esc($section['button'] ?? 'Más información') ?></span>
+                    </a>
+                    <span class="edit-icon self-start static" data-edit-link-target="tabs.academia.sections[<?= $i ?>].link_url">🔗</span>
                 </div>
-                <div class="flex-1 glass rounded-[3rem] overflow-hidden min-h-[320px]">
-                    <img src="<?= image_url($section['image'] ?? []) ?>" class="w-full h-full object-cover opacity-50" alt="<?= esc($section['image']['alt'] ?? '') ?>">
+                <div class="flex-1 glass rounded-[3rem] overflow-hidden min-h-[320px] editable-wrapper">
+                    <img src="<?= image_url($section['image'] ?? []) ?>" class="w-full h-full object-cover opacity-50" alt="<?= esc($section['image']['alt'] ?? '') ?>" data-edit-key="tabs.academia.sections[<?= $i ?>].image" data-edit-type="image" data-source-type="<?= esc($section['image']['source_type'] ?? 'url') ?>">
+                    <span class="edit-icon" data-edit-target="tabs.academia.sections[<?= $i ?>].image">✎</span>
                 </div>
             </div>
         <?php endforeach; ?>

@@ -25,6 +25,7 @@ let currentCollectionIndex = -1;
 let imageMode = 'url';
 let libraryLoading = false;
 let selectedLibraryUrl = '';
+let hasUnsavedChanges = false;
 const COLLECTION_MODAL_IMAGE_KEY = '__collection_modal_image__';
 
 function pathSegments(key) {
@@ -86,6 +87,34 @@ async function persistContent(changedKeys = []) {
         Object.assign(contentState, result.content);
     }
     changedKeys.forEach((k) => fieldMessage(k, 'Guardado', true));
+}
+
+function setSaveButtonState(message = 'Guardar cambios', tone = 'idle') {
+    const saveBtn = document.getElementById('saveContentBtn');
+    if (!saveBtn) return;
+
+    saveBtn.textContent = message;
+    saveBtn.classList.remove('bg-art-neon', 'bg-emerald-400', 'bg-rose-400', 'animate-pulse');
+
+    if (tone === 'success') {
+        saveBtn.classList.add('bg-emerald-400');
+        return;
+    }
+
+    if (tone === 'error') {
+        saveBtn.classList.add('bg-rose-400');
+        return;
+    }
+
+    saveBtn.classList.add('bg-art-neon');
+    if (tone === 'pending') {
+        saveBtn.classList.add('animate-pulse');
+    }
+}
+
+function markUnsavedChanges() {
+    hasUnsavedChanges = true;
+    setSaveButtonState('Guardar cambios *', 'pending');
 }
 
 function renderLibrary(images = [], selectedUrl = '') {
@@ -464,30 +493,53 @@ if (isAuthenticated) {
         document.body.classList.toggle('edit-mode', editMode);
         saveBtn.classList.toggle('hidden', !editMode);
         toggleBtn.textContent = editMode ? '✅ Modo edición activo' : '✏️ Editar';
+        if (editMode) {
+            setSaveButtonState(hasUnsavedChanges ? 'Guardar cambios *' : 'Guardar cambios', hasUnsavedChanges ? 'pending' : 'idle');
+        }
         document.querySelectorAll('[data-edit-type="text"]').forEach((el) => {
             el.contentEditable = editMode ? 'true' : 'false';
         });
     });
 
     saveBtn.addEventListener('click', async () => {
-        const changed = [];
-        let hasError = false;
+        const changed = new Set();
         document.querySelectorAll('[data-edit-type="text"]').forEach((el) => {
             const key = el.dataset.editKey;
             const value = normalizeEditableText(el);
-            if (!value) {
-                fieldMessage(key, 'Este campo no puede quedar vacío.', false);
-                hasError = true;
-                return;
+            if (getByPath(contentState, key, '') !== value) {
+                setByPath(contentState, key, value);
+                changed.add(key);
             }
-            setByPath(contentState, key, value);
-            changed.push(key);
         });
-        if (hasError) return;
+
+        if (changed.size === 0 && !hasUnsavedChanges) {
+            setSaveButtonState('Sin cambios por guardar', 'success');
+            setTimeout(() => setSaveButtonState('Guardar cambios', 'idle'), 1300);
+            return;
+        }
+
+        setSaveButtonState('Guardando...', 'pending');
         try {
-            await persistContent(changed);
-        } catch (_) {
-            // field messages already set
+            await persistContent(Array.from(changed));
+            hasUnsavedChanges = false;
+            setSaveButtonState('Guardado ✓', 'success');
+            setTimeout(() => {
+                if (editMode) setSaveButtonState('Guardar cambios', 'idle');
+            }, 1300);
+        } catch (error) {
+            setSaveButtonState('Error al guardar', 'error');
+            setTimeout(() => {
+                if (editMode) setSaveButtonState('Guardar cambios *', 'pending');
+            }, 1600);
+        }
+    });
+
+    document.addEventListener('input', (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) return;
+        if (!editMode) return;
+        if (target.dataset.editType === 'text' || target.id === 'collectionTitleInput' || target.id === 'collectionSubtitleInput' || target.id === 'collectionDescriptionInput' || target.id === 'collectionImageInput' || target.id === 'collectionAltInput' || target.id === 'collectionLinkLabelInput' || target.id === 'collectionLinkUrlInput' || target.id === 'imageUrlInput' || target.id === 'linkUrlInput') {
+            markUnsavedChanges();
         }
     });
 
@@ -626,6 +678,11 @@ if (isAuthenticated) {
         });
         try {
             await persistContent([currentLinkKey]);
+            hasUnsavedChanges = false;
+            setSaveButtonState('Guardado ✓', 'success');
+            setTimeout(() => {
+                if (editMode) setSaveButtonState('Guardar cambios', 'idle');
+            }, 1300);
             feedback.textContent = 'Enlace actualizado.';
             feedback.className = 'text-xs text-green-400';
         } catch (error) {
@@ -691,6 +748,11 @@ if (isAuthenticated) {
 
         try {
             await persistContent([currentCollectionKey]);
+            hasUnsavedChanges = false;
+            setSaveButtonState('Guardado ✓', 'success');
+            setTimeout(() => {
+                if (editMode) setSaveButtonState('Guardar cambios', 'idle');
+            }, 1300);
             closeCollectionItemModal();
             alert(`El ${labels.singular} se guardó correctamente.`);
         } catch (error) {
