@@ -117,6 +117,13 @@ function markUnsavedChanges() {
     setSaveButtonState('Guardar cambios *', 'pending');
 }
 
+function populateExtraFieldsModal() {
+    document.querySelectorAll('[data-extra-key]').forEach((input) => {
+        const key = input.dataset.extraKey;
+        input.value = getByPath(contentState, key, '');
+    });
+}
+
 function renderLibrary(images = [], selectedUrl = '') {
     const grid = document.getElementById('libraryGrid');
     const normalizedSelectedUrl = normalizeImageUrl(selectedUrl);
@@ -486,12 +493,14 @@ function renderCollections() {
 if (isAuthenticated) {
     const toggleBtn = document.getElementById('toggleEditBtn');
     const saveBtn = document.getElementById('saveContentBtn');
+    const extraBtn = document.getElementById('openExtraFieldsBtn');
     renderCollections();
 
     toggleBtn.addEventListener('click', () => {
         editMode = !editMode;
         document.body.classList.toggle('edit-mode', editMode);
         saveBtn.classList.toggle('hidden', !editMode);
+        extraBtn.classList.toggle('hidden', !editMode);
         toggleBtn.textContent = editMode ? '✅ Modo edición activo' : '✏️ Editar';
         if (editMode) {
             setSaveButtonState(hasUnsavedChanges ? 'Guardar cambios *' : 'Guardar cambios', hasUnsavedChanges ? 'pending' : 'idle');
@@ -540,6 +549,57 @@ if (isAuthenticated) {
         if (!editMode) return;
         if (target.dataset.editType === 'text' || target.id === 'collectionTitleInput' || target.id === 'collectionSubtitleInput' || target.id === 'collectionDescriptionInput' || target.id === 'collectionImageInput' || target.id === 'collectionAltInput' || target.id === 'collectionLinkLabelInput' || target.id === 'collectionLinkUrlInput' || target.id === 'imageUrlInput' || target.id === 'linkUrlInput') {
             markUnsavedChanges();
+        }
+    });
+
+    const extraModal = document.getElementById('extraFieldsModal');
+    const extraFeedback = document.getElementById('extraFieldsFeedback');
+
+    extraBtn.addEventListener('click', () => {
+        populateExtraFieldsModal();
+        extraFeedback.textContent = '';
+        extraModal.classList.remove('hidden');
+        extraModal.classList.add('flex');
+    });
+
+    const closeExtraModal = () => {
+        extraModal.classList.add('hidden');
+        extraModal.classList.remove('flex');
+    };
+
+    ['closeExtraFieldsModal', 'cancelExtraFieldsModal'].forEach((id) => {
+        document.getElementById(id).addEventListener('click', closeExtraModal);
+    });
+
+    document.getElementById('saveExtraFieldsModal').addEventListener('click', async () => {
+        const changed = [];
+        document.querySelectorAll('[data-extra-key]').forEach((input) => {
+            const key = input.dataset.extraKey;
+            const value = input.value.trim();
+            if (getByPath(contentState, key, '') !== value) {
+                setByPath(contentState, key, value);
+                changed.push(key);
+            }
+        });
+
+        if (changed.length === 0) {
+            extraFeedback.textContent = 'No hay cambios para guardar.';
+            extraFeedback.className = 'text-xs text-white/60';
+            return;
+        }
+
+        setSaveButtonState('Guardando...', 'pending');
+        try {
+            await persistContent(changed);
+            hasUnsavedChanges = false;
+            setSaveButtonState('Guardado ✓', 'success');
+            extraFeedback.textContent = 'Datos extra guardados correctamente.';
+            extraFeedback.className = 'text-xs text-green-400';
+            setTimeout(() => window.location.reload(), 450);
+        } catch (error) {
+            setSaveButtonState('Error al guardar', 'error');
+            extraFeedback.textContent = error.message || 'No se pudieron guardar los datos extra.';
+            extraFeedback.className = 'text-xs text-red-400';
         }
     });
 
