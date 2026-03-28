@@ -173,6 +173,7 @@ function render_contact_icon(string $icon): string
     <div class="fixed top-4 right-4 z-50 flex gap-2 flex-wrap justify-end max-w-[90vw]">
         <a href="<?= esc(url_for('/admin.php')) ?>" class="bg-white/80 text-black px-4 py-2 rounded-full text-xs font-bold">Ir al admin</a>
         <button id="toggleEditBtn" class="bg-white/80 text-black px-4 py-2 rounded-full text-xs font-bold">✏️ Editar</button>
+        <button id="openExtraFieldsBtn" class="hidden bg-white/80 text-black px-4 py-2 rounded-full text-xs font-bold">⚙️ Datos extra</button>
         <button id="saveContentBtn" class="hidden bg-art-neon text-black px-4 py-2 rounded-full text-xs font-bold">Guardar cambios</button>
     </div>
 <?php endif; ?>
@@ -253,6 +254,12 @@ function render_contact_icon(string $icon): string
         <div class="glass p-12 rounded-[3rem] text-center space-y-6">
             <h2 class="font-serif text-5xl"><span data-edit-key="tabs.mercado.title_prefix" data-edit-type="text"><?= esc($content['tabs']['mercado']['title_prefix'] ?? '') ?></span> <span class="italic" data-edit-key="tabs.mercado.title_highlight" data-edit-type="text"><?= esc($content['tabs']['mercado']['title_highlight'] ?? '') ?></span></h2>
             <p class="max-w-2xl mx-auto opacity-70 preserve-breaks" data-edit-key="tabs.mercado.description" data-edit-type="text"><?= esc($content['tabs']['mercado']['description'] ?? '') ?></p>
+            <div class="flex justify-center">
+                <button type="button" class="inline-flex items-center gap-3 px-6 py-3 rounded-full border border-white/15 bg-white/5 text-white/90 editable-wrapper">
+                    <span class="text-art-neon text-xl leading-none" data-edit-key="tabs.mercado.cta_symbol" data-edit-type="text"><?= esc($content['tabs']['mercado']['cta_symbol'] ?? '+') ?></span>
+                    <span class="text-xs uppercase tracking-[0.2em]" data-edit-key="tabs.mercado.cta_label" data-edit-type="text"><?= esc($content['tabs']['mercado']['cta_label'] ?? 'Postular Obra') ?></span>
+                </button>
+            </div>
             <?php if ($isLoggedIn): ?>
                 <div class="collection-toolbar justify-center gap-2" data-collection-toolbar="tabs.mercado.items">
                     <button type="button" class="px-4 py-2 rounded-full bg-art-neon text-black text-xs font-bold" data-add-collection="tabs.mercado.items">+ Agregar item market</button>
@@ -319,17 +326,20 @@ function render_contact_icon(string $icon): string
 
         <?php foreach (($content['tabs']['academia']['sections'] ?? []) as $i => $section): ?>
             <div class="flex flex-col lg:flex-row gap-8 items-stretch">
-                <div class="glass p-10 rounded-[3rem] flex-1 space-y-6 flex flex-col justify-center">
-                    <h3 class="font-serif text-4xl"><span><?= esc($section['title_prefix'] ?? '') ?></span> <span class="text-art-neon italic"><?= esc($section['title_highlight'] ?? '') ?></span></h3>
-                    <p class="opacity-70 preserve-breaks"><?= esc($section['description'] ?? '') ?></p>
-                    <?php if (($section['button'] ?? '') !== ''): ?>
-                        <a href="<?= esc($section['link_url'] ?? '#') ?>" target="_blank" rel="noreferrer" class="bg-art-neon text-black px-8 py-4 rounded-full font-bold self-start uppercase text-xs tracking-widest">
-                            <?= esc($section['button'] ?? '') ?>
-                        </a>
-                    <?php endif; ?>
+                <div class="glass p-10 rounded-[3rem] flex-1 space-y-6 flex flex-col justify-center editable-wrapper">
+                    <h3 class="font-serif text-4xl">
+                        <span data-edit-key="tabs.academia.sections[<?= $i ?>].title_prefix" data-edit-type="text"><?= esc($section['title_prefix'] ?? '') ?></span>
+                        <span class="text-art-neon italic" data-edit-key="tabs.academia.sections[<?= $i ?>].title_highlight" data-edit-type="text"><?= esc($section['title_highlight'] ?? '') ?></span>
+                    </h3>
+                    <p class="opacity-70 preserve-breaks" data-edit-key="tabs.academia.sections[<?= $i ?>].description" data-edit-type="text"><?= esc($section['description'] ?? '') ?></p>
+                    <a href="<?= esc($section['link_url'] ?? '#') ?>" target="_blank" rel="noreferrer" class="bg-art-neon text-black px-8 py-4 rounded-full font-bold self-start uppercase text-xs tracking-widest" data-edit-link-key="tabs.academia.sections[<?= $i ?>].link_url">
+                        <span data-edit-key="tabs.academia.sections[<?= $i ?>].button" data-edit-type="text"><?= esc($section['button'] ?? 'Más información') ?></span>
+                    </a>
+                    <span class="edit-icon self-start static" data-edit-link-target="tabs.academia.sections[<?= $i ?>].link_url">🔗</span>
                 </div>
-                <div class="flex-1 glass rounded-[3rem] overflow-hidden min-h-[320px]">
-                    <img src="<?= image_url($section['image'] ?? []) ?>" class="w-full h-full object-cover opacity-50" alt="<?= esc($section['image']['alt'] ?? '') ?>">
+                <div class="flex-1 glass rounded-[3rem] overflow-hidden min-h-[320px] editable-wrapper">
+                    <img src="<?= image_url($section['image'] ?? []) ?>" class="w-full h-full object-cover opacity-50" alt="<?= esc($section['image']['alt'] ?? '') ?>" data-edit-key="tabs.academia.sections[<?= $i ?>].image" data-edit-type="image" data-source-type="<?= esc($section['image']['source_type'] ?? 'url') ?>">
+                    <span class="edit-icon" data-edit-target="tabs.academia.sections[<?= $i ?>].image">✎</span>
                 </div>
             </div>
         <?php endforeach; ?>
@@ -339,6 +349,10 @@ function render_contact_icon(string $icon): string
 
 <?php if ($contactLinks !== []): ?>
     <section class="max-w-7xl mx-auto px-6 pb-24" aria-label="<?= esc($contact['title'] ?? 'Contacto') ?>">
+        <div class="text-center mb-6 space-y-2 editable-wrapper">
+            <h3 class="font-serif text-2xl" data-edit-key="site.contact.title" data-edit-type="text"><?= esc($contact['title'] ?? 'Contacto') ?></h3>
+            <p class="text-sm text-white/65 preserve-breaks" data-edit-key="site.contact.description" data-edit-type="text"><?= esc($contact['description'] ?? '') ?></p>
+        </div>
         <div class="flex flex-wrap items-center justify-center gap-3 md:gap-4">
             <?php foreach ($contactLinks as $contactLink): ?>
                 <a
@@ -473,6 +487,71 @@ function render_contact_icon(string $icon): string
         <div class="flex justify-end gap-2">
             <button id="cancelCollectionItemModal" class="px-4 py-2 rounded bg-white/10">Cancelar</button>
             <button id="saveCollectionItemModal" class="px-4 py-2 rounded bg-art-neon text-black font-bold">Guardar elemento</button>
+        </div>
+    </div>
+</div>
+
+<div id="extraFieldsModal" class="hidden fixed inset-0 bg-black/70 z-[115] items-center justify-center px-4 py-8 overflow-y-auto">
+    <div class="glass rounded-2xl p-6 max-w-2xl w-full max-h-[calc(100vh-2rem)] overflow-y-auto space-y-4">
+        <div class="flex items-center justify-between gap-4">
+            <h3 class="font-serif text-2xl">Datos extra editables</h3>
+            <button id="closeExtraFieldsModal" class="px-3 py-2 rounded bg-white/10">✕</button>
+        </div>
+        <p class="text-xs text-white/65">Campos del JSON que no siempre están visibles en el sitio, pero también deben poder editarse.</p>
+        <div class="grid md:grid-cols-2 gap-3">
+            <label class="space-y-1">
+                <span class="text-xs">Idioma (`site.lang`)</span>
+                <input data-extra-key="site.lang" type="text" class="w-full text-black px-3 py-2 rounded">
+            </label>
+            <label class="space-y-1 md:col-span-2">
+                <span class="text-xs">Título SEO (`site.title`)</span>
+                <input data-extra-key="site.title" type="text" class="w-full text-black px-3 py-2 rounded">
+            </label>
+            <label class="space-y-1 md:col-span-2">
+                <span class="text-xs">SEO descripción (`site.seo.description`)</span>
+                <textarea data-extra-key="site.seo.description" rows="2" class="w-full text-black px-3 py-2 rounded"></textarea>
+            </label>
+            <label class="space-y-1">
+                <span class="text-xs">SEO keywords (`site.seo.keywords`)</span>
+                <input data-extra-key="site.seo.keywords" type="text" class="w-full text-black px-3 py-2 rounded">
+            </label>
+            <label class="space-y-1">
+                <span class="text-xs">OG image (`site.seo.og_image`)</span>
+                <input data-extra-key="site.seo.og_image" type="text" class="w-full text-black px-3 py-2 rounded">
+            </label>
+            <label class="space-y-1">
+                <span class="text-xs">Énfasis bio (`hero.description_emphasis`)</span>
+                <input data-extra-key="hero.description_emphasis" type="text" class="w-full text-black px-3 py-2 rounded">
+            </label>
+            <label class="space-y-1">
+                <span class="text-xs">WhatsApp (`site.contact.whatsapp`)</span>
+                <input data-extra-key="site.contact.whatsapp" type="text" class="w-full text-black px-3 py-2 rounded">
+            </label>
+            <label class="space-y-1">
+                <span class="text-xs">Email (`site.contact.email`)</span>
+                <input data-extra-key="site.contact.email" type="text" class="w-full text-black px-3 py-2 rounded">
+            </label>
+            <label class="space-y-1">
+                <span class="text-xs">Instagram (`site.contact.instagram`)</span>
+                <input data-extra-key="site.contact.instagram" type="text" class="w-full text-black px-3 py-2 rounded">
+            </label>
+            <label class="space-y-1">
+                <span class="text-xs">Facebook (`site.contact.facebook`)</span>
+                <input data-extra-key="site.contact.facebook" type="text" class="w-full text-black px-3 py-2 rounded">
+            </label>
+            <label class="space-y-1">
+                <span class="text-xs">TikTok (`site.contact.tiktok`)</span>
+                <input data-extra-key="site.contact.tiktok" type="text" class="w-full text-black px-3 py-2 rounded">
+            </label>
+            <label class="space-y-1">
+                <span class="text-xs">YouTube (`site.contact.youtube`)</span>
+                <input data-extra-key="site.contact.youtube" type="text" class="w-full text-black px-3 py-2 rounded">
+            </label>
+        </div>
+        <p id="extraFieldsFeedback" class="text-xs"></p>
+        <div class="flex justify-end gap-2">
+            <button id="cancelExtraFieldsModal" class="px-4 py-2 rounded bg-white/10">Cancelar</button>
+            <button id="saveExtraFieldsModal" class="px-4 py-2 rounded bg-art-neon text-black font-bold">Guardar datos extra</button>
         </div>
     </div>
 </div>

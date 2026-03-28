@@ -129,6 +129,7 @@ $content = read_content_file();
             inset: 1rem auto 1rem 1rem;
             width: min(340px, calc(100vw - 2rem));
             max-width: calc(100vw - 2rem);
+            height: calc(100dvh - 2rem);
             display: flex;
             flex-direction: column;
             gap: 1rem;
@@ -138,6 +139,7 @@ $content = read_content_file();
             opacity: 0;
             z-index: 50;
             overflow-y: auto;
+            overscroll-behavior: contain;
         }
         .sidebar-shell.open { transform: translateX(0); opacity: 1; }
         .sidebar-backdrop {
@@ -414,9 +416,6 @@ $content = read_content_file();
                         <button type="button" class="admin-tab active" data-admin-tab-control="general">
                             <span class="tab-icon"><i class="ph ph-squares-four text-lg"></i></span>
                             <span class="min-w-0 flex-1 font-medium text-sm">General</span>
-                        </button>
-
-
                         </button>
                         <button type="button" class="admin-tab" data-admin-tab-control="fondos">
                             <span class="tab-icon"><i class="ph ph-stack text-lg"></i></span>
@@ -1588,11 +1587,13 @@ function setupDropzone(dropzoneId, inputId, onFile) {
 function closeSidebar() {
     document.getElementById('adminSidebar')?.classList.remove('open');
     document.getElementById('adminSidebarBackdrop')?.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
 }
 
 function openSidebar() {
     document.getElementById('adminSidebar')?.classList.add('open');
     document.getElementById('adminSidebarBackdrop')?.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
 }
 
 const adminTabMeta = {
