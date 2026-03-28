@@ -117,6 +117,26 @@ function markUnsavedChanges() {
     setSaveButtonState('Guardar cambios *', 'pending');
 }
 
+async function persistInlineTextElement(element) {
+    if (!element?.dataset?.editKey) return;
+    const key = element.dataset.editKey;
+    const value = normalizeEditableText(element);
+    if (getByPath(contentState, key, '') === value) return;
+
+    setByPath(contentState, key, value);
+    setSaveButtonState('Guardando...', 'pending');
+    try {
+        await persistContent([key]);
+        hasUnsavedChanges = false;
+        setSaveButtonState('Guardado ✓', 'success');
+        setTimeout(() => {
+            if (editMode) setSaveButtonState('Guardar cambios', 'idle');
+        }, 1100);
+    } catch (error) {
+        setSaveButtonState('Error al guardar', 'error');
+    }
+}
+
 function populateExtraFieldsModal() {
     document.querySelectorAll('[data-extra-key]').forEach((input) => {
         const key = input.dataset.extraKey;
@@ -550,6 +570,13 @@ if (isAuthenticated) {
         if (target.dataset.editType === 'text' || target.id === 'collectionTitleInput' || target.id === 'collectionSubtitleInput' || target.id === 'collectionDescriptionInput' || target.id === 'collectionImageInput' || target.id === 'collectionAltInput' || target.id === 'collectionLinkLabelInput' || target.id === 'collectionLinkUrlInput' || target.id === 'imageUrlInput' || target.id === 'linkUrlInput') {
             markUnsavedChanges();
         }
+    });
+
+    document.addEventListener('focusout', async (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) return;
+        if (!editMode || target.dataset.editType !== 'text') return;
+        await persistInlineTextElement(target);
     });
 
     const extraModal = document.getElementById('extraFieldsModal');
