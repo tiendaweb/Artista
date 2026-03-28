@@ -274,7 +274,7 @@ function render_contact_icon(string $icon): string
                             $marketLinkLabel = 'Ver más';
                         }
                     ?>
-                    <article class="glass glass-hover p-4 rounded-3xl break-inside-avoid editable-wrapper overflow-visible" data-collection-item="tabs.mercado.items" data-index="<?= $i ?>">
+                    <article class="glass glass-hover p-4 rounded-3xl break-inside-avoid editable-wrapper overflow-visible flex flex-col h-full" data-collection-item="tabs.mercado.items" data-index="<?= $i ?>">
                         <?php if ($isLoggedIn): ?><button type="button" class="delete-icon" data-delete-collection="tabs.mercado.items" data-index="<?= $i ?>">✕</button><?php endif; ?>
                         <?php if ($isLoggedIn): ?><button type="button" class="item-edit-btn" data-edit-collection="tabs.mercado.items" data-index="<?= $i ?>">Editar</button><?php endif; ?>
                         <img src="<?= image_url($item['image'] ?? []) ?>" data-edit-key="tabs.mercado.items[<?= $i ?>].image" data-edit-type="image" data-source-type="<?= esc($item['image']['source_type'] ?? 'url') ?>" class="rounded-2xl w-full h-auto max-h-[70vh] object-cover mb-4 mx-auto" alt="<?= esc($item['alt'] ?? '') ?>">
@@ -282,7 +282,7 @@ function render_contact_icon(string $icon): string
                         <p class="text-sm font-bold break-words" data-edit-key="tabs.mercado.items[<?= $i ?>].title" data-edit-type="text"><?= esc($item['title'] ?? '') ?></p>
                         <p class="text-[10px] text-art-neon uppercase tracking-[0.18em] mb-3 whitespace-normal break-words" data-edit-key="tabs.mercado.items[<?= $i ?>].subtitle" data-edit-type="text"><?= esc($item['subtitle'] ?? '') ?></p>
                         <p class="text-sm opacity-60 mb-4 preserve-breaks whitespace-normal break-words" data-edit-key="tabs.mercado.items[<?= $i ?>].description" data-edit-type="text"><?= esc($item['description'] ?? '') ?></p>
-                        <a href="<?= esc($marketLinkUrl ?: '#') ?>" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 text-sm text-art-neon" data-edit-link-key="tabs.mercado.items[<?= $i ?>].link_url">
+                        <a href="<?= esc($marketLinkUrl ?: '#') ?>" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 text-sm text-art-neon mt-auto pt-2" data-edit-link-key="tabs.mercado.items[<?= $i ?>].link_url">
                             <span data-edit-key="tabs.mercado.items[<?= $i ?>].link_label" data-edit-type="text"><?= esc($marketLinkLabel) ?></span>
                         </a>
                         <span class="edit-icon" data-edit-link-target="tabs.mercado.items[<?= $i ?>].link_url">🔗</span>
